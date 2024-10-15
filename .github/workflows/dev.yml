@@ -1,0 +1,40 @@
+name: Dev - .NET Core Deploy to Turhost IIS
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  ASPNETCORE_ENVIRONMENT: Development
+  ConnectionStrings__Default: ${{ secrets.DEV_DB_CONNNECTION }}
+jobs:
+  build-and-deploy-cs:
+    
+    runs-on: self-hosted
+    
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Build with dotnet
+        run: |
+          ls
+          dotnet build --configuration Release .\src\ProjectHr.Web.Host
+
+      - name: Publish with dotnet
+        env:
+          ConnectionStrings__Default: ${{ secrets.DEV_DB_CONNNECTION }}
+        run: |
+          dotnet publish -c Release -o csdev .\src\ProjectHr.Web.Host
+
+      - name: Deploy to IIS
+        run: |
+          c:\windows\system32\inetsrv\appcmd.exe stop apppool /apppool.name:dev-api.hr.qandq.dev
+          Copy-Item ./csdev/* C:/inetpub/wwwroot/hr.qandq.dev/dev.api -Recurse -Force
+          c:\windows\system32\inetsrv\appcmd.exe start apppool /apppool.name:dev-api.hr.qandq.dev
