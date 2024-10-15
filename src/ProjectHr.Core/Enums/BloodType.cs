@@ -4,7 +4,7 @@ namespace ProjectHr.Enums;
 
 public enum BloodType
 {
-    ONegative,
+    ONegative = 1,
     OPositive,
     ANegative,
     APositive,

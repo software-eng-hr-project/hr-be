@@ -56,5 +56,40 @@ namespace ProjectHr.Users.Dto
         public JobTitleDto JobTitle { get; set; }
 
         public string[] RoleNames { get; set; }
+        
+        //additional
+        public string AvatarUrl { get; set; } 
+        
+        public Gender Gender { get; set; }
+        public MilitaryStatus MilitaryStatus { get; set; }
+        public DateTime Birthday { get; set; }
+        public string Nationality { get; set; } 
+        public string IdentityNumber { get; set; }
+    
+        [Phone]
+        [StringLength(AbpUserBase.MaxPhoneNumberLength)]
+        public string PersonalPhone { get; set; } 
+        
+        public BloodType BloodType { get; set; }
+        
+        public MarriedStatus MarriedStatus { get; set; }
+        public bool IsSpouseWorking { get; set; }
+        public int ChildrenCount { get; set; }
+        
+        public DisabilityLevel DisabilityLevel { get; set; }
+        public bool IsGraduated { get; set; }
+        public EducationStatus HigherEducationStatus { get; set; }
+        
+        public string Country { get; set; }
+        public string City { get; set; }
+        [StringLength(User.MaxDirectionLength)]
+        public string AddressDirection { get; set; }
+        
+        [StringLength(AbpUserBase.MaxNameLength)]
+        public string EmergencyContactName { get; set; }
+        public string EmergencyContactDegree { get; set; }
+        [Phone]
+        [StringLength(AbpUserBase.MaxPhoneNumberLength)]
+        public string EmergencyContactPhone { get; set; }
     }
 }

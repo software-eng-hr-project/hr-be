@@ -14,6 +14,7 @@ using Abp.Linq.Extensions;
 using Abp.Localization;
 using Abp.Runtime.Session;
 using Abp.UI;
+using AutoMapper.Internal.Mappers;
 using ProjectHr.Authorization;
 using ProjectHr.Authorization.Accounts;
 using ProjectHr.Authorization.Roles;
@@ -23,6 +24,8 @@ using ProjectHr.Users.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProjectHr.Common.Errors;
+using ProjectHr.Common.Exceptions;
 using ProjectHr.JobTitles.Dto;
 
 namespace ProjectHr.Users
@@ -81,6 +84,7 @@ namespace ProjectHr.Users
 
             return MapToEntityDto(user);
         }
+        [RemoteService(false)]
         [HttpPut]
         public override async Task<UserDto> UpdateAsync(UserDto input)
         {
@@ -254,33 +258,66 @@ namespace ProjectHr.Users
             return true;
         }
         
+        //ToDo Authentice olmuş userin id si gelecek id kalkacal yani
+        [HttpPut("additional-info")]
+        public async Task<UserDto> UpdateAdditionalInfo( UserOwnUpdateDto input) 
+        {
+            var user = _userRepository.FirstOrDefault(u => u.Id == input.Id);
+
+            ObjectMapper.Map(input, user);
+            
+            await _userRepository.UpdateAsync(user);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            var userDto = ObjectMapper.Map<UserDto>(user);
+            return userDto;
+        }
+        
         [HttpGet]
-        public async Task<List<UserDto>> GetAll()
+        public async Task<List<UserDto>> GetAll(PagedUserResultRequestDto input)
         {
             var users = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(u => u.JobTitle);
-                
-        
-            // var roles = await _roleRepository.GetAllListAsync();
-        
+
+            
+            var roles = await _roleRepository.GetAllListAsync();
+            
             var userDtos = ObjectMapper.Map<List<UserDto>>(users);
-            // var userDtos = users.Select(u => ObjectMapper.Map<JobTitleDto>(u.JobTitle));
-        
-            // foreach (var userWithRoleDto in userDtos)
-            // {
-            //     var roleIds = users.First(x => x.Id == userWithRoleDto.Id).Roles.Select(x => x.RoleId);
-            //     userWithRoleDto.Roles =
-            //         ObjectMapper.Map<List<RoleDto>>(roles.Where(x => roleIds.Any(y => y == x.Id)));
-            // }
+            
+
+            foreach (var userDto in userDtos)
+            {
+                var roleIds = users.First(x => x.Id == userDto.Id).Roles.Select(x => x.RoleId);
+                userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
+            }
             
             
         
             return userDtos;
         }
+        [HttpGet("{userId}")]
+        public async Task<UserDto> Get(long userId)
+        {
+            var user = _userRepository.GetAll()
+                .Include(x => x.Roles)
+                .FirstOrDefault(x => x.Id == userId);
+        
+            if (user == null)
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+            
+            var roles = await _roleRepository.GetAllListAsync();
+            
+            var userDtos = ObjectMapper.Map<UserDto>(user);
+            
+            var roleIds = user.Roles.Select(x => x.RoleId);
+
+            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
+            return userDtos;
+        }
         
         [RemoteService(false)]
-        [HttpGet("{id}")]
+        [HttpGet("/aaaaaaaaa/aaaaaaaaaaa{duplicategetallhatasiveriyordu}")]
         public override Task<UserDto> GetAsync(EntityDto<long> id)
         {
             return base.GetAsync(id);

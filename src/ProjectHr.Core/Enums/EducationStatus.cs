@@ -2,7 +2,7 @@
 
 public enum EducationStatus
 {
-    PrimarySchool,
+    PrimarySchool= 1,
     MiddleSchool,
     HighSchool,
     AssociateDegree,

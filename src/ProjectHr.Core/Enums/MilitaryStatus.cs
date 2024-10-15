@@ -4,7 +4,7 @@ namespace ProjectHr.Enums;
 
 public enum MilitaryStatus
 {
-    Done,
+    Done= 1,
     NotDone,
     Exempt,
     

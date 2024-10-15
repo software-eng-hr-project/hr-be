@@ -2,7 +2,7 @@
 
 public enum DisabilityLevel
 {
-    None,
+    None= 1,
     FirstDegree,
     SecondDegree,
     ThirdDegree,

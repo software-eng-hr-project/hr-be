@@ -34,6 +34,7 @@ namespace ProjectHr.Authorization.Users
 
             return user;
         }
+        public const int MaxDirectionLength = 256;
 
         public int JobTitleId { get; set; }
         public string AvatarUrl { get; set; } 
@@ -45,7 +46,7 @@ namespace ProjectHr.Authorization.Users
         public Gender Gender { get; set; }
         public MilitaryStatus MilitaryStatus { get; set; }
         public DateTime Birthday { get; set; }
-        public string Nationality { get; set; } //Tablo mu String mi
+        public string Nationality { get; set; } 
         public string IdentityNumber { get; set; }
         public string PersonalPhone { get; set; } 
         public BloodType BloodType { get; set; }
