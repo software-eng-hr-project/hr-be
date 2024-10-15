@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Authorization.Users;
 using Abp.Extensions;
+using ProjectHr.Entities;
 using ProjectHr.Enums;
 
 namespace ProjectHr.Authorization.Users
@@ -24,6 +26,7 @@ namespace ProjectHr.Authorization.Users
                 Name = AdminUserName,
                 Surname = AdminUserName,
                 EmailAddress = emailAddress,
+                JobTitleId = 1,
                 Roles = new List<UserRole>()
             };
 
@@ -32,13 +35,39 @@ namespace ProjectHr.Authorization.Users
             return user;
         }
 
+        public int JobTitleId { get; set; }
+        public string AvatarUrl { get; set; } 
         public string WorkEmailAddress { get; set; }
-        
-        public string WorkPhone { get; set; } 
-        
+        public string WorkPhone { get; set; }
         public EmploymentType EmploymentType { get; set; }
-
         public DateTime JobStartDate { get; set; }
         
+        public Gender Gender { get; set; }
+        public MilitaryStatus MilitaryStatus { get; set; }
+        public DateTime Birthday { get; set; }
+        public string Nationality { get; set; } //Tablo mu String mi
+        public string IdentityNumber { get; set; }
+        public string PersonalPhone { get; set; } 
+        public BloodType BloodType { get; set; }
+        
+        public MarriedStatus MarriedStatus { get; set; }
+        public bool IsSpouseWorking { get; set; }
+        public int ChildrenCount { get; set; }
+        
+        public DisabilityLevel DisabilityLevel { get; set; }
+        public bool IsGraduated { get; set; }
+        public EducationStatus HigherEducationStatus { get; set; }
+        
+        public string Country { get; set; }
+        public string City { get; set; }
+        public string AddressDirection { get; set; }
+        
+        public string EmergencyContactName { get; set; }
+        public string EmergencyContactDegree { get; set; }
+        public string EmergencyContactPhone { get; set; }
+      
+
+        [ForeignKey(nameof(JobTitleId))]
+        public JobTitle JobTitle { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Abp.Domain.Uow;
 using Abp.EntityFrameworkCore.Uow;
 using Abp.MultiTenancy;
 using ProjectHr.EntityFrameworkCore.Seed.Host;
+using ProjectHr.EntityFrameworkCore.Seed.JobTitle;
 using ProjectHr.EntityFrameworkCore.Seed.Tenants;
 
 namespace ProjectHr.EntityFrameworkCore.Seed
@@ -21,6 +22,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed
         {
             context.SuppressAutoSetTenantId = true;
 
+            new JobTitleSeed(context).Create();
             // Host seed
             new InitialHostDbBuilder(context).Create();
 

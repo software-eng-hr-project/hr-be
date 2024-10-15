@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Abp.Zero.EntityFrameworkCore;
 using ProjectHr.Authorization.Roles;
 using ProjectHr.Authorization.Users;
+using ProjectHr.Entities;
 using ProjectHr.MultiTenancy;
 
 namespace ProjectHr.EntityFrameworkCore
@@ -10,7 +11,7 @@ namespace ProjectHr.EntityFrameworkCore
     public class ProjectHrDbContext : AbpZeroDbContext<Tenant, Role, User, ProjectHrDbContext>
     {
         /* Define a DbSet for each entity of the application */
-        
+        public DbSet<JobTitle> JobTitles { get; set; }
         public ProjectHrDbContext(DbContextOptions<ProjectHrDbContext> options)
             : base(options)
         {
