@@ -2,9 +2,8 @@
 
 namespace ProjectHr.Enums;
 
-
 public enum EmploymentType
 {
-    FullTime,
+    FullTime = 1,
     PartTime
 }

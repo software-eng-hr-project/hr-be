@@ -49,9 +49,8 @@ namespace ProjectHr.Users.Dto
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         [CanBeNull]
         public string WorkPhone { get; set; } = null;
-        
-        [Required]
-        public EmploymentType EmploymentType { get; set; }
+
+        [Required] public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
 
         [Required]
         public DateTime JobStartDate { get; set; }

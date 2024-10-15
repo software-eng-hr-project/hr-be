@@ -6,6 +6,7 @@ using Abp.AutoMapper;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
+using ProjectHr.JobTitles.Dto;
 
 namespace ProjectHr.Users.Dto
 {
@@ -51,6 +52,8 @@ namespace ProjectHr.Users.Dto
         
         [Required]
         public DateTime JobStartDate { get; set; }
+        
+        public JobTitleDto JobTitle { get; set; }
 
         public string[] RoleNames { get; set; }
     }
