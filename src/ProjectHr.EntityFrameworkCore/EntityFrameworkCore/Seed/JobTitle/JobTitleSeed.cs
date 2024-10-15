@@ -1,5 +1,10 @@
 ﻿
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using Newtonsoft.Json;
+
 namespace ProjectHr.EntityFrameworkCore.Seed.JobTitle;
 
 public class JobTitleSeed
@@ -18,42 +23,29 @@ public class JobTitleSeed
 
     public void CreateJobTitleSeeds()
     {
-        
-        Entities.JobTitle seedEntity1 = new Entities.JobTitle
-        {
-            Id = 1,
-            Name = "Front-end",
-        };
-        
-        Entities.JobTitle seedEntity2 = new Entities.JobTitle
-        {
-            Id = 2,
-            Name = "Back-end"
+        string filePath = Path.Combine(
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), 
+            "JobTitles.json"); 
 
-        };
-        
-        Entities.JobTitle seedEntity3 = new Entities.JobTitle
+        using (StreamReader r = new StreamReader(filePath))
         {
-            Id = 3,
-            Name = "Manager",
-        };
+            
+            string json = r.ReadToEnd();
+            List<Entities.JobTitle> items = JsonConvert.DeserializeObject<List<Entities.JobTitle>>(json);
+            foreach (var jobTitle in items)
+            {
+                if (!_context.JobTitles.Any(x => x.Id == jobTitle.Id))
+                    _context.JobTitles.Add(jobTitle);
+            }
+        }
         
-        if (!_context.JobTitles.Any(x => x.Id == seedEntity1.Id))
-            _context.JobTitles.Add(seedEntity1);
-        // else
-        //     _context.Reward.Update(seedEntity1);
+       
+
         
-        if (!_context.JobTitles.Any(x => x.Id == seedEntity2.Id))
-            _context.JobTitles.Add(seedEntity2);
-        // else
-        //     _context.Reward.Update(seedEntity2);
         
-        if (!_context.JobTitles.Any(x => x.Id == seedEntity3.Id))
-            _context.JobTitles.Add(seedEntity3);
 
         _context.SaveChanges();
-        // else
-        //     _context.Reward.Update(seedEntity3);
+
 
     }
 }

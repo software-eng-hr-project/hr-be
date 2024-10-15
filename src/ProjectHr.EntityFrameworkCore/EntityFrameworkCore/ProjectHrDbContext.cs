@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Abp.Zero.EntityFrameworkCore;
 using ProjectHr.Authorization.Roles;
 using ProjectHr.Authorization.Users;
+using ProjectHr.Configurations;
 using ProjectHr.Entities;
 using ProjectHr.MultiTenancy;
 
@@ -16,6 +17,12 @@ namespace ProjectHr.EntityFrameworkCore
             : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new UserConfigurations());
         }
     }
 }

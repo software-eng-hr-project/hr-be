@@ -1,0 +1,61 @@
+﻿[
+  {
+    "Id": 1, 
+    "Name": "Human Resources Specialist"
+  },  
+  
+  {
+    "Id": 2, 
+    "Name": "Frontend Dev"
+  },
+  
+  {
+    "Id": 3, 
+    "Name": "Backend Dev"
+  },
+  {
+    "Id": 4, 
+    "Name": "Full Stack Dev"
+  },
+  {
+    "Id": 5, 
+    "Name": "Mobile Dev"
+  },
+  {
+    "Id": 6, 
+    "Name": "Project Manager"
+  },
+  {
+    "Id": 7,
+    "Name": "Business Analyst"
+  },
+  {
+    "Id": 8, 
+    "Name": "Team Lead"
+  },
+  {
+    "Id": 9, 
+    "Name": "Tech Lead"
+  },
+  {
+    "Id": 10, 
+    "Name": "Software Test Specialist"
+  },  
+  {
+    "Id": 11, 
+    "Name": "UI/UX Designer"
+  },  
+  {
+    "Id": 12, 
+    "Name": "DevOps Engineer"
+  },  
+  {
+    "Id": 13, 
+    "Name": "Engineering Manager"
+  },
+  {
+    "Id": 14, 
+    "Name": "Product Manager"
+  }
+  
+]

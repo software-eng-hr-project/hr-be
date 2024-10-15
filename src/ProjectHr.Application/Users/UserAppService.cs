@@ -27,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ProjectHr.Users
 {   
     [AbpAuthorize(PermissionNames.Pages_Users)]
+    [Route("/api/users")] 
     public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
     {
         private readonly UserManager _userManager;
@@ -53,7 +54,8 @@ namespace ProjectHr.Users
             _abpSession = abpSession;
             _logInManager = logInManager;
         }
-
+        
+        [HttpPost] 
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
             CheckCreatePermission();
@@ -76,7 +78,7 @@ namespace ProjectHr.Users
 
             return MapToEntityDto(user);
         }
-
+        [HttpPut] 
         public override async Task<UserDto> UpdateAsync(UserDto input)
         {
             CheckUpdatePermission();
@@ -94,13 +96,20 @@ namespace ProjectHr.Users
 
             return await GetAsync(input);
         }
-        // [HttpGet]
-        // [Route("/api/users/all")]
-        // public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
-        // {
-        //     return base.GetAllAsync(input);
-        // }
+        // [RemoteService(false)]
+        [HttpGet("{id}")]
+        public override Task<UserDto> GetAsync(EntityDto<long> id)
+        {
+            return base.GetAsync(id);
+        }
 
+        // [RemoteService(false)]
+        [HttpGet]
+        public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
+        {
+            return base.GetAllAsync(input);
+        }
+        [HttpDelete] 
         public override async Task DeleteAsync(EntityDto<long> input)
         {
             var user = await _userManager.GetUserByIdAsync(input.Id);
@@ -108,6 +117,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
+        [HttpPost("activate")] 
         public async Task Activate(EntityDto<long> user)
         {
             await Repository.UpdateAsync(user.Id, async (entity) =>
@@ -117,6 +127,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
+        [HttpPost("deactivate")] 
         public async Task DeActivate(EntityDto<long> user)
         {
             await Repository.UpdateAsync(user.Id, async (entity) =>
@@ -124,7 +135,7 @@ namespace ProjectHr.Users
                 entity.IsActive = false;
             });
         }
-
+        [HttpGet("roles")] 
         public async Task<ListResultDto<RoleDto>> GetRoles()
         {
             var roles = await _roleRepository.GetAllListAsync();
@@ -193,7 +204,7 @@ namespace ProjectHr.Users
         {
             identityResult.CheckErrors(LocalizationManager);
         }
-
+        [HttpPut("change-password")]
         public async Task<bool> ChangePassword(ChangePasswordDto input)
         {
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
@@ -218,7 +229,7 @@ namespace ProjectHr.Users
 
             return true;
         }
-
+        [HttpPut("reset-password")]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
             if (_abpSession.UserId == null)
