@@ -4,6 +4,7 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using ProjectHr.Authorization.Users;
+using ProjectHr.Entities;
 using ProjectHr.Enums;
 
 namespace ProjectHr.Users.Dto
@@ -28,6 +29,15 @@ namespace ProjectHr.Users.Dto
         [StringLength(AbpUserBase.MaxEmailAddressLength)]
         public string EmailAddress { get; set; }
         
+
+        public bool IsActive { get; set; }
+
+        public string FullName { get; set; }
+
+        public DateTime? LastLoginTime { get; set; }
+
+        public DateTime CreationTime { get; set; }
+        
         [EmailAddress]
         [StringLength(AbpUserBase.MaxEmailAddressLength)]
         public string WorkEmailAddress { get; set; }
@@ -38,14 +48,6 @@ namespace ProjectHr.Users.Dto
         
         [Required]
         public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
-
-        public bool IsActive { get; set; }
-
-        public string FullName { get; set; }
-
-        public DateTime? LastLoginTime { get; set; }
-
-        public DateTime CreationTime { get; set; }
         
         [Required]
         public DateTime JobStartDate { get; set; }

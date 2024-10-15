@@ -4,6 +4,7 @@ using Abp.Auditing;
 using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using Abp.Runtime.Validation;
+using JetBrains.Annotations;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Enums;
 
@@ -29,9 +30,6 @@ namespace ProjectHr.Users.Dto
         [StringLength(AbpUserBase.MaxEmailAddressLength)]
         public string EmailAddress { get; set; }
         
-        [EmailAddress]
-        [StringLength(AbpUserBase.MaxEmailAddressLength)]
-        public string WorkEmailAddress { get; set; }
 
         public bool IsActive { get; set; }
 
@@ -41,17 +39,25 @@ namespace ProjectHr.Users.Dto
         [StringLength(AbpUserBase.MaxPlainPasswordLength)]
         [DisableAuditing]
         public string Password { get; set; }
-        
-        
+
+        [EmailAddress]
+        [StringLength(AbpUserBase.MaxEmailAddressLength)]
+        [CanBeNull]
+        public string WorkEmailAddress { get; set; } = null;
+
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
-        public string WorkPhone { get; set; }
+        [CanBeNull]
+        public string WorkPhone { get; set; } = null;
         
         [Required]
         public EmploymentType EmploymentType { get; set; }
 
         [Required]
         public DateTime JobStartDate { get; set; }
+        
+        [Required]
+        public int JobTitleId { get; set; }
 
         public void Normalize()
         {

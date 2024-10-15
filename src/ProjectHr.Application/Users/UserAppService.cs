@@ -26,7 +26,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ProjectHr.Users
 {   
-    [AbpAuthorize(PermissionNames.Pages_Users)]
+
     [Route("/api/users")] 
     public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
     {
@@ -54,7 +54,21 @@ namespace ProjectHr.Users
             _abpSession = abpSession;
             _logInManager = logInManager;
         }
+        [AbpAuthorize(PermissionNames.Pages_Users)]
+        [HttpGet]
+        public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
+        {
+            return base.GetAllAsync(input);
+        }
         
+        [HttpGet("{id}")]
+        public override Task<UserDto> GetAsync(EntityDto<long> id)
+        {
+            return base.GetAsync(id);
+        }
+        
+        
+        [AbpAuthorize(PermissionNames.Pages_Users_Create)]
         [HttpPost] 
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
@@ -96,19 +110,7 @@ namespace ProjectHr.Users
 
             return await GetAsync(input);
         }
-        // [RemoteService(false)]
-        [HttpGet("{id}")]
-        public override Task<UserDto> GetAsync(EntityDto<long> id)
-        {
-            return base.GetAsync(id);
-        }
-
-        // [RemoteService(false)]
-        [HttpGet]
-        public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
-        {
-            return base.GetAllAsync(input);
-        }
+        
         [HttpDelete] 
         public override async Task DeleteAsync(EntityDto<long> input)
         {
@@ -127,7 +129,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
-        [HttpPost("deactivate")] 
+        [HttpPost("de-activate")] 
         public async Task DeActivate(EntityDto<long> user)
         {
             await Repository.UpdateAsync(user.Id, async (entity) =>
