@@ -13,9 +13,16 @@ namespace ProjectHr.Users.Dto
     [AutoMapTo(typeof(User))]
     public class CreateUserDto : IShouldNormalize
     {
-        [Required]
-        [StringLength(AbpUserBase.MaxUserNameLength)]
-        public string UserName { get; set; }
+        // [Required]
+        // [StringLength(AbpUserBase.MaxUserNameLength)]
+        // public string UserName { get; set; }
+
+        // [Required]
+        // [StringLength(AbpUserBase.MaxPlainPasswordLength)]
+        // [DisableAuditing]
+        // public string Password { get; set; }
+        
+        // public bool IsActive { get; set; }
 
         [Required]
         [StringLength(AbpUserBase.MaxNameLength)]
@@ -30,15 +37,8 @@ namespace ProjectHr.Users.Dto
         [StringLength(AbpUserBase.MaxEmailAddressLength)]
         public string EmailAddress { get; set; }
         
-
-        public bool IsActive { get; set; }
-
         public string[] RoleNames { get; set; }
 
-        [Required]
-        [StringLength(AbpUserBase.MaxPlainPasswordLength)]
-        [DisableAuditing]
-        public string Password { get; set; }
 
         [EmailAddress]
         [StringLength(AbpUserBase.MaxEmailAddressLength)]

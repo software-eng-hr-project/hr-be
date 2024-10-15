@@ -13,6 +13,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed
 {
     public static class SeedHelper
     {
+        
         public static void SeedHostDb(IIocResolver iocResolver)
         {
             WithDbContext<ProjectHrDbContext>(iocResolver, SeedHostDb);

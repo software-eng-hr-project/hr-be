@@ -69,11 +69,15 @@ namespace ProjectHr.Users
             var user = ObjectMapper.Map<User>(input);
 
             user.TenantId = AbpSession.TenantId;
+            user.UserName = Guid.NewGuid().ToString();
             user.IsEmailConfirmed = true;
+            user.IsActive = true;
 
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
+            
+            var password = Guid.NewGuid().ToString();
 
-            CheckErrors(await _userManager.CreateAsync(user, input.Password));
+            CheckErrors(await _userManager.CreateAsync(user, password));
 
             if (input.RoleNames != null)
             {
@@ -205,7 +209,7 @@ namespace ProjectHr.Users
             var user = await _userManager.FindByIdAsync(AbpSession.GetUserId().ToString());
             if (user == null)
             {
-                throw new Exception("There is no current user!");
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
             }
             
             if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
@@ -216,7 +220,7 @@ namespace ProjectHr.Users
             {
                 CheckErrors(IdentityResult.Failed(new IdentityError
                 {
-                    Description = "Incorrect password."
+                    Description = "Yanlis sifre."
                 }));
             }
         

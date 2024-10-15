@@ -28,44 +28,80 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Tenants
             CreateRolesAndUsers();
         }
 
+        private void SetRole(string roleName, int roleId)
+        {
+            var permissions = PermissionNames.GetRolePermissions(roleName);
+        
+            foreach (var permissionName in permissions)
+            {
+                var p = new RolePermissionSetting
+                {
+                    TenantId = _tenantId,
+                    Name = permissionName,
+                    IsGranted = true,
+                    RoleId = roleId
+                };
+                _context.Permissions.Add(p);
+            }
+        }
         private void CreateRolesAndUsers()
         {
             // Admin role
-
             var adminRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Admin);
             if (adminRole == null)
             {
                 adminRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Admin, StaticRoleNames.Tenants.Admin) { IsStatic = true }).Entity;
                 _context.SaveChanges();
             }
-
-            // Grant all permissions to admin role
-
-            var grantedPermissions = _context.Permissions.IgnoreQueryFilters()
-                .OfType<RolePermissionSetting>()
-                .Where(p => p.TenantId == _tenantId && p.RoleId == adminRole.Id)
-                .Select(p => p.Name)
-                .ToList();
-
-            var permissions = PermissionFinder
-                .GetAllPermissions(new ProjectHrAuthorizationProvider())
-                .Where(p => p.MultiTenancySides.HasFlag(MultiTenancySides.Tenant) &&
-                            !grantedPermissions.Contains(p.Name))
-                .ToList();
-
-            if (permissions.Any())
+            
+            // Manager role
+            var managerRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Manager);
+            if (managerRole == null)
             {
-                _context.Permissions.AddRange(
-                    permissions.Select(permission => new RolePermissionSetting
-                    {
-                        TenantId = _tenantId,
-                        Name = permission.Name,
-                        IsGranted = true,
-                        RoleId = adminRole.Id
-                    })
-                );
+                managerRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Manager, StaticRoleNames.Tenants.Manager) { IsStatic = true }).Entity;
                 _context.SaveChanges();
             }
+            
+            // Employee role
+            var employeeRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Employee);
+            if (employeeRole == null)
+            {
+                employeeRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Employee, StaticRoleNames.Tenants.Employee) { IsStatic = true }).Entity;
+                _context.SaveChanges();
+            }
+
+            SetRole(StaticRoleNames.Tenants.Admin, adminRole.Id );
+            SetRole(StaticRoleNames.Tenants.Manager, managerRole.Id);
+            SetRole(StaticRoleNames.Tenants.Employee, employeeRole.Id);
+            // Grant all permissions to admin role
+
+            // var grantedPermissions = _context.Permissions.IgnoreQueryFilters()
+            //     .OfType<RolePermissionSetting>()
+            //     .Where(p => p.TenantId == _tenantId && p.RoleId == adminRole.Id)
+            //     .Select(p => p.Name)
+            //     .ToList();
+            //
+            // var permissions = PermissionFinder
+            //     .GetAllPermissions(new ProjectHrAuthorizationProvider())
+            //     .Where(p => p.MultiTenancySides.HasFlag(MultiTenancySides.Tenant) &&
+            //                 !grantedPermissions.Contains(p.Name))
+            //     .ToList();
+            //
+            // if (permissions.Any())
+            // {
+            //     _context.Permissions.AddRange(
+            //         permissions.Select(permission => new RolePermissionSetting
+            //         {
+            //             TenantId = _tenantId,
+            //             Name = permission.Name,
+            //             IsGranted = true,
+            //             RoleId = adminRole.Id
+            //         })
+            //     );
+            //     _context.SaveChanges();
+            // }
+            
+            
 
             // Admin user
 
