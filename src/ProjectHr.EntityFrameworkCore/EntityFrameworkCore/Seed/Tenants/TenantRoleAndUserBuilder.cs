@@ -30,18 +30,27 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Tenants
 
         private void SetRole(string roleName, int roleId)
         {
+            // TODO: must be check if role is already set
             var permissions = PermissionNames.GetRolePermissions(roleName);
         
             foreach (var permissionName in permissions)
             {
-                var p = new RolePermissionSetting
+                if (_context.RolePermissions.FirstOrDefault(p =>
+                        p.RoleId == roleId && p.Name == permissionName) is null)
+                    //Todo silme işlemi ifi
                 {
-                    TenantId = _tenantId,
-                    Name = permissionName,
-                    IsGranted = true,
-                    RoleId = roleId
-                };
-                _context.Permissions.Add(p);
+                    
+                    var p = new RolePermissionSetting
+                    {
+                        // TODO: there is no required TenantId property for multi-tenant applications
+                        TenantId = _tenantId,
+                        Name = permissionName,
+                        IsGranted = true,
+                        RoleId = roleId
+                    };
+                    _context.Permissions.Add(p);
+                }
+                
             }
         }
         private void CreateRolesAndUsers()
