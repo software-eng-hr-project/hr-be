@@ -70,5 +70,7 @@ namespace ProjectHr.Authorization.Users
 
         [ForeignKey(nameof(JobTitleId))]
         public JobTitle JobTitle { get; set; }
+
+        public string PasswordResetToken { get; set; }
     }
 }

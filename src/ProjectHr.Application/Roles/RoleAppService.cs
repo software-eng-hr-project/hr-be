@@ -5,6 +5,7 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.IdentityFramework;
 using Abp.Linq.Extensions;
@@ -142,6 +143,12 @@ namespace ProjectHr.Roles
                 Permissions = ObjectMapper.Map<List<FlatPermissionDto>>(permissions).OrderBy(p => p.DisplayName).ToList(),
                 GrantedPermissionNames = grantedPermissions.Select(p => p.Name).ToList()
             };
+        }
+
+        public override Task<PagedResultDto<RoleDto>> GetAllAsync(PagedRoleResultRequestDto input)
+        {
+            
+            return base.GetAllAsync(input);
         }
     }
 }

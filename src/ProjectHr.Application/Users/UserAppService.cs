@@ -41,15 +41,18 @@ namespace ProjectHr.Users
         private readonly IAbpSession _abpSession;
         private readonly LogInManager _logInManager;
         private readonly IRepository<User, long> _userRepository;
-
+        private readonly IMailAppService _mailService;
+        
         public UserAppService(
             IRepository<User, long> userRepository,
             UserManager userManager,
             RoleManager roleManager,
             IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
+            IMailAppService mailService,
             IAbpSession abpSession,
             LogInManager logInManager)
+            
             : base(userRepository)
         {
             _userManager = userManager;
@@ -59,6 +62,7 @@ namespace ProjectHr.Users
             _abpSession = abpSession;
             _logInManager = logInManager;
             _userRepository = userRepository;
+            _mailService = mailService;
         }
         
         [HttpPost]
@@ -229,44 +233,62 @@ namespace ProjectHr.Users
         [HttpPut("reset-password")]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
-            if (_abpSession.UserId == null)
-            {
-                throw new UserFriendlyException("Please log in before attempting to reset password.");
-            }
+            var user = _userRepository.FirstOrDefault(u => u.PasswordResetToken == input.Token);
             
-            var currentUser = await _userManager.GetUserByIdAsync(_abpSession.GetUserId());
-            var loginAsync = await _logInManager.LoginAsync(currentUser.UserName, input.AdminPassword, shouldLockout: false);
-            if (loginAsync.Result != AbpLoginResultType.Success)
-            {
-                throw new UserFriendlyException("Your 'Admin Password' did not match the one on record.  Please try again.");
-            }
+            // var result = await _userManager.ResetPasswordAsync(user, input.Token, input.NewPassword);
             
-            if (currentUser.IsDeleted || !currentUser.IsActive)
-            {
-                return false;
-            }
-            
-            var roles = await _userManager.GetRolesAsync(currentUser);
-            if (!roles.Contains(StaticRoleNames.Tenants.Admin))
-            {
-                throw new UserFriendlyException("Only administrators may reset passwords.");
-            }
-        
-            var user = await _userManager.GetUserByIdAsync(input.UserId);
             if (user != null)
             {
                 user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
+                user.PasswordResetToken = null;
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
         
             return true;
+        }
+        [AbpAllowAnonymous]
+        [HttpPost("reset-password-email/send")]
+        public async Task<string> ResetPasswordMail(ResetPasswordMailInput input)
+        {
+            var user = _userRepository.GetAll().FirstOrDefault(u => u.EmailAddress == input.EmailAddress);
+
+            if (user == null)
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+
+            try
+            {
+                var emailBody = _mailService.GetEmailTemplate(EmailType.EmailVerification); // emailtype. reset olacak
+
+                var token = _userManager.GeneratePasswordResetTokenAsync(user).Result;
+
+                user.PasswordResetToken = token;
+                _userRepository.UpdateAsync(user);
+
+                // var resetUrl = $"{_settings.ResetPasswordURL}?email={user.EmailAddress}&token={token}";
+
+                // emailBody = emailBody.Replace("#fullName", user.FullName);
+                // emailBody = emailBody.Replace("#passwordResetURL", resetUrl);
+
+                // _mailService.SendMail(new SendMailModel()
+                // {
+                //     Body = emailBody,
+                //     Subject = "Reset Password",
+                //     To = user.EmailAddress
+                // });
+                return token;
+            }
+            catch (Exception e)
+            {
+                throw new UserFriendlyException(e.InnerException != null ? e.InnerException.Message : e.Message);
+            }
         }
         
         //ToDo Authentice olmuş userin id si gelecek id kalkacal yani
         [HttpPut("additional-info")]
         public async Task<UserDto> UpdateAdditionalInfo( UserOwnUpdateDto input) 
         {
-            var user = _userRepository.FirstOrDefault(u => u.Id == input.Id);
+            var safa = AbpSession.GetUserId();
+            var user = _userRepository.FirstOrDefault(u => u.Id == safa);
 
             ObjectMapper.Map(input, user);
             

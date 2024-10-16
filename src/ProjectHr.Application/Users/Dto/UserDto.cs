@@ -13,9 +13,6 @@ namespace ProjectHr.Users.Dto
     [AutoMapFrom(typeof(User))]
     public class UserDto : EntityDto<long>
     {
-        [Required]
-        [StringLength(AbpUserBase.MaxUserNameLength)]
-        public string UserName { get; set; }
 
         [Required]
         [StringLength(AbpUserBase.MaxNameLength)]

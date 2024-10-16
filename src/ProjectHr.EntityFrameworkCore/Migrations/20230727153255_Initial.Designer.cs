@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjectHr.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using ProjectHr.EntityFrameworkCore;
 namespace ProjectHr.Migrations
 {
     [DbContext(typeof(ProjectHrDbContext))]
-    partial class ProjectHrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230727153255_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1599,9 +1602,6 @@ namespace ProjectHr.Migrations
                     b.Property<string>("PasswordResetCode")
                         .HasMaxLength(328)
                         .HasColumnType("character varying(328)");
-
-                    b.Property<string>("PasswordResetToken")
-                        .HasColumnType("text");
 
                     b.Property<string>("PersonalPhone")
                         .HasColumnType("text");
