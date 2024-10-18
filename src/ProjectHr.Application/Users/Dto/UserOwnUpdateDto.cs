@@ -9,8 +9,6 @@ namespace ProjectHr.Users.Dto;
 
 public class UserOwnUpdateDto
 {
-    public long Id { get; set; }
-    
     public string AvatarUrl { get; set; } 
     
     [EmailAddress]

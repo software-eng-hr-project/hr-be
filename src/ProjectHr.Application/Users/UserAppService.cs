@@ -282,13 +282,12 @@ namespace ProjectHr.Users
                 throw new UserFriendlyException(e.InnerException != null ? e.InnerException.Message : e.Message);
             }
         }
-        
-        //ToDo Authentice olmuş userin id si gelecek id kalkacal yani
+        // [AbpAuthorize(PermissionNames.Pages_Users)]
         [HttpPut("additional-info")]
         public async Task<UserDto> UpdateAdditionalInfo( UserOwnUpdateDto input) 
         {
-            var safa = AbpSession.GetUserId();
-            var user = _userRepository.FirstOrDefault(u => u.Id == safa);
+            var abpSessionUserId = AbpSession.GetUserId();
+            var user = _userRepository.FirstOrDefault(u => u.Id == abpSessionUserId);
 
             ObjectMapper.Map(input, user);
             
