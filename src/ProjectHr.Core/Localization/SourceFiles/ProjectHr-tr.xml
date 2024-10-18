@@ -119,5 +119,6 @@
     <text name="UsersActivation">Kullanıcıları aktifleştirme</text>
     <text name="UsersCreate">Kullanıcıları Oluşturma</text>
     <text name="UsersReadAllInfos">Kullanıcıların Tüm Bilgilerini Görme</text>
+    <text name="UsersUpdateAllInfos">Kullanıcıların Tüm Bilgilerini Güncelleme</text>
   </texts>
 </localizationDictionary>

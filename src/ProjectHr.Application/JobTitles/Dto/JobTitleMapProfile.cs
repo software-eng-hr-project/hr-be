@@ -7,6 +7,6 @@ public class JobTitleMapProfile: Profile
 {
     public JobTitleMapProfile()
     {
-        CreateMap<JobTitle, JobTitleDto>();
+        CreateMap<JobTitle, JobTitleDto>().ReverseMap();
     }
 }

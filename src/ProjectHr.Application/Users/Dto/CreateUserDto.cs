@@ -39,6 +39,7 @@ namespace ProjectHr.Users.Dto
         
         public string[] RoleNames { get; set; }
 
+        public string AvatarUrl { get; set; } 
 
         [EmailAddress]
         [StringLength(AbpUserBase.MaxEmailAddressLength)]

@@ -216,6 +216,17 @@ namespace ProjectHr.Users
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
             }
             
+            if (!await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
+            {
+                throw new UserFriendlyException("Mevcut şifreniz yanlış");
+                
+            }
+            
+            if (input.CurrentPassword == input.NewPassword)
+            {
+                throw new UserFriendlyException("Yeni şifreniz mevcut ile aynı olamaz");
+            }
+            
             if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
             {
                 CheckErrors(await _userManager.ChangePasswordAsync(user, input.NewPassword));
@@ -282,12 +293,27 @@ namespace ProjectHr.Users
                 throw new UserFriendlyException(e.InnerException != null ? e.InnerException.Message : e.Message);
             }
         }
-        // [AbpAuthorize(PermissionNames.Pages_Users)]
-        [HttpPut("additional-info")]
-        public async Task<UserDto> UpdateAdditionalInfo( UserOwnUpdateDto input) 
+        [AbpAuthorize(PermissionNames.Pages_Users_Update_All_Infos)]
+        [HttpPut("all-info")]
+        public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input)
+        {
+
+            var user = _userManager.GetUserById(input.Id);
+
+            ObjectMapper.Map(input, user);
+            
+            await _userRepository.UpdateAsync(user);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            var userDto = ObjectMapper.Map<UserDto>(user);
+            return userDto;
+        }
+        
+        [HttpPut("own-info")]
+        public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
             var abpSessionUserId = AbpSession.GetUserId();
-            var user = _userRepository.FirstOrDefault(u => u.Id == abpSessionUserId);
+            var user = _userManager.GetUserById(abpSessionUserId);
 
             ObjectMapper.Map(input, user);
             
