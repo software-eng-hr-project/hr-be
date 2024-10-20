@@ -11,6 +11,14 @@ public class UserOwnUpdateDto
 {
     public string AvatarUrl { get; set; } 
     
+    [Required]
+    [StringLength(AbpUserBase.MaxNameLength)]
+    public string Name { get; set; }
+
+    [Required]
+    [StringLength(AbpUserBase.MaxSurnameLength)]
+    public string Surname { get; set; }
+    
     [EmailAddress]
     [StringLength(AbpUserBase.MaxEmailAddressLength)]
     public string WorkEmailAddress { get; set; }

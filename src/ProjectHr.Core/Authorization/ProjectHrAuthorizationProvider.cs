@@ -12,6 +12,7 @@ namespace ProjectHr.Authorization
             context.CreatePermission(PermissionNames.Pages_Users_Create, L("UsersCreate"));
             context.CreatePermission(PermissionNames.Pages_Users_Read_All_Infos, L("UsersReadAllInfos"));
             context.CreatePermission(PermissionNames.Pages_Users_Update_All_Infos, L("UsersUpdateAllInfos"));
+            context.CreatePermission(PermissionNames.Pages_Users_Delete, L("UsersDelete"));
             context.CreatePermission(PermissionNames.Pages_Users_Activation, L("UsersActivation"));
             context.CreatePermission(PermissionNames.Pages_Roles, L("Roles"));
             context.CreatePermission(PermissionNames.Pages_Tenants, L("Tenants"), multiTenancySides: MultiTenancySides.Host);

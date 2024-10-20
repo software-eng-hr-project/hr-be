@@ -12,6 +12,7 @@ namespace ProjectHr.Authorization
         public const string Pages_Users_Create = "Pages.Users.Create";
         public const string Pages_Users_Read_All_Infos = "Pages.Users.Read.All.Infos";
         public const string Pages_Users_Update_All_Infos = "Pages.Users.Update.All.Infos";
+        public const string Pages_Users_Delete = "Pages.Users.Delete";
         
         
         public const string Pages_Users_Activation = "Pages.Users.Activation";
@@ -30,7 +31,8 @@ namespace ProjectHr.Authorization
                     Pages_Users_Read_All_Infos,
                     Pages_Users_Activation,
                     Pages_Roles,
-                    Pages_Users_Update_All_Infos
+                    Pages_Users_Update_All_Infos,
+                    Pages_Users_Delete
                 };
             }
 
@@ -40,7 +42,6 @@ namespace ProjectHr.Authorization
                 {
                     Pages_Tenants,
                     Pages_Users,
-                    Pages_Users_Activation,
                 };
             }
 

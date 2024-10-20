@@ -120,5 +120,6 @@
     <text name="UsersCreate">Kullanıcıları Oluşturma</text>
     <text name="UsersReadAllInfos">Kullanıcıların Tüm Bilgilerini Görme</text>
     <text name="UsersUpdateAllInfos">Kullanıcıların Tüm Bilgilerini Güncelleme</text>
+    <text name="UsersDelete">Kullanıcıları İşten Çıkarma</text>
   </texts>
 </localizationDictionary>
