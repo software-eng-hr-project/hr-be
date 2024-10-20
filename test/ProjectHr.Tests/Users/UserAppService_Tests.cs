@@ -35,11 +35,11 @@ namespace ProjectHr.Tests.Users
                 new CreateUserDto
                 {
                     EmailAddress = "john@volosoft.com",
-                    IsActive = true,
+                    // IsActive = true,
                     Name = "John",
                     Surname = "Nash",
-                    Password = "123qwe",
-                    UserName = "john.nash"
+                    // Password = "123qwe",
+                    // UserName = "john.nash"
                 });
 
             await UsingDbContextAsync(async context =>

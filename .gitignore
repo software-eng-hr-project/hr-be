@@ -254,3 +254,6 @@ paket-files/
 src/ProjectHr.Web.Mvc/secrets.json
 src/ProjectHr.Web.Host/secrets.json
 src/ProjectHr.Migrator/secrets.json
+
+App_Data/Logs/*
+/src/ProjectHr.Web.Host/App_Data/Logs/*

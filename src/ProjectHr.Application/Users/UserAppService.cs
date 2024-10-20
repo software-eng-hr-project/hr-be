@@ -275,14 +275,19 @@ namespace ProjectHr.Users
         [HttpPut("all-info")]
         public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input)
         {
-            var user = _userRepository.GetAll().Include(u => u.Roles).FirstOrDefault( u => u.Id == input.Id);
+            var user = _userRepository.GetAll()
+                .Include(u => u.Roles)
+                .Include(u=> u.JobTitle)
+                .FirstOrDefault( u => u.Id == input.Id);
+
+            await _userManager.SetRolesAsync(user, input.RoleNames);
 
             ObjectMapper.Map(input, user);
 
             await _userRepository.UpdateAsync(user);
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            var userDto = ObjectMapper.Map<UserDto>(user);
+            var userDto = MapToEntityDto(user);
             return userDto;
         }
         
@@ -290,14 +295,17 @@ namespace ProjectHr.Users
         public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
             var abpSessionUserId = AbpSession.GetUserId();
-            var user = _userManager.GetUserById(abpSessionUserId);
+            var user = _userRepository.GetAll()
+                .Include(u => u.Roles)
+                .Include(u=> u.JobTitle)
+                .FirstOrDefault(u => u.Id == abpSessionUserId);
 
             ObjectMapper.Map(input, user);
             
             await _userRepository.UpdateAsync(user);
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            var userDto = ObjectMapper.Map<UserDto>(user);
+            var userDto = MapToEntityDto(user);
             return userDto;
         }
         
@@ -310,8 +318,11 @@ namespace ProjectHr.Users
             var users = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(u => u.JobTitle);
-
+            //
+            // var abpSessionUserId = AbpSession.GetUserId();
+            // var user = users.FirstOrDefault(u => u.Id == abpSessionUserId);
             
+
             var roles = await _roleRepository.GetAllListAsync();
             // var roles =  _roleRepository.GetAllIncluding(r=> r.Permissions); // ROL CHECK YAPARKEN GETALLLİST YERİNE BUNU YAZACAZ
 
@@ -347,6 +358,7 @@ namespace ProjectHr.Users
         {
             var user = _userRepository.GetAll()
                 .Include(x => x.Roles)
+                .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == userId);
         
             if (user == null)
