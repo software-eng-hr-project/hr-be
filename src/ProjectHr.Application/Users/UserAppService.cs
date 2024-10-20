@@ -31,7 +31,7 @@ using ProjectHr.JobTitles.Dto;
 
 namespace ProjectHr.Users
 {   
-    [AbpAuthorize(PermissionNames.Pages_Users)]
+    [AbpAuthorize]
     [Route("/api/users")]
     public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
     {
@@ -120,12 +120,6 @@ namespace ProjectHr.Users
             {
                 entity.IsActive = false;
             });
-        }
-        [HttpGet("get-roles")]
-        public async Task<ListResultDto<RoleDto>> GetRoles()
-        {
-            var roles = await _roleRepository.GetAllListAsync();
-            return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
         }
 
         protected override User MapToEntity(CreateUserDto createInput)
@@ -272,13 +266,13 @@ namespace ProjectHr.Users
             }
         }
         [AbpAuthorize(PermissionNames.Pages_Users_Update_All_Infos)]
-        [HttpPut("all-info")]
-        public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input)
+        [HttpPut("{userId}")]
+        public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)
         {
             var user = _userRepository.GetAll()
                 .Include(u => u.Roles)
                 .Include(u=> u.JobTitle)
-                .FirstOrDefault( u => u.Id == input.Id);
+                .FirstOrDefault( u => u.Id == userId);
 
             await _userManager.SetRolesAsync(user, input.RoleNames);
 
@@ -291,7 +285,7 @@ namespace ProjectHr.Users
             return userDto;
         }
         
-        [HttpPut("own-info")]
+        [HttpPut("profile")]
         public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
             var abpSessionUserId = AbpSession.GetUserId();
@@ -313,17 +307,16 @@ namespace ProjectHr.Users
         // public async Task
         
         [HttpGet]
-        public async Task<List<UserDto>> GetAll(PagedUserResultRequestDto input)
+        public async Task<List<GetUserGeneralInfo>> GetAll(PagedUserResultRequestDto input)
         {
             var users = _userRepository.GetAll()
-                .Include(x => x.Roles)
                 .Include(u => u.JobTitle);
             //
             // var abpSessionUserId = AbpSession.GetUserId();
             // var user = users.FirstOrDefault(u => u.Id == abpSessionUserId);
             
 
-            var roles = await _roleRepository.GetAllListAsync();
+            // var roles = await _roleRepository.GetAllListAsync();
             // var roles =  _roleRepository.GetAllIncluding(r=> r.Permissions); // ROL CHECK YAPARKEN GETALLLİST YERİNE BUNU YAZACAZ
 
 
@@ -342,19 +335,43 @@ namespace ProjectHr.Users
             //
             //     return limitedInfosDto;
             // }
-            var userDtos = ObjectMapper.Map<List<UserDto>>(users);
+            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
             
-            foreach (var userDto in userDtos)
-            {
-                var roleIds = users.First(x => x.Id == userDto.Id).Roles.Select(x => x.RoleId);
-                userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
-            }
+            // foreach (var userDto in userDtos)
+            // {
+            //     var roleIds = users.First(x => x.Id == userDto.Id).Roles.Select(x => x.RoleId);
+            //     userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
+            // }
             
             return userDtos;
         }
+        [HttpGet("profile")]
+        public async Task<UserDto> GetProfile()
+        {
+            var abpSessionUserId = AbpSession.GetUserId();
+            
+            var user = _userRepository.GetAll()
+                .Include(x => x.Roles)
+                .Include(x => x.JobTitle)
+                .FirstOrDefault(x => x.Id == abpSessionUserId);
         
+            
+            if (user == null)
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+            
+            var roles = await _roleRepository.GetAllListAsync();
+            
+            var userDtos = ObjectMapper.Map<UserDto>(user);
+            
+            var roleIds = user.Roles.Select(x => x.RoleId);
+
+            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
+            return userDtos;
+        }        
+ 
+        [AbpAuthorize(PermissionNames.Pages_Users_Read_All_Infos)]
         [HttpGet("{userId}")]
-        public async Task<UserDto> Get(long userId)
+        public async Task<UserDto> GetUserByIdAdmin(long userId)
         {
             var user = _userRepository.GetAll()
                 .Include(x => x.Roles)
@@ -372,9 +389,31 @@ namespace ProjectHr.Users
 
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
             return userDtos;
+        }        
+        [HttpGet("profile/{userId}")]
+        public async Task<GetUserGeneralInfo> GetUserById(long userId)
+        {
+            var user = _userRepository.GetAll()
+                .Include(x => x.JobTitle)
+                .FirstOrDefault(x => x.Id == userId);
+        
+            if (user == null)
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+            
+            var userDtos = ObjectMapper.Map<GetUserGeneralInfo>(user);
+            
+            return userDtos;
         }
 
         #region OverridePart
+        
+            [RemoteService(false)]
+            [HttpGet("get-roles")]
+            public async Task<ListResultDto<RoleDto>> GetRoles()
+            {
+                var roles = await _roleRepository.GetAllListAsync();
+                return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
+            }
         
             [RemoteService(false)]
             [HttpGet("todo-remove-2{id}")] // template name vermeyince duplicate hatası alıyoruz o yüzden default bir değer atadık 

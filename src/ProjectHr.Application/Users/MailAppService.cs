@@ -16,7 +16,7 @@ public class SendMailModel
 
 public class MailAppService: ProjectHrAppServiceBase, IMailAppService
 {
-
+    [RemoteService(false)]
     public string GetEmailTemplate(EmailType emailType)
     {
         string emailTemplate;

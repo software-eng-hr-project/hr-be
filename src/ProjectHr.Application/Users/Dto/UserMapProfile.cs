@@ -19,6 +19,7 @@ namespace ProjectHr.Users.Dto
 
             CreateMap<UserOwnUpdateDto, User>();
             CreateMap<UserAllUpdateDto, User>();
+            CreateMap<User, GetUserGeneralInfo>();
         }
     }
 }

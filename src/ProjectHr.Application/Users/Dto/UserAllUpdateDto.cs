@@ -10,8 +10,6 @@ namespace ProjectHr.Users.Dto;
 public class UserAllUpdateDto
 {
     
-    [Required] 
-    public int Id { get; set; }
     [Required]
     [StringLength(AbpUserBase.MaxNameLength)]
     public string Name { get; set; }
