@@ -2,7 +2,6 @@
 
 public enum EmailType
 {
-    EmailVerification,
-    EmailChanging,
-    PasswordReset
+    PasswordReset,
+    UserInvite,
 }

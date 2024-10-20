@@ -14,4 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectHr.Core\ProjectHr.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.SimpleEmailV2" Version="3.7.200.8" />
+  </ItemGroup>
 </Project>

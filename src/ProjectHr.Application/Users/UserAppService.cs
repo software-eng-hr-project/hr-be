@@ -9,6 +9,7 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Entities;
 using Abp.Domain.Repositories;
+using Abp.Domain.Uow;
 using Abp.Extensions;
 using Abp.IdentityFramework;
 using Abp.Linq.Extensions;
@@ -25,6 +26,7 @@ using ProjectHr.Users.Dto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.JobTitles.Dto;
@@ -42,7 +44,7 @@ namespace ProjectHr.Users
         private readonly IAbpSession _abpSession;
         private readonly LogInManager _logInManager;
         private readonly IRepository<User, long> _userRepository;
-        private readonly IMailAppService _mailService;
+        private readonly SESOptions _sesOptions;
         
         public UserAppService(
             IRepository<User, long> userRepository,
@@ -50,7 +52,7 @@ namespace ProjectHr.Users
             RoleManager roleManager,
             IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
-            IMailAppService mailService,
+            IOptions<SESOptions> sesOptions,
             IAbpSession abpSession,
             LogInManager logInManager)
         
@@ -63,7 +65,7 @@ namespace ProjectHr.Users
             _abpSession = abpSession;
             _logInManager = logInManager;
             _userRepository = userRepository;
-            _mailService = mailService;
+            _sesOptions = sesOptions.Value;
         }
         
         [HttpPost]
@@ -233,36 +235,43 @@ namespace ProjectHr.Users
         [HttpPost("reset-password-email/send")]
         public async Task<string> ResetPasswordMail(ResetPasswordMailInput input)
         {
-            var user = _userRepository.GetAll().FirstOrDefault(u => u.EmailAddress == input.EmailAddress);
-
-            if (user == null)
-                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-
-            try
+            using (CurrentUnitOfWork.DisableFilter(AbpDataFilters.MayHaveTenant, AbpDataFilters.MustHaveTenant))
             {
-                var emailBody = _mailService.GetEmailTemplate(EmailType.EmailVerification); // emailtype. reset olacak
+                var users = _userRepository.GetAll().Where(x => x.EmailAddress == input.EmailAddress).ToList();
 
-                var token = _userManager.GeneratePasswordResetTokenAsync(user).Result;
+                if (users.Count == 0)
+                {
+                    throw new UserFriendlyException("There is no user registered with this email!");
+                }
 
-                user.PasswordResetToken = token;
-                _userRepository.UpdateAsync(user);
+                var token = await _userManager.GeneratePasswordResetTokenAsync(users.FirstOrDefault());
 
-                // var resetUrl = $"{_settings.ResetPasswordURL}?email={user.EmailAddress}&token={token}";
+                foreach (var user in users)
+                {
+                    user.PasswordResetCode = token;
+                    await _userRepository.UpdateAsync(user);
+                }
 
-                // emailBody = emailBody.Replace("#fullName", user.FullName);
-                // emailBody = emailBody.Replace("#passwordResetURL", resetUrl);
+                var link = _sesOptions.ClientURL
+                var linkWithToken = string.Format($"{link}{_sesOptions.ResetPasswordPath}", token);
+                var logo = string.Format($"{_sesOptions.GcsLogoUrl}");
 
-                // _mailService.SendMail(new SendMailModel()
-                // {
-                //     Body = emailBody,
-                //     Subject = "Reset Password",
-                //     To = user.EmailAddress
-                // });
-                return token;
-            }
-            catch (Exception e)
-            {
-                throw new UserFriendlyException(e.InnerException != null ? e.InnerException.Message : e.Message);
+                var template = _sesService.GetEmailTemplate(EmailType.PasswordReset, new Dictionary<string, string>()
+                {
+                    { "#link_with_token", linkWithToken },
+                    { "#gcs_logo", logo },
+                });
+
+
+                var mail = new SendMailModel
+                {
+                    To = users.FirstOrDefault().EmailAddress,
+                    Body = template,
+                    Subject = "Reset Password",
+                    LinkWithToken = linkWithToken
+                };
+
+                await _sesService.SendMail(mail);
             }
         }
         [AbpAuthorize(PermissionNames.Pages_Users_Update_All_Infos)]
