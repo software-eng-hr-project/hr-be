@@ -310,11 +310,8 @@ namespace ProjectHr.Users
             var users = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(u => u.JobTitle);
-            //
-            // var abpSessionUserId = AbpSession.GetUserId();
-            // var user = users.FirstOrDefault(u => u.Id == abpSessionUserId);
-            
 
+            
             var roles = await _roleRepository.GetAllListAsync();
             // var roles =  _roleRepository.GetAllIncluding(r=> r.Permissions); // ROL CHECK YAPARKEN GETALLLİST YERİNE BUNU YAZACAZ
 
