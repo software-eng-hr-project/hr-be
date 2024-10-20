@@ -72,5 +72,7 @@ namespace ProjectHr.Authorization.Users
         public JobTitle JobTitle { get; set; }
 
         public string PasswordResetToken { get; set; }
+
+        public bool IsInvited { get; set; } = false;
     }
 }

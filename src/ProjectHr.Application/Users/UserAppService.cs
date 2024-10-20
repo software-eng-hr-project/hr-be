@@ -52,7 +52,7 @@ namespace ProjectHr.Users
             IMailAppService mailService,
             IAbpSession abpSession,
             LogInManager logInManager)
-            
+        
             : base(userRepository)
         {
             _userManager = userManager;
@@ -76,6 +76,7 @@ namespace ProjectHr.Users
             user.UserName = Guid.NewGuid().ToString();
             user.IsEmailConfirmed = true;
             user.IsActive = true;
+            user.IsInvited = true;
 
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
             
@@ -92,25 +93,8 @@ namespace ProjectHr.Users
 
             return MapToEntityDto(user);
         }
-        [RemoteService(false)]
-        [HttpPut]
-        public override async Task<UserDto> UpdateAsync(UserDto input)
-        {
-            CheckUpdatePermission();
-
-            var user = await _userManager.GetUserByIdAsync(input.Id);
-
-            MapToEntity(input, user);
-
-            CheckErrors(await _userManager.UpdateAsync(user));
-
-            if (input.RoleNames != null)
-            {
-                CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
-            }
-
-            return await GetAsync(input);
-        }
+        
+        [AbpAuthorize(PermissionNames.Pages_Users_Delete)]
         [HttpDelete]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
@@ -142,16 +126,7 @@ namespace ProjectHr.Users
             var roles = await _roleRepository.GetAllListAsync();
             return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
         }
-        [RemoteService(false)]
-        public async Task ChangeLanguage(ChangeUserLanguageDto input)
-        {
-            await SettingManager.ChangeSettingForUserAsync(
-                AbpSession.ToUserIdentifier(),
-                LocalizationSettingNames.DefaultLanguage,
-                input.LanguageName
-            );
-        }
-        
+
         protected override User MapToEntity(CreateUserDto createInput)
         {
             var user = ObjectMapper.Map<User>(createInput);
@@ -252,6 +227,8 @@ namespace ProjectHr.Users
             {
                 user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
                 user.PasswordResetToken = null;
+                if(user.IsInvited)
+                    user.IsInvited = false;
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
         
@@ -324,29 +301,30 @@ namespace ProjectHr.Users
             return userDto;
         }
         
+        
+        // public async Task
+        
         [HttpGet]
         public async Task<List<UserDto>> GetAll(PagedUserResultRequestDto input)
         {
             var users = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(u => u.JobTitle);
-
+            
             
             var roles = await _roleRepository.GetAllListAsync();
             
             var userDtos = ObjectMapper.Map<List<UserDto>>(users);
             
-
             foreach (var userDto in userDtos)
             {
                 var roleIds = users.First(x => x.Id == userDto.Id).Roles.Select(x => x.RoleId);
                 userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
             }
             
-            
-        
             return userDtos;
         }
+        
         [HttpGet("{userId}")]
         public async Task<UserDto> Get(long userId)
         {
@@ -366,20 +344,53 @@ namespace ProjectHr.Users
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
             return userDtos;
         }
-        
-        [RemoteService(false)]
-        [HttpGet("/aaaaaaaaa/aaaaaaaaaaa{duplicategetallhatasiveriyordu}")]
-        public override Task<UserDto> GetAsync(EntityDto<long> id)
-        {
-            return base.GetAsync(id);
-        }
 
-        [RemoteService(false)]
-        [HttpGet("duplicategetallhatasiveriyordu")] //hata verdiği için templateye bir şey vermemiz gerekti
-        public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
-        {
-            return base.GetAllAsync(input);
-        }
+        #region OverridePart
+        
+            [RemoteService(false)]
+            [HttpGet("todo-remove-2{id}")] // template name vermeyince duplicate hatası alıyoruz o yüzden default bir değer atadık 
+            public override Task<UserDto> GetAsync(EntityDto<long> id)
+            {
+                return base.GetAsync(id);
+            }
+
+            [RemoteService(false)]
+            [HttpGet("todo-remove-1")] //hata verdiği için templateye bir şey vermemiz gerekti
+            public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
+            {
+                return base.GetAllAsync(input);
+            }
+            
+            [RemoteService(false)]
+            [HttpPut("todo-remove-3")]
+            public override async Task<UserDto> UpdateAsync(UserDto input)
+            {
+                CheckUpdatePermission();
+
+                var user = await _userManager.GetUserByIdAsync(input.Id);
+
+                MapToEntity(input, user);
+
+                CheckErrors(await _userManager.UpdateAsync(user));
+
+                if (input.RoleNames != null)
+                {
+                    CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
+                }
+
+                return await GetAsync(input);
+            }
+            
+            [RemoteService(false)]
+            public async Task ChangeLanguage(ChangeUserLanguageDto input)
+            {
+                await SettingManager.ChangeSettingForUserAsync(
+                    AbpSession.ToUserIdentifier(),
+                    LocalizationSettingNames.DefaultLanguage,
+                    input.LanguageName
+                );
+            }
+            #endregion
     }
 }
 
