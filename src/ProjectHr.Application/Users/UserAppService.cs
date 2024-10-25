@@ -17,6 +17,7 @@ using Abp.Localization;
 using Abp.Runtime.Session;
 using Abp.UI;
 using AutoMapper.Internal.Mappers;
+using Microsoft.AspNetCore.Http;
 using ProjectHr.Authorization;
 using ProjectHr.Authorization.Accounts;
 using ProjectHr.Authorization.Roles;
@@ -43,18 +44,20 @@ namespace ProjectHr.Users
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IAbpSession _abpSession;
         private readonly LogInManager _logInManager;
+        private readonly ISESService _sesService;
         private readonly IRepository<User, long> _userRepository;
-        private readonly SESOptions _sesOptions;
-        
+        private readonly EmailSettings _emailSettings;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public UserAppService(
             IRepository<User, long> userRepository,
             UserManager userManager,
             RoleManager roleManager,
             IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
-            IOptions<SESOptions> sesOptions,
+            IOptions<EmailSettings> emailSettings,
             IAbpSession abpSession,
-            LogInManager logInManager)
+            LogInManager logInManager, ISESService sesService, IHttpContextAccessor httpContextAccessor)
         
             : base(userRepository)
         {
@@ -64,8 +67,10 @@ namespace ProjectHr.Users
             _passwordHasher = passwordHasher;
             _abpSession = abpSession;
             _logInManager = logInManager;
+            _sesService = sesService;
+            _httpContextAccessor = httpContextAccessor;
             _userRepository = userRepository;
-            _sesOptions = sesOptions.Value;
+            _emailSettings = emailSettings.Value;
         }
         
         [HttpPost]
@@ -233,7 +238,7 @@ namespace ProjectHr.Users
         }
         [AbpAllowAnonymous]
         [HttpPost("reset-password-email/send")]
-        public async Task<string> ResetPasswordMail(ResetPasswordMailInput input)
+        public async Task ResetPasswordMail(ResetPasswordMailInput input)
         {
             using (CurrentUnitOfWork.DisableFilter(AbpDataFilters.MayHaveTenant, AbpDataFilters.MustHaveTenant))
             {
@@ -252,20 +257,18 @@ namespace ProjectHr.Users
                     await _userRepository.UpdateAsync(user);
                 }
 
-                var link = _sesOptions.ClientURL
-                var linkWithToken = string.Format($"{link}{_sesOptions.ResetPasswordPath}", token);
-                var logo = string.Format($"{_sesOptions.GcsLogoUrl}");
+                var link = _httpContextAccessor.HttpContext.Request.Host.Value;
+                var linkWithToken = string.Format($"{link}/users/invite/?token={token}");
 
-                var template = _sesService.GetEmailTemplate(EmailType.PasswordReset, new Dictionary<string, string>()
+                var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
                 {
                     { "#link_with_token", linkWithToken },
-                    { "#gcs_logo", logo },
                 });
 
 
                 var mail = new SendMailModel
                 {
-                    To = users.FirstOrDefault().EmailAddress,
+                    To = "safa_genctorun@hotmail.com",
                     Body = template,
                     Subject = "Reset Password",
                     LinkWithToken = linkWithToken
@@ -274,6 +277,7 @@ namespace ProjectHr.Users
                 await _sesService.SendMail(mail);
             }
         }
+        
         [AbpAuthorize(PermissionNames.Pages_Users_Update_All_Infos)]
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)

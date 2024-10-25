@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Abp.Application.Services;
 using Abp.Auditing;
 using ProjectHr.Sessions.Dto;
 
@@ -7,6 +8,7 @@ namespace ProjectHr.Sessions
 {
     public class SessionAppService : ProjectHrAppServiceBase, ISessionAppService
     {
+        [RemoteService(false)]
         [DisableAuditing]
         public async Task<GetCurrentLoginInformationsOutput> GetCurrentLoginInformations()
         {

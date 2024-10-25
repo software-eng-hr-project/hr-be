@@ -30,6 +30,9 @@
     <None Update="email_invite_template.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="email_reset_password_template.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProjectHr.Web.Core\ProjectHr.Web.Core.csproj" />
