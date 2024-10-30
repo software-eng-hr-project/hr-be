@@ -73,21 +73,11 @@ namespace ProjectHr.Users
             _emailSettings = emailSettings.Value;
         }
         
+        [AbpAuthorize(PermissionNames.Create_User)]
         [HttpPost]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
             CheckCreatePermission();
-
-            bool isDuplicateWorkPhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
-            if (isDuplicateWorkPhone)
-            {
-                throw ExceptionHelper.Create(ErrorCode.WorkPhoneUnique);
-            }
-            bool isDuplicateWorkEmailAdress= await _userRepository.FirstOrDefaultAsync(u => u.WorkEmailAddress == input.WorkEmailAddress) != null;
-            if (isDuplicateWorkEmailAdress)
-            {
-                throw ExceptionHelper.Create(ErrorCode.WorkEmailAdressUnique);
-            }
 
             var user = ObjectMapper.Map<User>(input);
 
@@ -113,7 +103,7 @@ namespace ProjectHr.Users
             return MapToEntityDto(user);
         }
         
-        [AbpAuthorize(PermissionNames.Pages_Users_Delete)]
+        [AbpAuthorize(PermissionNames.Delete_User)]
         [HttpDelete]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
@@ -121,7 +111,7 @@ namespace ProjectHr.Users
             await _userManager.DeleteAsync(user);
         }
         
-        [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
+        [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
         [HttpPost("activate")]
         public async Task Activate(EntityDto<long> user)
         {
@@ -131,7 +121,7 @@ namespace ProjectHr.Users
             });
         }
         [HttpPost("de-activate")]
-        [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
+        [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
         public async Task DeActivate(EntityDto<long> user)
         {
             await Repository.UpdateAsync(user.Id, async (entity) =>
@@ -292,21 +282,10 @@ namespace ProjectHr.Users
             }
         }
         
-        [AbpAuthorize(PermissionNames.Pages_Users_Update_All_Infos)]
+        [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)
         {
-            bool isDuplicateWorkPhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
-            if (input.WorkPhone is not null && isDuplicateWorkPhone)
-            {
-                throw ExceptionHelper.Create(ErrorCode.WorkPhoneUnique);
-            }
-            bool isDuplicateWorkEmailAdress= await _userRepository.FirstOrDefaultAsync(u => u.WorkEmailAddress == input.WorkEmailAddress) != null;
-            if (input.WorkEmailAddress is not null && isDuplicateWorkEmailAdress)
-            {
-                throw ExceptionHelper.Create(ErrorCode.WorkEmailAdressUnique);
-            }
-            
             var user = _userRepository.GetAll()
                 .Include(u => u.Roles)
                 .Include(u=> u.JobTitle)
@@ -326,33 +305,6 @@ namespace ProjectHr.Users
         [HttpPut("profile")]
         public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
-            
-            bool isDuplicateWorkPhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
-            if (input.WorkPhone is not null && isDuplicateWorkPhone)
-            {
-                throw ExceptionHelper.Create(ErrorCode.WorkPhoneUnique);
-            }
-            bool isDuplicatePersonalPhone= await _userRepository.FirstOrDefaultAsync(u => u.PersonalPhone == input.PersonalPhone) != null;
-            if (input.PersonalPhone is not null && isDuplicatePersonalPhone)
-            {
-                throw ExceptionHelper.Create(ErrorCode.PersonalPhoneUnique);
-            }
-            bool isDuplicateEmergencyPhone = await _userRepository.FirstOrDefaultAsync(u => u.EmergencyContactPhone == input.EmergencyContactPhone) != null;
-            if (input.EmergencyContactPhone is not null && isDuplicateEmergencyPhone)
-            {
-                throw ExceptionHelper.Create(ErrorCode.EmergencyPhoneUnique);
-            }
-            bool isDuplicateIdentityNumber = await _userRepository.FirstOrDefaultAsync(u => u.IdentityNumber == input.IdentityNumber) != null;
-            if (input.IdentityNumber is not null && isDuplicateIdentityNumber)
-            {
-                throw ExceptionHelper.Create(ErrorCode.IdentityNumberUnique);
-            }
-            bool isDuplicateWorkEmailAdress= await _userRepository.FirstOrDefaultAsync(u => u.WorkEmailAddress == input.WorkEmailAddress) != null;
-            if (input.WorkEmailAddress is not null && isDuplicateWorkEmailAdress)
-            {
-                throw ExceptionHelper.Create(ErrorCode.WorkEmailAdressUnique);
-            }
-            
             var abpSessionUserId = AbpSession.GetUserId();
             var user = _userRepository.GetAll()
                 .Include(u => u.Roles)
@@ -434,7 +386,7 @@ namespace ProjectHr.Users
             return userDtos;
         }        
  
-        [AbpAuthorize(PermissionNames.Pages_Users_Read_All_Infos)]
+        [AbpAuthorize(PermissionNames.View_Info_User)]
         [HttpGet("{userId}")]
         public async Task<UserDto> GetUserByIdAdmin(long userId)
         {

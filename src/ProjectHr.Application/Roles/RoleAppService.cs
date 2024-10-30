@@ -18,7 +18,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ProjectHr.Roles
 {
-    [AbpAuthorize(PermissionNames.Pages_Roles)]
+    // [AbpAuthorize(PermissionNames.Pages_Roles)]
     public class RoleAppService : AsyncCrudAppService<Role, RoleDto, int, PagedRoleResultRequestDto, CreateRoleDto, RoleDto>, IRoleAppService
     {
         private readonly RoleManager _roleManager;
@@ -30,7 +30,7 @@ namespace ProjectHr.Roles
             _roleManager = roleManager;
             _userManager = userManager;
         }
-
+        [AbpAuthorize(PermissionNames.Create_Role)]
         public override async Task<RoleDto> CreateAsync(CreateRoleDto input)
         {
             CheckCreatePermission();
@@ -49,7 +49,7 @@ namespace ProjectHr.Roles
 
             return MapToEntityDto(role);
         }
-
+        [AbpAuthorize(PermissionNames.List_Role)]
         public async Task<ListResultDto<RoleListDto>> GetRolesAsync(GetRolesInput input)
         {
             var roles = await _roleManager
@@ -62,7 +62,7 @@ namespace ProjectHr.Roles
 
             return new ListResultDto<RoleListDto>(ObjectMapper.Map<List<RoleListDto>>(roles));
         }
-
+        [AbpAuthorize(PermissionNames.Update_Role)]
         public override async Task<RoleDto> UpdateAsync(RoleDto input)
         {
             CheckUpdatePermission();
