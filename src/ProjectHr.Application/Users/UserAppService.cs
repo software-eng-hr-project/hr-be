@@ -78,6 +78,12 @@ namespace ProjectHr.Users
         {
             CheckCreatePermission();
 
+            bool isDuplicatePhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
+            if (isDuplicatePhone)
+            {
+                throw new UserFriendlyException("unique olacak");
+            }
+
             var user = ObjectMapper.Map<User>(input);
 
             user.TenantId = AbpSession.TenantId;
@@ -218,6 +224,7 @@ namespace ProjectHr.Users
         
             return true;
         }
+        [AbpAllowAnonymous]
         [HttpPut("reset-password")]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
@@ -257,7 +264,8 @@ namespace ProjectHr.Users
                     await _userRepository.UpdateAsync(user);
                 }
 
-                var link = _httpContextAccessor.HttpContext.Request.Host.Value;
+                // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
+                var link = _emailSettings.ClientURL;
                 var linkWithToken = string.Format($"{link}/users/invite/?token={token}");
 
                 var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
@@ -268,10 +276,11 @@ namespace ProjectHr.Users
 
                 var mail = new SendMailModel
                 {
-                    To = "safa_genctorun@hotmail.com",
+                    To = input.EmailAddress,
                     Body = template,
                     Subject = "Reset Password",
-                    LinkWithToken = linkWithToken
+                    LinkWithToken = linkWithToken,
+                    
                 };
 
                 await _sesService.SendMail(mail);

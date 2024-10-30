@@ -113,7 +113,7 @@ public class SESService : ISESService
             {
                 Content = emailContent,
                 Destination = destination,
-                FromEmailAddress = _settings.MailFrom
+                FromEmailAddress = _settings.MailFrom // buraya değer null geliyor şimdilik static verdik
             };
 
             try

@@ -22,7 +22,12 @@ using Newtonsoft.Json.Serialization;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Amazon;
+using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
+using Amazon.SimpleEmailV2;
 using Newtonsoft.Json.Converters;
+using ProjectHr.Users;
 
 namespace ProjectHr.Web.Host.Startup
 {
@@ -43,6 +48,21 @@ namespace ProjectHr.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            
+            var awsOptions = new AWSOptions
+            {
+                Credentials = new BasicAWSCredentials(
+                    _appConfiguration.GetSection("EmailSettings:AccessKey").Value,
+                    _appConfiguration.GetSection("EmailSettings:SecretKey").Value
+                ),
+                Region = RegionEndpoint.USWest2
+                
+            };
+            services.Configure<EmailSettings>(options =>
+                _appConfiguration.GetSection(nameof(EmailSettings)).Bind(options));
+            services.AddDefaultAWSOptions(awsOptions);
+            services.AddAWSService<IAmazonSimpleEmailServiceV2>();
+            
             services.AddControllers()
                 .AddNewtonsoftJson(x =>
                     x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -69,7 +89,7 @@ namespace ProjectHr.Web.Host.Startup
 
             IdentityRegistrar.Register(services);
             AuthConfigurer.Configure(services, _appConfiguration);
-
+            
             services.AddSignalR();
 
             // Configure CORS for angular2 UI

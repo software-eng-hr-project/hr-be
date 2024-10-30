@@ -12,7 +12,7 @@ namespace ProjectHr
 
 
         /// <summary>
-        /// Default  pass phrase for SimpleStringCipher decrypt/encrypt operations
+        /// Default pass phrase for SimpleStringCipher decrypt/encrypt operations
         /// </summary>
         public static readonly string DefaultPassPhrase =
             DebugHelper.IsDebug ? "gsKxGZ012HLL3MI5" : "84a4c87fca17446b8c8d10142e970698";
