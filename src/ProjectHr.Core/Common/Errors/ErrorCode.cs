@@ -14,12 +14,12 @@ public enum ErrorCode
     GroupAlreadyAddedStudent = 1006,
     GroupHasActivityNotCompleted = 1007,
 
-// Student - 2
-    StudentCannotFound = 2004,
-    StudentRequiredFieldsNotFilled = 2005,
-    SubStudentRequiredFieldsNotFilled = 2006,
-    StudentCannotBeRelatedToSubStudent = 2007,
-    StudentCannotBeParentOfHimself = 2008,
+// Unique - 2
+    WorkPhoneUnique = 2004,
+    PersonalPhoneUnique = 2005,
+    EmergencyPhoneUnique = 2006,
+    WorkEmailAdressUnique = 2007,
+    IdentityNumberUnique = 2008,
     StudentCannotBeParentOfHimselfEmail = 2009,
     StudentActivityTimeConfilict = 2010,
     StudentUpdateError = 2011,
@@ -142,12 +142,24 @@ public static class CustomError
             "Grup bulunamadı."
         },
         {
-            ErrorCode.StudentCannotFound,
-            "Öğrenci bulunamadı."
+            ErrorCode.WorkPhoneUnique,
+            "İş telefon numarası başka bir kullanıcıyla aynı olamaz."
         },
         {
-            ErrorCode.StudentRequiredFieldsNotFilled,
-            "Ad,Soyad,Mail,Gsm ve Ders Ücreti öğrenci eklerken doldurulması gereken zorunlu alanlardır.Lütfen bu zorunlu alanlardan boş bıraktığınızı doldurunuz."
+            ErrorCode.PersonalPhoneUnique,
+            "Kişisiel Telefon numarası başka bir kullanıcıyla aynı olamaz."
+        },
+        {
+            ErrorCode.EmergencyPhoneUnique,
+            "Acil Telefon numarası başka bir kullanıcıyla aynı olamaz."
+        },
+        {
+            ErrorCode.WorkEmailAdressUnique,
+            "İş email adresi başka bir kullanıcıyla aynı olamaz. "
+        },
+        {
+            ErrorCode.IdentityNumberUnique,
+            "Kimlik Numarası başka bir kullanıcıyla aynı olamaz."
         },
         {
             ErrorCode.PriceGroupCannotFound,
@@ -214,20 +226,8 @@ public static class CustomError
             "Geçersiz 2 faktörlü kimlik doğrulama kodu"
         },
         {
-            ErrorCode.SubStudentRequiredFieldsNotFilled,
-            "Ad,Soyad ve Ders Ücreti bağlantılı öğrenci eklerken doldurulması gereken zorunlu alanlardır.Lütfen bu zorunlu alanlardan boş bıraktığınızı doldurunuz. "
-        },
-        {
-            ErrorCode.StudentCannotBeRelatedToSubStudent,
-            "Bağlantılı öğrenciye bağlantılı öğrenci eklenemez."
-        },
-        {
             ErrorCode.PanelAccessWithoutEmail,
             "Bağlantılı öğrencinin panele erişebilmesi için mail adresini girmeniz gerekmektedir. Mail adresi girmek istemiyorsanız lütfen panel erişimi durumunu pasif hale getiriniz."
-        },
-        {
-            ErrorCode.StudentCannotBeParentOfHimself,
-            "Öğrenci kendisinin bağlantılı öğrencisi olamaz."
         },
         {
             ErrorCode.PanelAccessDenied,

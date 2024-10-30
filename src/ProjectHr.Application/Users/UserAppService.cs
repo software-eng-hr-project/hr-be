@@ -78,10 +78,15 @@ namespace ProjectHr.Users
         {
             CheckCreatePermission();
 
-            bool isDuplicatePhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
-            if (isDuplicatePhone)
+            bool isDuplicateWorkPhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
+            if (isDuplicateWorkPhone)
             {
-                throw new UserFriendlyException("unique olacak");
+                throw ExceptionHelper.Create(ErrorCode.WorkPhoneUnique);
+            }
+            bool isDuplicateWorkEmailAdress= await _userRepository.FirstOrDefaultAsync(u => u.WorkEmailAddress == input.WorkEmailAddress) != null;
+            if (isDuplicateWorkEmailAdress)
+            {
+                throw ExceptionHelper.Create(ErrorCode.WorkEmailAdressUnique);
             }
 
             var user = ObjectMapper.Map<User>(input);
@@ -291,6 +296,17 @@ namespace ProjectHr.Users
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)
         {
+            bool isDuplicateWorkPhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
+            if (input.WorkPhone is not null && isDuplicateWorkPhone)
+            {
+                throw ExceptionHelper.Create(ErrorCode.WorkPhoneUnique);
+            }
+            bool isDuplicateWorkEmailAdress= await _userRepository.FirstOrDefaultAsync(u => u.WorkEmailAddress == input.WorkEmailAddress) != null;
+            if (input.WorkEmailAddress is not null && isDuplicateWorkEmailAdress)
+            {
+                throw ExceptionHelper.Create(ErrorCode.WorkEmailAdressUnique);
+            }
+            
             var user = _userRepository.GetAll()
                 .Include(u => u.Roles)
                 .Include(u=> u.JobTitle)
@@ -310,6 +326,33 @@ namespace ProjectHr.Users
         [HttpPut("profile")]
         public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
+            
+            bool isDuplicateWorkPhone = await _userRepository.FirstOrDefaultAsync(u => u.WorkPhone == input.WorkPhone) != null;
+            if (input.WorkPhone is not null && isDuplicateWorkPhone)
+            {
+                throw ExceptionHelper.Create(ErrorCode.WorkPhoneUnique);
+            }
+            bool isDuplicatePersonalPhone= await _userRepository.FirstOrDefaultAsync(u => u.PersonalPhone == input.PersonalPhone) != null;
+            if (input.PersonalPhone is not null && isDuplicatePersonalPhone)
+            {
+                throw ExceptionHelper.Create(ErrorCode.PersonalPhoneUnique);
+            }
+            bool isDuplicateEmergencyPhone = await _userRepository.FirstOrDefaultAsync(u => u.EmergencyContactPhone == input.EmergencyContactPhone) != null;
+            if (input.EmergencyContactPhone is not null && isDuplicateEmergencyPhone)
+            {
+                throw ExceptionHelper.Create(ErrorCode.EmergencyPhoneUnique);
+            }
+            bool isDuplicateIdentityNumber = await _userRepository.FirstOrDefaultAsync(u => u.IdentityNumber == input.IdentityNumber) != null;
+            if (input.IdentityNumber is not null && isDuplicateIdentityNumber)
+            {
+                throw ExceptionHelper.Create(ErrorCode.IdentityNumberUnique);
+            }
+            bool isDuplicateWorkEmailAdress= await _userRepository.FirstOrDefaultAsync(u => u.WorkEmailAddress == input.WorkEmailAddress) != null;
+            if (input.WorkEmailAddress is not null && isDuplicateWorkEmailAdress)
+            {
+                throw ExceptionHelper.Create(ErrorCode.WorkEmailAdressUnique);
+            }
+            
             var abpSessionUserId = AbpSession.GetUserId();
             var user = _userRepository.GetAll()
                 .Include(u => u.Roles)

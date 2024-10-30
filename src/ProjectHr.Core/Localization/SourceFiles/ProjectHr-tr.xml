@@ -116,6 +116,8 @@
     <text name="Clear">Temizle</text>
     <text name="ResetPasswordStepOneInfo">1. Yönetici şifresini girin</text>
     <text name="ResetPasswordStepTwoInfo">2. Bu şifreyi kaydettikten sonra ilgili kullanıcıya gönderin</text>
+
+<!--    permissions-->
     <text name="UsersActivation">Kullanıcıları aktifleştirme</text>
     <text name="UsersCreate">Kullanıcıları Oluşturma</text>
     <text name="UsersReadAllInfos">Kullanıcıların Tüm Bilgilerini Görme</text>
