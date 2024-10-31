@@ -17,8 +17,10 @@ public class UserAllUpdateDto
     [Required]
     [StringLength(AbpUserBase.MaxSurnameLength)]
     public string Surname { get; set; }
+    
     [Required]
     public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
+    
     [Required]
     public DateTime JobStartDate { get; set; }
     

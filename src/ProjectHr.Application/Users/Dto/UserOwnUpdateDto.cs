@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using ProjectHr.Authorization.Users;
+using ProjectHr.Constants;
 using ProjectHr.Enums;
 
 namespace ProjectHr.Users.Dto;
@@ -48,7 +49,7 @@ public class UserOwnUpdateDto
         
     public string Country { get; set; }
     public string City { get; set; }
-    [StringLength(User.MaxDirectionLength)]
+    [StringLength(LengthConstants.MaxDirectionLength)]
     public string AddressDirection { get; set; }
         
     [StringLength(AbpUserBase.MaxNameLength)]
