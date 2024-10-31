@@ -73,37 +73,45 @@ namespace ProjectHr.Users
             _emailSettings = emailSettings.Value;
         }
         
-        [AbpAuthorize(PermissionNames.Create_User)]
         [HttpPost]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
-            CheckCreatePermission();
-
-            var user = ObjectMapper.Map<User>(input);
-
-            user.TenantId = AbpSession.TenantId;
-            user.UserName = Guid.NewGuid().ToString();
-            user.IsEmailConfirmed = true;
-            user.IsActive = true;
-            user.IsInvited = true;
-
-            await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
-            
-            var password = Guid.NewGuid().ToString();
-
-            CheckErrors(await _userManager.CreateAsync(user, password));
-
-            if (input.RoleNames != null)
+            try
             {
-                CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
+                CheckCreatePermission();
+                
+                var user = ObjectMapper.Map<User>(input);
+
+                user.TenantId = AbpSession.TenantId;
+                user.UserName = Guid.NewGuid().ToString();
+                user.IsEmailConfirmed = true;
+                user.IsActive = true;
+                user.IsInvited = true;
+
+                await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
+                
+                var password = Guid.NewGuid().ToString();
+
+                CheckErrors(await _userManager.CreateAsync(user, password));
+
+                if (input.RoleNames != null)
+                {
+                    CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
+                }
+
+                CurrentUnitOfWork.SaveChanges();
+
+                return MapToEntityDto(user);
+
             }
-
-            CurrentUnitOfWork.SaveChanges();
-
-            return MapToEntityDto(user);
+            catch (Exception e)
+            {
+                ErrorCodeHelpers.DuplicateMessageHelper(e);
+                throw e;
+            }
         }
         
-        [AbpAuthorize(PermissionNames.Delete_User)]
+        [AbpAuthorize(PermissionNames.Pages_Users_Delete)]
         [HttpDelete]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
@@ -111,7 +119,7 @@ namespace ProjectHr.Users
             await _userManager.DeleteAsync(user);
         }
         
-        [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
+        [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
         [HttpPost("activate")]
         public async Task Activate(EntityDto<long> user)
         {
@@ -121,7 +129,7 @@ namespace ProjectHr.Users
             });
         }
         [HttpPost("de-activate")]
-        [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
+        [AbpAuthorize(PermissionNames.Pages_Users_Activation)]
         public async Task DeActivate(EntityDto<long> user)
         {
             await Repository.UpdateAsync(user.Id, async (entity) =>
@@ -282,42 +290,64 @@ namespace ProjectHr.Users
             }
         }
         
-        [AbpAuthorize(PermissionNames.Update_Info_User)]
+        [AbpAuthorize(PermissionNames.Pages_Users_Update_All_Infos)]
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)
         {
-            var user = _userRepository.GetAll()
-                .Include(u => u.Roles)
-                .Include(u=> u.JobTitle)
-                .FirstOrDefault( u => u.Id == userId);
+            
+            try
+            {
+                var user = _userRepository.GetAll()
+                    .Include(u => u.Roles)
+                    .Include(u=> u.JobTitle)
+                    .FirstOrDefault( u => u.Id == userId);
 
-            await _userManager.SetRolesAsync(user, input.RoleNames);
+                await _userManager.SetRolesAsync(user, input.RoleNames);
 
-            ObjectMapper.Map(input, user);
+                ObjectMapper.Map(input, user);
 
-            await _userRepository.UpdateAsync(user);
-            await CurrentUnitOfWork.SaveChangesAsync();
+                await _userRepository.UpdateAsync(user);
+                await CurrentUnitOfWork.SaveChangesAsync();
 
-            var userDto = MapToEntityDto(user);
-            return userDto;
+                var userDto = MapToEntityDto(user);
+                return userDto;
+            }
+            catch (Exception e)
+            {
+                ErrorCodeHelpers.DuplicateMessageHelper(e);
+
+                throw e;
+            }
+            
+
         }
         
         [HttpPut("profile")]
         public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
-            var abpSessionUserId = AbpSession.GetUserId();
-            var user = _userRepository.GetAll()
-                .Include(u => u.Roles)
-                .Include(u=> u.JobTitle)
-                .FirstOrDefault(u => u.Id == abpSessionUserId);
+            try
+            {
+                var abpSessionUserId = AbpSession.GetUserId();
+                var user = _userRepository.GetAll()
+                    .Include(u => u.Roles)
+                    .Include(u=> u.JobTitle)
+                    .FirstOrDefault(u => u.Id == abpSessionUserId);
 
-            ObjectMapper.Map(input, user);
+                ObjectMapper.Map(input, user);
             
-            await _userRepository.UpdateAsync(user);
-            await CurrentUnitOfWork.SaveChangesAsync();
+                await _userRepository.UpdateAsync(user);
+                await CurrentUnitOfWork.SaveChangesAsync();
 
-            var userDto = MapToEntityDto(user);
-            return userDto;
+                var userDto = MapToEntityDto(user);
+                return userDto;
+            }
+            catch (Exception e)
+            {
+                ErrorCodeHelpers.DuplicateMessageHelper(e);
+                throw e;
+            }
+            
+            
         }
         
         
@@ -386,7 +416,7 @@ namespace ProjectHr.Users
             return userDtos;
         }        
  
-        [AbpAuthorize(PermissionNames.View_Info_User)]
+        [AbpAuthorize(PermissionNames.Pages_Users_Read_All_Infos)]
         [HttpGet("{userId}")]
         public async Task<UserDto> GetUserByIdAdmin(long userId)
         {
