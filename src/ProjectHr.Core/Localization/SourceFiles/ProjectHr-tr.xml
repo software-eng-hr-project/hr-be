@@ -117,11 +117,33 @@
     <text name="ResetPasswordStepOneInfo">1. Yönetici şifresini girin</text>
     <text name="ResetPasswordStepTwoInfo">2. Bu şifreyi kaydettikten sonra ilgili kullanıcıya gönderin</text>
 
-<!--    permissions-->
-    <text name="UsersActivation">Kullanıcıları aktifleştirme</text>
-    <text name="UsersCreate">Kullanıcıları Oluşturma</text>
-    <text name="UsersReadAllInfos">Kullanıcıların Tüm Bilgilerini Görme</text>
-    <text name="UsersUpdateAllInfos">Kullanıcıların Tüm Bilgilerini Güncelleme</text>
-    <text name="UsersDelete">Kullanıcıları İşten Çıkarma</text>
+    <text name="CreateUser">Kullanıcıları Oluşturma</text>
+    <text name="ListUser">Kullanıcıları Listeleme</text>
+    <text name="ViewInfoUser">Kullanıcı Bilgilerini Görüntüleme</text>
+    <text name="UpdateInfoUser">Kullanıcı Bilgilerini Güncelleme</text>
+    <text name="ActiveOrDisabledUser">Kullanıcıyı Etkinleştirme veya Devre Dışı Bırakma</text>
+    <text name="DeleteUser">Kullanıcıyı Silme </text>
+    <text name="CreateProject">Proje Oluşturma</text>
+    <text name="UpdateProject">Proje Güncelleme</text>
+    <text name="DeleteProject">Proje Silme</text>
+    <text name="ListProject">Projeleri Listeleme</text>
+    <text name="EditUserTimeVacation">Kullanıcının İzin Süresini Düzenleme</text>
+    <text name="ApprovalOrRejectVacation">İzin Onaylama veya Reddetme</text>
+    <text name="ListVacation">İzin Listeleme</text>
+    <text name="CreateRole">Rol Oluşturma</text>
+    <text name="UpdateRole">Rol Güncelleme</text>
+    <text name="DeleteRole">Rol Silme</text>
+    <text name="ListRole">Rolleri Listeleme</text>
+    <text name="EditAuthorization">Yetkilendirmeyi Düzenleme</text>
+    <text name="DeleteAuthorization">Yetkilendirmeyi Silme</text>
+    <text name="ListAuthorization">Yetkilendirmeleri Listeleme</text>
+    <text name="PageReport">Rapor Sayfasına Erişme</text>
+    <text name="ListSettings">Ayarları Listeleme</text>
+    <text name="ListEmployeeLayoff">İşten Çıkarılan Çalışanları Listeleme</text>
+    <text name="CreateVacationApprovalProcess">İzin Onay Süreci Oluşturma</text>
+    <text name="UpdateVacationApprovalProcess">İzin Onay Sürecini Güncelleme</text>
+    <text name="DeleteVacationApprovalProcess">İzin Onay Sürecini Silme</text>
+    <text name="ListVacationApprovalProcess">İzin Onay Süreçlerini Listeleme</text>
+    <text name="CreateWorkingSchedule">Çalışma Programı Oluşturma</text>
   </texts>
 </localizationDictionary>
