@@ -67,9 +67,36 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
             }
 
             // Admin user for host
+            var adminUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == null && u.UserName == AbpUserBase.AdminUserName);
+            if (adminUserForHost == null)
+            {
+                var user = new User
+                {
+                    TenantId = null,
+                    UserName = AbpUserBase.AdminUserName,
+                    Name = "admin",
+                    Surname = "admin",
+                    EmailAddress = "admin@aspnetboilerplate.com",
+                    IsEmailConfirmed = true,
+                    IsActive = true,
+                    JobTitleId = 1
+                };
+
+                user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");
+                user.SetNormalizedNames();
+
+                adminUserForHost = _context.Users.Add(user).Entity;
+                _context.SaveChanges();
+
+                // Assign Admin role to admin user
+                _context.UserRoles.Add(new UserRole(null, adminUserForHost.Id, adminRoleForHost.Id));
+                _context.SaveChanges();
+
+                _context.SaveChanges();
+            }
             for (int i = 1; i< 11; i++)
             {
-                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u =>  u.UserName == $"testuser{i}");
+                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == 1 && u.UserName == $"testuser{i}");
                 if (seedUserForHost == null)
                 {
                     var user = new User
@@ -104,38 +131,11 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
                     _context.SaveChanges();
 
                     // Assign Admin role to admin user
-                    _context.UserRoles.Add(new UserRole(null, seedUserForHost.Id, adminRoleForHost.Id));
+                    _context.UserRoles.Add(new UserRole(1, seedUserForHost.Id, adminRoleForHost.Id));
                     _context.SaveChanges();
 
                     _context.SaveChanges();
                 }
-            }
-            var adminUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == null && u.UserName == AbpUserBase.AdminUserName);
-            if (adminUserForHost == null)
-            {
-                var user = new User
-                {
-                    TenantId = null,
-                    UserName = AbpUserBase.AdminUserName,
-                    Name = "admin",
-                    Surname = "admin",
-                    EmailAddress = "admin@aspnetboilerplate.com",
-                    IsEmailConfirmed = true,
-                    IsActive = true,
-                    JobTitleId = 1
-                };
-
-                user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");
-                user.SetNormalizedNames();
-
-                adminUserForHost = _context.Users.Add(user).Entity;
-                _context.SaveChanges();
-
-                // Assign Admin role to admin user
-                _context.UserRoles.Add(new UserRole(null, adminUserForHost.Id, adminRoleForHost.Id));
-                _context.SaveChanges();
-
-                _context.SaveChanges();
             }
         }
     }

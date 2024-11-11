@@ -242,8 +242,6 @@ namespace ProjectHr.Users
             {
                 user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
                 user.PasswordResetToken = null;
-                if(user.IsInvited)
-                    user.IsInvited = false;
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
         
@@ -355,43 +353,14 @@ namespace ProjectHr.Users
         
         
         // public async Task
-        
         [HttpGet]
         public async Task<List<GetUserGeneralInfo>> GetAll(PagedUserResultRequestDto input)
         {
             var users = _userRepository.GetAll()
                 .Include(u => u.JobTitle);
-            //
-            // var abpSessionUserId = AbpSession.GetUserId();
-            // var user = users.FirstOrDefault(u => u.Id == abpSessionUserId);
-            
 
-            // var roles = await _roleRepository.GetAllListAsync();
-            // var roles =  _roleRepository.GetAllIncluding(r=> r.Permissions); // ROL CHECK YAPARKEN GETALLLİST YERİNE BUNU YAZACAZ
-
-
-            // var hasPermissions = roles.FirstOrDefault(r => r.Id == user.Roles.ToList()[0].RoleId).Permissions
-            //     .Where(p => p.Name == PermissionNames.Pages_Users_Read_All_Infos).ToList().Count != 0;
-            //
-            // if (!hasPermissions)
-            // {
-            //     var limitedInfos = ObjectMapper.Map<List<CreateUserDto>>(users);
-            //     var limitedInfosDto = ObjectMapper.Map<List<UserDto>>(limitedInfos);
-            //     // foreach (var limitedInfo in limitedInfosDto)
-            //     // {
-            //     //     var roleIds = users.First(x => x.Id == limitedInfo.Id).Roles.Select(x => x.RoleId);
-            //     //     limitedInfo.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
-            //     // }
-            //
-            //     return limitedInfosDto;
-            // }
             var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
-            
-            // foreach (var userDto in userDtos)
-            // {
-            //     var roleIds = users.First(x => x.Id == userDto.Id).Roles.Select(x => x.RoleId);
-            //     userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
-            // }
+
             
             return userDtos;
         }

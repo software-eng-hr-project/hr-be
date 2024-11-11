@@ -32,9 +32,7 @@ namespace ProjectHr.Users.Dto
         public bool IsActive { get; set; }
 
         public string FullName { get; set; }
-
-        public DateTime? LastLoginTime { get; set; }
-
+        
         public DateTime CreationTime { get; set; }
         
         [EmailAddress]

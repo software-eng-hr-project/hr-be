@@ -33,6 +33,47 @@ public class MailService : ProjectHrAppServiceBase
     }
     
     [AbpAllowAnonymous]
+    [HttpPost("reset-password")]
+    public async Task ResetPassword(ResetPasswordMailInput input)
+    {   
+            var users = _userRepository.GetAll().Where(x => x.EmailAddress == input.EmailAddress).ToList();
+    
+            if (users.Count == 0)
+            {
+                throw new UserFriendlyException("There is no user registered with this email!");
+            }
+    
+            var token = await _userManager.GeneratePasswordResetTokenAsync(users.FirstOrDefault());
+    
+            foreach (var user in users)
+            {
+                user.PasswordResetCode = token;
+                await _userRepository.UpdateAsync(user);
+            }
+    
+            // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
+            var link = _emailSettings.ClientURL;
+            var linkWithToken = string.Format($"{link}/users/reset/?token={token}");
+    
+            var template = _sesService.GetEmailTemplate(EmailType.PasswordReset, new Dictionary<string, string>()
+            {
+                { "#link_with_token", linkWithToken },
+            });
+    
+    
+            var mail = new SendMailModel
+            {
+                To = input.EmailAddress,
+                Body = template,
+                Subject = "Reset Password",
+                LinkWithToken = linkWithToken,
+                
+            };
+    
+            await _sesService.SendMail(mail);
+    }
+    
+    [AbpAllowAnonymous]
     [HttpPost("invite-user")]
     public async Task ResetPasswordMail(ResetPasswordMailInput input)
     {

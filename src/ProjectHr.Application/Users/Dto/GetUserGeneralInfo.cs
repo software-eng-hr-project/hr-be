@@ -4,16 +4,15 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using JetBrains.Annotations;
 using ProjectHr.Enums;
+using ProjectHr.JobTitles.Dto;
 
 namespace ProjectHr.Users.Dto;
 
 public class GetUserGeneralInfo : EntityDto<long>
 {
-    [Required]
     [StringLength(AbpUserBase.MaxNameLength)]
     public string Name { get; set; }
-
-    [Required]
+    
     [StringLength(AbpUserBase.MaxSurnameLength)]
     public string Surname { get; set; }
     public string AvatarUrl { get; set; } 
@@ -28,11 +27,14 @@ public class GetUserGeneralInfo : EntityDto<long>
     [CanBeNull]
     public string WorkPhone { get; set; } = null;
 
-    [Required] public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
+    public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
 
-    [Required]
+
     public DateTime JobStartDate { get; set; }
         
     [Required]
-    public int JobTitleId { get; set; }
+    public JobTitleDto JobTitle { get; set; }
+    
+    public string Country { get; set; }
+    public string City { get; set; }
 }

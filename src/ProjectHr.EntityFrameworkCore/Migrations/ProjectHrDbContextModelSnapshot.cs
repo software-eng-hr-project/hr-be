@@ -1625,6 +1625,9 @@ namespace ProjectHr.Migrations
                     b.Property<int?>("TenantId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("UserInviteToken")
+                        .HasColumnType("text");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -1641,6 +1644,12 @@ namespace ProjectHr.Migrations
                     b.HasIndex("CreatorUserId");
 
                     b.HasIndex("DeleterUserId");
+
+                    b.HasIndex("EmergencyContactPhone")
+                        .IsUnique();
+
+                    b.HasIndex("IdentityNumber")
+                        .IsUnique();
 
                     b.HasIndex("JobTitleId");
 
