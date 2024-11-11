@@ -4,7 +4,6 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using Abp.AutoMapper;
 using ProjectHr.Authorization.Users;
-using ProjectHr.Constants;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
 using ProjectHr.JobTitles.Dto;
@@ -80,7 +79,7 @@ namespace ProjectHr.Users.Dto
         
         public string Country { get; set; }
         public string City { get; set; }
-        [StringLength(LengthConstants.MaxDirectionLength)]
+        [StringLength(User.MaxDirectionLength)]
         public string AddressDirection { get; set; }
         
         [StringLength(AbpUserBase.MaxNameLength)]

@@ -44,9 +44,9 @@ namespace ProjectHr.Users
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IAbpSession _abpSession;
         private readonly LogInManager _logInManager;
-        // private readonly ISESService _sesService;
+        private readonly ISESService _sesService;
         private readonly IRepository<User, long> _userRepository;
-        // private readonly EmailSettings _emailSettings;
+        private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserAppService(
@@ -55,11 +55,9 @@ namespace ProjectHr.Users
             RoleManager roleManager,
             IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
-            // IOptions<EmailSettings> emailSettings,
+            IOptions<EmailSettings> emailSettings,
             IAbpSession abpSession,
-            LogInManager logInManager, 
-            // ISESService sesService, 
-            IHttpContextAccessor httpContextAccessor)
+            LogInManager logInManager, ISESService sesService, IHttpContextAccessor httpContextAccessor)
         
             : base(userRepository)
         {
@@ -69,49 +67,40 @@ namespace ProjectHr.Users
             _passwordHasher = passwordHasher;
             _abpSession = abpSession;
             _logInManager = logInManager;
-            // _sesService = sesService;
+            _sesService = sesService;
             _httpContextAccessor = httpContextAccessor;
             _userRepository = userRepository;
-            // _emailSettings = emailSettings.Value;
+            _emailSettings = emailSettings.Value;
         }
         
         [AbpAuthorize(PermissionNames.Create_User)]
         [HttpPost]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
-            try
+            CheckCreatePermission();
+
+            var user = ObjectMapper.Map<User>(input);
+
+            user.TenantId = AbpSession.TenantId;
+            user.UserName = Guid.NewGuid().ToString();
+            user.IsEmailConfirmed = true;
+            user.IsActive = true;
+            user.IsInvited = true;
+
+            await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
+            
+            var password = Guid.NewGuid().ToString();
+
+            CheckErrors(await _userManager.CreateAsync(user, password));
+
+            if (input.RoleNames != null)
             {
-                CheckCreatePermission();
-                
-                var user = ObjectMapper.Map<User>(input);
-
-                user.TenantId = AbpSession.TenantId;
-                user.UserName = Guid.NewGuid().ToString();
-                user.IsEmailConfirmed = true;
-                user.IsActive = true;
-                user.IsInvited = true;
-
-                await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
-                
-                var password = Guid.NewGuid().ToString();
-
-                CheckErrors(await _userManager.CreateAsync(user, password));
-
-                if (input.RoleNames != null)
-                {
-                    CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
-                }
-
-                CurrentUnitOfWork.SaveChanges();
-
-                return MapToEntityDto(user);
-
+                CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
             }
-            catch (Exception e)
-            {
-                ErrorCodeHelpers.DuplicateMessageHelper(e);
-                throw e;
-            }
+
+            CurrentUnitOfWork.SaveChanges();
+
+            return MapToEntityDto(user);
         }
         
         [AbpAuthorize(PermissionNames.Delete_User)]
@@ -249,108 +238,86 @@ namespace ProjectHr.Users
         
             return true;
         }
-        // [AbpAllowAnonymous]
-        // [HttpPost("reset-password-email/send")]
-        // public async Task ResetPasswordMail(ResetPasswordMailInput input)
-        // {
-        //     // using (CurrentUnitOfWork.DisableFilter(AbpDataFilters.MayHaveTenant, AbpDataFilters.MustHaveTenant))
-        //     // {
-        //         var users = _userRepository.GetAll().Where(x => x.EmailAddress == input.EmailAddress).ToList();
-        //
-        //         if (users.Count == 0)
-        //         {
-        //             throw new UserFriendlyException("There is no user registered with this email!");
-        //         }
-        //
-        //         var token = await _userManager.GeneratePasswordResetTokenAsync(users.FirstOrDefault());
-        //
-        //         foreach (var user in users)
-        //         {
-        //             user.PasswordResetCode = token;
-        //             await _userRepository.UpdateAsync(user);
-        //         }
-        //
-        //         // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
-        //         var link = _emailSettings.ClientURL;
-        //         var linkWithToken = string.Format($"{link}/users/invite/?token={token}");
-        //
-        //         var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
-        //         {
-        //             { "#link_with_token", linkWithToken },
-        //         });
-        //
-        //
-        //         var mail = new SendMailModel
-        //         {
-        //             To = input.EmailAddress,
-        //             Body = template,
-        //             Subject = "Reset Password",
-        //             LinkWithToken = linkWithToken,
-        //             
-        //         };
-        //
-        //         await _sesService.SendMail(mail);
-        //     // }
-        // }
+        [AbpAllowAnonymous]
+        [HttpPost("reset-password-email/send")]
+        public async Task ResetPasswordMail(ResetPasswordMailInput input)
+        {
+            using (CurrentUnitOfWork.DisableFilter(AbpDataFilters.MayHaveTenant, AbpDataFilters.MustHaveTenant))
+            {
+                var users = _userRepository.GetAll().Where(x => x.EmailAddress == input.EmailAddress).ToList();
+
+                if (users.Count == 0)
+                {
+                    throw new UserFriendlyException("There is no user registered with this email!");
+                }
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(users.FirstOrDefault());
+
+                foreach (var user in users)
+                {
+                    user.PasswordResetCode = token;
+                    await _userRepository.UpdateAsync(user);
+                }
+
+                // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
+                var link = _emailSettings.ClientURL;
+                var linkWithToken = string.Format($"{link}/users/invite/?token={token}");
+
+                var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
+                {
+                    { "#link_with_token", linkWithToken },
+                });
+
+
+                var mail = new SendMailModel
+                {
+                    To = input.EmailAddress,
+                    Body = template,
+                    Subject = "Reset Password",
+                    LinkWithToken = linkWithToken,
+                    
+                };
+
+                await _sesService.SendMail(mail);
+            }
+        }
         
         [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)
         {
-            
-            try
-            {
-                var user = _userRepository.GetAll()
-                    .Include(u => u.Roles)
-                    .Include(u=> u.JobTitle)
-                    .FirstOrDefault( u => u.Id == userId);
+            var user = _userRepository.GetAll()
+                .Include(u => u.Roles)
+                .Include(u=> u.JobTitle)
+                .FirstOrDefault( u => u.Id == userId);
 
-                await _userManager.SetRolesAsync(user, input.RoleNames);
+            await _userManager.SetRolesAsync(user, input.RoleNames);
 
-                ObjectMapper.Map(input, user);
+            ObjectMapper.Map(input, user);
 
-                await _userRepository.UpdateAsync(user);
-                await CurrentUnitOfWork.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-                var userDto = MapToEntityDto(user);
-                return userDto;
-            }
-            catch (Exception e)
-            {
-                ErrorCodeHelpers.DuplicateMessageHelper(e);
-
-                throw e;
-            }
-            
-
+            var userDto = MapToEntityDto(user);
+            return userDto;
         }
         
         [HttpPut("profile")]
         public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
         {
-            try
-            {
-                var abpSessionUserId = AbpSession.GetUserId();
-                var user = _userRepository.GetAll()
-                    .Include(u => u.Roles)
-                    .Include(u=> u.JobTitle)
-                    .FirstOrDefault(u => u.Id == abpSessionUserId);
+            var abpSessionUserId = AbpSession.GetUserId();
+            var user = _userRepository.GetAll()
+                .Include(u => u.Roles)
+                .Include(u=> u.JobTitle)
+                .FirstOrDefault(u => u.Id == abpSessionUserId);
 
-                ObjectMapper.Map(input, user);
+            ObjectMapper.Map(input, user);
             
-                await _userRepository.UpdateAsync(user);
-                await CurrentUnitOfWork.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
+            await CurrentUnitOfWork.SaveChangesAsync();
 
-                var userDto = MapToEntityDto(user);
-                return userDto;
-            }
-            catch (Exception e)
-            {
-                ErrorCodeHelpers.DuplicateMessageHelper(e);
-                throw e;
-            }
-            
-            
+            var userDto = MapToEntityDto(user);
+            return userDto;
         }
         
         
