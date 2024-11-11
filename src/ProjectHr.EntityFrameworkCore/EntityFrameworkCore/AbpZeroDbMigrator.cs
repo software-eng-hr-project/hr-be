@@ -5,7 +5,7 @@ using Abp.Zero.EntityFrameworkCore;
 
 namespace ProjectHr.EntityFrameworkCore
 {
-    public class AbpZeroDbMigrator : AbpZeroDbMigrator<ProjectHrDbContext>
+    public class  AbpZeroDbMigrator : AbpZeroDbMigrator<ProjectHrDbContext>
     {
         public AbpZeroDbMigrator(
             IUnitOfWorkManager unitOfWorkManager,

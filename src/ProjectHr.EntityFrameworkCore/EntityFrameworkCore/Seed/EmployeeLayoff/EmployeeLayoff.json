@@ -1,0 +1,194 @@
+﻿[
+  {
+    "Id": 1,
+    "Name": "Deneme süreli iş sözleşmesinin işverence feshi"
+  },
+  {
+    "Id": 2,
+    "Name": "Deneme süreli iş sözleşmesinin işçi tarafından feshi"
+  },
+  {
+    "Id": 3,
+    "Name": "Belirsiz süreli iş sözleşmesinin işçi tarafından feshi (istifa)"
+  },
+  {
+    "Id": 4,
+    "Name": "Belirsiz süreli iş sözleşmesinin işveren tarafından haklı sebep bildirilmeden feshi"
+  },
+  {
+    "Id": 5,
+    "Name": "Belirli süreli iş sözleşmesinin sona ermesi"
+  },
+  {
+    "Id": 8,
+    "Name": "Emeklilik (yaşlılık) veya toptan ödeme nedeniyle"
+  },
+  {
+    "Id": 9,
+    "Name": "Malulen emeklilik nedeniyle"
+  },
+  {
+    "Id": 10,
+    "Name": "Ölüm"
+  },
+  {
+    "Id": 11,
+    "Name": "İş kazası sonucu ölüm"
+  },
+  {
+    "Id": 12,
+    "Name": "Askerlik"
+  },
+  {
+    "Id": 13,
+    "Name": "Kadın işçinin evlenmesi"
+  },
+  {
+    "Id": 14,
+    "Name": "Emeklilik için yaş dışında diğer şartların tamamlanması"
+  },
+  {
+    "Id": 15,
+    "Name": "Toplu işçi çıkarma"
+  },
+  {
+    "Id": 16,
+    "Name": "Sözleşme sona ermeden sigortalının aynı işverene ait diğer işyerine nakli"
+  },
+  {
+    "Id": 17,
+    "Name": "İşyerinin kapanması"
+  },
+  {
+    "Id": 18,
+    "Name": "İşin sona ermesi"
+  },
+  {
+    "Id": 19,
+    "Name": "Mevsim bitimi (İş akdinin askıya alınması halinde kullanılır.Tekrar başlatılmayacaksa “4” nolu kod kullanılır)"
+  },
+  {
+    "Id": 20,
+    "Name": "Kampanya bitimi (İş akdinin askıya alınması halinde kullanılır. Başlatılmayacaksa “4” nolu kod kullanılır)"
+  },
+  {
+    "Id": 21,
+    "Name": "Statü değişikliği"
+  },
+  {
+    "Id": 22,
+    "Name": "Diğer nedenler"
+  },
+  {
+    "Id": 23,
+    "Name": "İşçi tarafından zorunlu nedenle fesih"
+  },
+  {
+    "Id": 24,
+    "Name": "İşçi tarafından sağlık nedeniyle fesih"
+  },
+  {
+    "Id": 25,
+    "Name": "İşçi tarafından işverenin ahlak ve iyiniyet kurallarına aykırı davranış nedeni ile fesih"
+  },
+  {
+    "Id": 26,
+    "Name": "Disiplin Kurulu kararı ile fesih"
+  },
+  {
+    "Id": 27,
+    "Name": "İşveren tarafından zorunlu nedenlerle ve tutukluluk nedeniyle fesih"
+  },
+  {
+    "Id": 28,
+    "Name": "İşveren tarafından sağlık nedeni ile fesih"
+  },
+  {
+    "Id": 29,
+    "Name": "İşveren tarafından işçinin ahlak ve iyiniyet kurallarına aykırı davranışı nedeni ile fesih"
+  },
+  {
+    "Id": 30,
+    "Name": "Vize süresinin bitimi ( İş akdinin askıya alınması halinde kullan Tekrar başlatılmayacaksa “4” nolu kod kullanılır )"
+  },
+  {
+    "Id": 31,
+    "Name": "Borçlar Kanunu, Sendikalar Kanunu, Grev ve Lokavt Kanunu kapsamında kendi istek ve kusuru dışında fesih"
+  },
+  {
+    "Id": 32,
+    "Name": "4046 sayılı Kanunun 21. maddesine göre özelleştirme nedeni ile feshi"
+  },
+  {
+    "Id": 33,
+    "Name": "Gazeteci tarafından sözleşmenin feshi"
+  },
+  {
+    "Id": 34,
+    "Name": "İşyerinin devri, işin veya işyerinin niteliğinin değişmesi nedeniyle fesih"
+  },
+  {
+    "Id": 35,
+    "Name": "6495 SK nedeniyle devlet memurluğuna geçenler"
+  },
+  {
+    "Id": 36,
+    "Name": "KHK ile işyerinin kapatılması"
+  },
+  {
+    "Id": 37,
+    "Name": "KHK ile kamu görevinden çıkarma"
+  },
+  {
+    "Id": 38,
+    "Name": "Doğum Nedeniyle İşten Ayrılma"
+  },
+  {
+    "Id": 39,
+    "Name": "696 KHK ile kamu işçiliğine geçiş"
+  },
+  {
+    "Id": 40,
+    "Name": "696 KHK ile kamu işçiliğine geçilememesi sebebiyle çıkış"
+  },
+  {
+    "Id": 41,
+    "Name": "Re’sen işten ayrılış bildirgesi düzenlenenler (SGK tarafından değişik gerekçeler nedeniyle  işten ayrılışları re’sen düzenlenenler için seçilecek koddur.)"
+  },
+  {
+    "Id": 42,
+    "Name": "4857 sayılı Kanun Madde 25-II-a İş sözleşmesi yapıldığı sırada bu sözleşmenin esaslı noktalarından biri için gerekli vasıflar veya şartlar kendisinde bulunmadığı halde bunların kendisinde bulunduğunu ileri sürerek, yahut gerçeğe uygun olmayan bilgiler veya sözler söyleyerek işçinin işvereni yanıltması."
+  },
+  {
+    "Id": 43,
+    "Name": "4857 sayılı Kanun Madde 25-II-b İşçinin, işveren yahut bunların aile üyelerinden birinin şeref ve namusuna dokunacak sözler sarfetmesi veya davranışlarda bulunması, yahut işveren hakkında şeref ve haysiyet kırıcı asılsız ihbar ve isnadlarda bulunması."
+  },
+  {
+    "Id": 44,
+    "Name": "4857 sayılı Kanun Madde 25-II-c İşçinin işverenin başka bir işçisine cinsel tacizde bulunması."
+  },
+  {
+    "Id": 45,
+    "Name": "4857 sayılı Kanun Madde 25-II-d İşçinin işverene yahut onun ailesi üyelerinden birine yahut işverenin başka işçisine sataşması, işyerine sarhoş yahut uyuşturucu madde almış olarak gelmesi ya da işyerinde bu maddeleri kullanması."
+  },
+  {
+    "Id": 46,
+    "Name": "4857 sayılı Kanun Madde 25-II-e İşçinin, işverenin güvenini kötüye kullanmak, hırsızlık yapmak, işverenin meslek sırlarını ortaya atmak gibi doğruluk ve bağlılığa uymayan davranışlarda bulunması."
+  },
+  {
+    "Id": 47,
+    "Name": "4857 sayılı Kanun Madde 25-II-f İşçinin, işyerinde, yedi günden fazla hapisle cezalandırılan ve cezası ertelenmeyen bir suç işlemesi."
+  },
+  {
+    "Id": 48,
+    "Name": "4857 sayılı Kanun Madde 25-II-g İşçinin işverenden izin almaksızın veya haklı bir sebebe dayanmaksızın ardı ardına iki işgünü veya bir ay içinde iki defa herhangi bir tatil gününden sonraki iş günü, yahut bir ayda üç işgünü işine devam etmemesi."
+  },
+  {
+    "Id": 49,
+    "Name": "4857 sayılı Kanun Madde 25-II-h İşçinin yapmakla ödevli bulunduğu görevleri kendisine hatırlatıldığı halde yapmamakta ısrar etmesi."
+  },
+  {
+    "Id": 50,
+    "Name": "4857 sayılı Kanun Madde 25-II-ı İşçinin kendi isteği veya savsaması yüzünden işin güvenliğini tehlikeye düşürmesi, işyerinin malı olan veya malı olmayıp da eli altında bulunan makineleri, tesisatı veya başka eşya ve maddeleri otuz günlük ücretinin tutarıyla ödeyemeyecek derecede hasara ve kayba uğratması."
+  }
+]
