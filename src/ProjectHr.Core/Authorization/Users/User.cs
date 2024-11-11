@@ -34,8 +34,6 @@ namespace ProjectHr.Authorization.Users
 
             return user;
         }
-        public const int MaxDirectionLength = 256;
-
         public int JobTitleId { get; set; }
         public string AvatarUrl { get; set; } 
         public string WorkEmailAddress { get; set; }

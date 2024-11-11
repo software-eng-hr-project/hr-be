@@ -9,6 +9,7 @@ using ProjectHr.Authorization.Roles;
 using ProjectHr.Authorization.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using ProjectHr.Enums;
 
 namespace ProjectHr.EntityFrameworkCore.Seed.Host
 {
@@ -66,7 +67,49 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
             }
 
             // Admin user for host
+            for (int i = 1; i< 11; i++)
+            {
+                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u =>  u.UserName == $"testuser{i}");
+                if (seedUserForHost == null)
+                {
+                    var user = new User
+                    {
+                        TenantId = 1,
+                        UserName = $"testuser{i}",
+                        Name = $"testuser{i}",
+                        Surname = $"testuser{i}",
+                        EmailAddress = $"testuser{i}@aspnetboilerplate.com",
+                        WorkEmailAddress = $"testuser{i}@aspnetboilerplate.com",
+                        WorkPhone = $"0555555555{i}",
+                        PersonalPhone = $"0555555555{i}",
+                        EmergencyContactPhone = $"0555555555{i}",
+                        EmploymentType = EmploymentType.FullTime,
+                        Gender = Gender.Female,
+                        Nationality = "türkiye",
+                        BloodType = BloodType.ANegative,
+                        MarriedStatus = MarriedStatus.Single,
+                        DisabilityLevel = DisabilityLevel.None,
+                        //
+                        
 
+                        IsEmailConfirmed = true,
+                        IsActive = true,
+                        JobTitleId = i,
+                    };
+
+                    user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");
+                    user.SetNormalizedNames();
+
+                    seedUserForHost = _context.Users.Add(user).Entity;
+                    _context.SaveChanges();
+
+                    // Assign Admin role to admin user
+                    _context.UserRoles.Add(new UserRole(null, seedUserForHost.Id, adminRoleForHost.Id));
+                    _context.SaveChanges();
+
+                    _context.SaveChanges();
+                }
+            }
             var adminUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == null && u.UserName == AbpUserBase.AdminUserName);
             if (adminUserForHost == null)
             {

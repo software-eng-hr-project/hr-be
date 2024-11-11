@@ -33,7 +33,7 @@ public class MailService : ProjectHrAppServiceBase
     }
     
     [AbpAllowAnonymous]
-    [HttpPost("reset-password-email/send")]
+    [HttpPost("invite-user")]
     public async Task ResetPasswordMail(ResetPasswordMailInput input)
     {
         var users = _userRepository.GetAll().Where(x => x.EmailAddress == input.EmailAddress).ToList();
@@ -65,7 +65,7 @@ public class MailService : ProjectHrAppServiceBase
             {
                 To = input.EmailAddress,
                 Body = template,
-                Subject = "Reset Password",
+                Subject = "Invite User",
                 LinkWithToken = linkWithToken,
                     
             };
