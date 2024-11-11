@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Authorization.Users;
 using Abp.Extensions;
+using JetBrains.Annotations;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
 
@@ -66,15 +67,17 @@ namespace ProjectHr.Authorization.Users
         public string EmergencyContactDegree { get; set; }
         public string EmergencyContactPhone { get; set; }
       
+        public string PasswordResetToken { get; set; }
+
+        public bool IsInvited { get; set; } = false;
 
         [ForeignKey(nameof(JobTitleId))]
         public JobTitle JobTitle { get; set; }
         
         [ForeignKey(nameof(EmployeeLayoffId))]
         public EmployeeLayoff EmployeeLayoff { get; set; }
+        
+        [CanBeNull] public ICollection<ProjectMember> ProjectMembers {get; set; }
 
-        public string PasswordResetToken { get; set; }
-
-        public bool IsInvited { get; set; } = false;
     }
 }

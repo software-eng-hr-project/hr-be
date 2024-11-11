@@ -12,6 +12,6 @@ public class JobTitle : FullAuditedEntity
     
     public ICollection<User> Users {get; set; }
     
-    // [ForeignKey(nameof(CreatorUserId))] 
-    // public User Creator { get; set; }    // creator id isteyince creator modeli böyle alınıyor  include diyip kullanman lazım 
+    public ICollection<ProjectMember> ProjectMembers {get; set; }
+    
 }
