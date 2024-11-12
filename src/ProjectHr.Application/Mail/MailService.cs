@@ -53,7 +53,7 @@ public class MailService : ProjectHrAppServiceBase
     
             // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
             var link = _emailSettings.ClientURL;
-            var linkWithToken = string.Format($"{link}/users/reset/?token={token}");
+            var linkWithToken = string.Format($"{link}/reset-password?token={token}");
     
             var template = _sesService.GetEmailTemplate(EmailType.PasswordReset, new Dictionary<string, string>()
             {
@@ -94,7 +94,7 @@ public class MailService : ProjectHrAppServiceBase
     
             // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
             var link = _emailSettings.ClientURL;
-            var linkWithToken = string.Format($"{link}/users/invite/?token={token}");
+            var linkWithToken = string.Format($"{link}/join?token={token}");
     
             var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
             {
