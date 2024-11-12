@@ -234,16 +234,17 @@ namespace ProjectHr.Users
         [HttpPut("reset-password")]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
-            var user = _userRepository.FirstOrDefault(u => u.PasswordResetToken == input.Token);
+            var user = _userRepository.GetAll().FirstOrDefault(u => u.PasswordResetToken == input.Token);
             
             // var result = await _userManager.ResetPasswordAsync(user, input.Token, input.NewPassword);
-            
-            if (user != null)
+            if (user is null)
             {
-                user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
-                user.PasswordResetToken = null;
-                await CurrentUnitOfWork.SaveChangesAsync();
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
             }
+            user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
+            user.PasswordResetToken = null;
+            await CurrentUnitOfWork.SaveChangesAsync();
+            
         
             return true;
         }
@@ -430,9 +431,7 @@ namespace ProjectHr.Users
             var user = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.EmailAddress == input.EmailAddress);
             if (user is null)
             {
-                // Kullanıcı bulunduğunda 200 (OK) durum kodunu ve mesaj içeriğini döndürün
-
-                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+                throw ExceptionHelper.Create(ErrorCode.EmailCannotFound);
             }
             return ObjectMapper.Map<ResetPasswordMailInput>(user);
         }

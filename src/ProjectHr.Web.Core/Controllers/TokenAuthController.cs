@@ -11,6 +11,8 @@ using Abp.Authorization.Users;
 using Abp.MultiTenancy;
 using Abp.Runtime.Security;
 using Abp.UI;
+using Amazon.Runtime.Internal;
+using Castle.Core.Internal;
 using ProjectHr.Authentication.External;
 using ProjectHr.Authentication.JwtBearer;
 using ProjectHr.Authorization;
@@ -192,7 +194,8 @@ namespace ProjectHr.Controllers
                 case AbpLoginResultType.Success:
                     return loginResult;
                 default:
-                    throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, usernameOrEmailAddress, tenancyName);
+                    throw new UserFriendlyException(
+                        "Şifre, hesapla uyuşmuyor. Şifrenizi hatırlamıyorsanız Şifremi Unuttum seçeneğini kullanabilirsiniz.");
             }
         }
 

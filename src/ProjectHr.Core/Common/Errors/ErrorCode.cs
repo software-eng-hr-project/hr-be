@@ -43,6 +43,7 @@ public enum ErrorCode
     FirstLoginChangePassword = 4008,
     ChangePasswordException = 4010,
     AlreadyEnabled2fa = 4009,
+    EmailCannotFound = 4010,
 
 // Language - 5
     LanguageSameName = 5001,
@@ -193,6 +194,10 @@ public static class CustomError
         {
             ErrorCode.EmailAlreadyExist,
             "Bu email adresi başka bir kullanıcya ait."
+        },
+        {
+            ErrorCode.EmailCannotFound,
+            "Girmiş olduğunuz E-posta sistemimizde bulunmuyor. Bir hata olduğunu düşünüyorsanız lütfen yetkili ile iletişime geçin."
         },
         {
             ErrorCode.NameLength,

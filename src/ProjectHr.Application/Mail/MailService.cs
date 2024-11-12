@@ -47,7 +47,7 @@ public class MailService : ProjectHrAppServiceBase
     
             foreach (var user in users)
             {
-                user.PasswordResetCode = token;
+                user.PasswordResetToken = token;
                 await _userRepository.UpdateAsync(user);
             }
     
@@ -88,7 +88,7 @@ public class MailService : ProjectHrAppServiceBase
     
             foreach (var user in users)
             {
-                user.PasswordResetCode = token;
+                user.PasswordResetToken = token;
                 await _userRepository.UpdateAsync(user);
             }
     
