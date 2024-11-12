@@ -239,7 +239,7 @@ namespace ProjectHr.Users
             // var result = await _userManager.ResetPasswordAsync(user, input.Token, input.NewPassword);
             if (user is null)
             {
-                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+                throw ExceptionHelper.Create(ErrorCode.EmailCannotFound);
             }
             user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
             user.PasswordResetToken = null;
