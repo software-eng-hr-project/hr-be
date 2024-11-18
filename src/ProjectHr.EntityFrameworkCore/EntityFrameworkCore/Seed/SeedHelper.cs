@@ -9,6 +9,7 @@ using ProjectHr.EntityFrameworkCore.Seed.EmployeeLayoff;
 using ProjectHr.EntityFrameworkCore.Seed.Host;
 using ProjectHr.EntityFrameworkCore.Seed.JobTitle;
 using ProjectHr.EntityFrameworkCore.Seed.Tenants;
+using ProjectHr.EntityFrameworkCore.Seed.WorkDate;
 
 namespace ProjectHr.EntityFrameworkCore.Seed
 {
@@ -26,6 +27,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed
 
             new JobTitleSeed(context).Create();
             new EmployeeLayoffSeed(context).Create();
+            new WorkScheduleSeed(context).Create();
             // Host seed
             new InitialHostDbBuilder(context).Create();
 

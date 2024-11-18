@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
+using ProjectHr.Entities;
 using ProjectHr.JobTitles.Dto;
 
 namespace ProjectHr.Users
@@ -52,6 +53,7 @@ namespace ProjectHr.Users
 
         // private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IRepository<Project> _projectRepository;
 
         public UserAppService(
             IRepository<User, long> userRepository,
@@ -63,7 +65,9 @@ namespace ProjectHr.Users
             IAbpSession abpSession,
             LogInManager logInManager,
             // ISESService sesService, 
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IRepository<Project> projectRepository
+            )
             : base(userRepository)
         {
             _userManager = userManager;
@@ -74,6 +78,7 @@ namespace ProjectHr.Users
             _logInManager = logInManager;
             // _sesService = sesService;
             _httpContextAccessor = httpContextAccessor;
+            _projectRepository = projectRepository;
             _userRepository = userRepository;
             // _emailSettings = emailSettings.Value;
         }
@@ -246,49 +251,6 @@ namespace ProjectHr.Users
 
             return true;
         }
-        // [AbpAllowAnonymous]
-        // [HttpPost("reset-password-email/send")]
-        // public async Task ResetPasswordMail(ResetPasswordMailInput input)
-        // {
-        //     // using (CurrentUnitOfWork.DisableFilter(AbpDataFilters.MayHaveTenant, AbpDataFilters.MustHaveTenant))
-        //     // {
-        //         var users = _userRepository.GetAll().Where(x => x.EmailAddress == input.EmailAddress).ToList();
-        //
-        //         if (users.Count == 0)
-        //         {
-        //             throw new UserFriendlyException("There is no user registered with this email!");
-        //         }
-        //
-        //         var token = await _userManager.GeneratePasswordResetTokenAsync(users.FirstOrDefault());
-        //
-        //         foreach (var user in users)
-        //         {
-        //             user.PasswordResetCode = token;
-        //             await _userRepository.UpdateAsync(user);
-        //         }
-        //
-        //         // var link = _httpContextAccessor.HttpContext.Request.Host.Value;
-        //         var link = _emailSettings.ClientURL;
-        //         var linkWithToken = string.Format($"{link}/users/invite/?token={token}");
-        //
-        //         var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
-        //         {
-        //             { "#link_with_token", linkWithToken },
-        //         });
-        //
-        //
-        //         var mail = new SendMailModel
-        //         {
-        //             To = input.EmailAddress,
-        //             Body = template,
-        //             Subject = "Reset Password",
-        //             LinkWithToken = linkWithToken,
-        //             
-        //         };
-        //
-        //         await _sesService.SendMail(mail);
-        //     // }
-        // }
 
         [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}")]
@@ -352,10 +314,21 @@ namespace ProjectHr.Users
         {
             var users = _userRepository.GetAll()
                 .OrderBy(u => u.Name)
-                .Include(u => u.JobTitle);
+                .Include(u => u.JobTitle)
+                .Include(u => u.ProjectMembers);
 
-            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
+            users.Select(u => u.ProjectMembers.Select(pm => pm.ProjectId));
+            
 
+            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);   
+            foreach (var getUserGeneralInfo in userDtos)
+            {
+                getUserGeneralInfo.Projects = _projectRepository.GetAll()
+                    .Where(p => p.ProjectMembers.Any(pm => pm.UserId == getUserGeneralInfo.Id))
+                    .Select(p => p.Name)
+                    .ToArray();
+
+            }
 
             return userDtos;
         }

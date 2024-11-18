@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjectHr.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using ProjectHr.EntityFrameworkCore;
 namespace ProjectHr.Migrations
 {
     [DbContext(typeof(ProjectHrDbContext))]
-    partial class ProjectHrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230812105615_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1854,52 +1857,6 @@ namespace ProjectHr.Migrations
                     b.ToTable("ProjectMembers");
                 });
 
-            modelBuilder.Entity("ProjectHr.Entities.WorkDate", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("DayOfTheWeek")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("EndHour")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Label")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StartHour")
-                        .HasColumnType("text");
-
-                    b.Property<int>("WorkScheduleId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WorkScheduleId");
-
-                    b.ToTable("WorkDates");
-                });
-
-            modelBuilder.Entity("ProjectHr.Entities.WorkSchedule", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WorkSchedules");
-                });
-
             modelBuilder.Entity("ProjectHr.MultiTenancy.Tenant", b =>
                 {
                     b.Property<int>("Id")
@@ -2223,17 +2180,6 @@ namespace ProjectHr.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectHr.Entities.WorkDate", b =>
-                {
-                    b.HasOne("ProjectHr.Entities.WorkSchedule", "WorkSchedule")
-                        .WithMany("Dates")
-                        .HasForeignKey("WorkScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("WorkSchedule");
-                });
-
             modelBuilder.Entity("ProjectHr.MultiTenancy.Tenant", b =>
                 {
                     b.HasOne("ProjectHr.Authorization.Users.User", "CreatorUser")
@@ -2349,11 +2295,6 @@ namespace ProjectHr.Migrations
             modelBuilder.Entity("ProjectHr.Entities.Project", b =>
                 {
                     b.Navigation("ProjectMembers");
-                });
-
-            modelBuilder.Entity("ProjectHr.Entities.WorkSchedule", b =>
-                {
-                    b.Navigation("Dates");
                 });
 #pragma warning restore 612, 618
         }

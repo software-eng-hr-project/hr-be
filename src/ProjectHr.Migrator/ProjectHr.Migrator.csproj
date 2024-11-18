@@ -34,4 +34,11 @@
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
     <Copy SourceFiles="..\ProjectHr.EntityFrameworkCore\EntityFrameworkCore\Seed\EmployeeLayoff\EmployeeLayoff.json" DestinationFolder="$(PublishDir)" />
   </Target>
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="..\ProjectHr.EntityFrameworkCore\EntityFrameworkCore\Seed\WorkSchedule\WorkDate.json" DestinationFolder="$(OutDir)" />
+  </Target>
+  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
+    <Copy SourceFiles="..\ProjectHr.EntityFrameworkCore\EntityFrameworkCore\Seed\WorkSchedule\WorkDate.json" DestinationFolder="$(PublishDir)" />
+  </Target>
+
 </Project>

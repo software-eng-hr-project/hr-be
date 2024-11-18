@@ -18,6 +18,10 @@ namespace ProjectHr.EntityFrameworkCore
         public DbSet<ProjectMember> ProjectMembers { get; set; }
         
         public DbSet<Project> Projects { get; set; }
+        
+        public DbSet<WorkDate> WorkDates { get; set; }
+        
+        public DbSet<WorkSchedule> WorkSchedules { get; set; }
         public ProjectHrDbContext(DbContextOptions<ProjectHrDbContext> options)
             : base(options)
         {
