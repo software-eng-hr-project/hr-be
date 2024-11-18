@@ -1625,6 +1625,9 @@ namespace ProjectHr.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<int?>("TechStackId")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("TenantId")
                         .HasColumnType("integer");
 
@@ -1659,6 +1662,8 @@ namespace ProjectHr.Migrations
 
                     b.HasIndex("PersonalPhone")
                         .IsUnique();
+
+                    b.HasIndex("TechStackId");
 
                     b.HasIndex("WorkEmailAddress")
                         .IsUnique();
@@ -1852,6 +1857,22 @@ namespace ProjectHr.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ProjectMembers");
+                });
+
+            modelBuilder.Entity("ProjectHr.Entities.TechStack", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TechStacks");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.WorkDate", b =>
@@ -2185,6 +2206,10 @@ namespace ProjectHr.Migrations
                         .WithMany()
                         .HasForeignKey("LastModifierUserId");
 
+                    b.HasOne("ProjectHr.Entities.TechStack", "TechStack")
+                        .WithMany("Users")
+                        .HasForeignKey("TechStackId");
+
                     b.Navigation("CreatorUser");
 
                     b.Navigation("DeleterUser");
@@ -2194,6 +2219,8 @@ namespace ProjectHr.Migrations
                     b.Navigation("JobTitle");
 
                     b.Navigation("LastModifierUser");
+
+                    b.Navigation("TechStack");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.ProjectMember", b =>
@@ -2349,6 +2376,11 @@ namespace ProjectHr.Migrations
             modelBuilder.Entity("ProjectHr.Entities.Project", b =>
                 {
                     b.Navigation("ProjectMembers");
+                });
+
+            modelBuilder.Entity("ProjectHr.Entities.TechStack", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.WorkSchedule", b =>

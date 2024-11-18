@@ -1,0 +1,402 @@
+[
+  {
+    "Id": 1,
+    "Name": "HTML"
+  },
+  {
+    "Id": 2,
+    "Name": "CSS"
+  },
+  {
+    "Id": 3,
+    "Name": "JavaScript"
+  },
+  {
+    "Id": 4,
+    "Name": "React.js"
+  },
+  {
+    "Id": 5,
+    "Name": "Node.js"
+  },
+  {
+    "Id": 6,
+    "Name": "C#"
+  },
+  {
+    "Id": 7,
+    "Name": "Flutter"
+  },
+  {
+    "Id": 8,
+    "Name": "Python"
+  },
+  {
+    "Id": 9,
+    "Name": "DevOps"
+  },
+  {
+    "Id": 10,
+    "Name": "Ruby"
+  },
+  {
+    "Id": 11,
+    "Name": "Go (Golang)"
+  },
+  {
+    "Id": 12,
+    "Name": "Java"
+  },
+  {
+    "Id": 13,
+    "Name": "Swift"
+  },
+  {
+    "Id": 14,
+    "Name": "Kotlin"
+  },
+  {
+    "Id": 15,
+    "Name": "TypeScript"
+  },
+  {
+    "Id": 16,
+    "Name": "Dart"
+  },
+  {
+    "Id": 17,
+    "Name": "Rust"
+  },
+  {
+    "Id": 18,
+    "Name": "PHP"
+  },
+  {
+    "Id": 19,
+    "Name": "Ruby on Rails"
+  },
+  {
+    "Id": 20,
+    "Name": "Angular"
+  },
+  {
+    "Id": 21,
+    "Name": "Vue.js"
+  },
+  {
+    "Id": 22,
+    "Name": "Laravel"
+  },
+  {
+    "Id": 23,
+    "Name": "Flask"
+  },
+  {
+    "Id": 24,
+    "Name": "Express.js"
+  },
+  {
+    "Id": 25,
+    "Name": ".NET Core"
+  },
+  {
+    "Id": 26,
+    "Name": "Xamarin"
+  },
+  {
+    "Id": 27,
+    "Name": "React Native"
+  },
+  {
+    "Id": 28,
+    "Name": "Electron"
+  },
+  {
+    "Id": 29,
+    "Name": "Spring Framework"
+  },
+  {
+    "Id": 30,
+    "Name": "Symfony"
+  },
+  {
+    "Id": 31,
+    "Name": "Apache Cordova"
+  },
+  {
+    "Id": 32,
+    "Name": "Unity"
+  },
+  {
+    "Id": 33,
+    "Name": "Unreal Engine"
+  },
+  {
+    "Id": 34,
+    "Name": "Git"
+  },
+  {
+    "Id": 35,
+    "Name": "Jenkins"
+  },
+  {
+    "Id": 36,
+    "Name": "Ansible"
+  },
+  {
+    "Id": 37,
+    "Name": "AWS (Amazon Web Services)"
+  },
+  {
+    "Id": 38,
+    "Name": "Azure"
+  },
+  {
+    "Id": 39,
+    "Name": "Google Cloud Platform (GCP)"
+  },
+  {
+    "Id": 40,
+    "Name": "Firebase"
+  },
+  {
+    "Id": 41,
+    "Name": "GraphQL"
+  },
+  {
+    "Id": 42,
+    "Name": "Redis"
+  },
+  {
+    "Id": 43,
+    "Name": "Elasticsearch"
+  },
+  {
+    "Id": 44,
+    "Name": "MongoDB"
+  },
+  {
+    "Id": 45,
+    "Name": "PostgreSQL"
+  },
+  {
+    "Id": 46,
+    "Name": "Cassandra"
+  },
+  {
+    "Id": 47,
+    "Name": "Kafka"
+  },
+  {
+    "Id": 48,
+    "Name": "RabbitMQ"
+  },
+  {
+    "Id": 49,
+    "Name": "Ionic"
+  },
+  {
+    "Id": 50,
+    "Name": "PhoneGap"
+  },
+  {
+    "Id": 51,
+    "Name": "Apache Spark"
+  },
+  {
+    "Id": 52,
+    "Name": "Hadoop"
+  },
+  {
+    "Id": 53,
+    "Name": "Flask-RESTful"
+  },
+  {
+    "Id": 54,
+    "Name": "Django REST framework"
+  },
+  {
+    "Id": 55,
+    "Name": "Node-RED"
+  },
+  {
+    "Id": 56,
+    "Name": "Chef"
+  },
+  {
+    "Id": 57,
+    "Name": "Puppet"
+  },
+  {
+    "Id": 58,
+    "Name": "Ember.js"
+  },
+  {
+    "Id": 59,
+    "Name": "Backbone.js"
+  },
+  {
+    "Id": 60,
+    "Name": "Knockout.js"
+  },
+  {
+    "Id": 61,
+    "Name": "Handlebars.js"
+  },
+  {
+    "Id": 62,
+    "Name": "Three.js"
+  },
+  {
+    "Id": 63,
+    "Name": "Babylon.js"
+  },
+  {
+    "Id": 64,
+    "Name": "CakePHP"
+  },
+  {
+    "Id": 65,
+    "Name": "Yii"
+  },
+  {
+    "Id": 66,
+    "Name": "CodeIgniter"
+  },
+  {
+    "Id": 67,
+    "Name": "Spring Boot"
+  },
+  {
+    "Id": 68,
+    "Name": "Play Framework"
+  },
+  {
+    "Id": 69,
+    "Name": "Micronaut"
+  },
+  {
+    "Id": 70,
+    "Name": "Quarkus"
+  },
+  {
+    "Id": 71,
+    "Name": "JHipster"
+  },
+  {
+    "Id": 72,
+    "Name": "WebAssembly"
+  },
+  {
+    "Id": 73,
+    "Name": "WebRTC"
+  },
+  {
+    "Id": 74,
+    "Name": "OpenCV"
+  },
+  {
+    "Id": 75,
+    "Name": "Pandas"
+  },
+  {
+    "Id": 76,
+    "Name": "NumPy"
+  },
+  {
+    "Id": 77,
+    "Name": "Matplotlib"
+  },
+  {
+    "Id": 78,
+    "Name": "Seaborn"
+  },
+  {
+    "Id": 79,
+    "Name": "Scikit-learn"
+  },
+  {
+    "Id": 80,
+    "Name": "TensorFlow.js"
+  },
+  {
+    "Id": 81,
+    "Name": "PyTorch"
+  },
+  {
+    "Id": 82,
+    "Name": "Keras"
+  },
+  {
+    "Id": 83,
+    "Name": "Microsoft Azure Machine Learning"
+  },
+  {
+    "Id": 84,
+    "Name": "Google Cloud AutoML"
+  },
+  {
+    "Id": 85,
+    "Name": "IBM Watson"
+  },
+  {
+    "Id": 86,
+    "Name": "Natural Language Toolkit (NLK)"
+  },
+  {
+    "Id": 87,
+    "Name": "Apache MXNet"
+  },
+  {
+    "Id": 88,
+    "Name": "Caffe"
+  },
+  {
+    "Id": 89,
+    "Name": "Torch"
+  },
+  {
+    "Id": 90,
+    "Name": "Selenium"
+  },
+  {
+    "Id": 91,
+    "Name": "Cypress"
+  },
+  {
+    "Id": 92,
+    "Name": "JUnit"
+  },
+  {
+    "Id": 93,
+    "Name": "Mocha"
+  },
+  {
+    "Id": 94,
+    "Name": "pytest"
+  },
+  {
+    "Id": 95,
+    "Name": "Protractor"
+  },
+  {
+    "Id": 96,
+    "Name": "Jira"
+  },
+  {
+    "Id": 97,
+    "Name": "Trello"
+  },
+  {
+    "Id": 98,
+    "Name": "Slack"
+  },
+  {
+    "Id": 99,
+    "Name": "Microsoft Teams"
+  },
+  {
+    "Id": 100,
+    "Name": "Zoom"
+  }
+]

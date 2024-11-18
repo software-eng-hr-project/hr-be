@@ -36,6 +36,7 @@ namespace ProjectHr.Authorization.Users
             return user;
         }
         public int JobTitleId { get; set; }
+        public int? TechStackId { get; set; }
         public int? EmployeeLayoffId { get; set; }
         public string AvatarUrl { get; set; } 
         public string WorkEmailAddress { get; set; }
@@ -78,6 +79,9 @@ namespace ProjectHr.Authorization.Users
         public EmployeeLayoff EmployeeLayoff { get; set; }
         
         [CanBeNull] public ICollection<ProjectMember> ProjectMembers {get; set; }
+        
+        [ForeignKey(nameof(TechStackId))]
+        public ICollection<TechStack> TechStack { get; set; }
 
     }
 }

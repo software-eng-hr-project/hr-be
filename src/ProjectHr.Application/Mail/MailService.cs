@@ -82,7 +82,7 @@ public class MailService : ProjectHrAppServiceBase
         await _userRepository.UpdateAsync(user);
         
         var link = _emailSettings.ClientURL;
-        var linkWithToken = string.Format($"{link}/join?token={token}");
+        var linkWithToken = string.Format($"{link}/join?token={System.Web.HttpUtility.UrlEncode(token)}");
 
         var template = _sesService.GetEmailTemplate(EmailType.UserInvite, new Dictionary<string, string>()
         {

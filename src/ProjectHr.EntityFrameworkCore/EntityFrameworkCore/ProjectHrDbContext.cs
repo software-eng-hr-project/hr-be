@@ -13,13 +13,16 @@ namespace ProjectHr.EntityFrameworkCore
     {
         /* Define a DbSet for each entity of the application */
         public DbSet<JobTitle> JobTitles { get; set; }
+
         public DbSet<EmployeeLayoff> EmployeeLayoff { get; set; }
         
-        public DbSet<ProjectMember> ProjectMembers { get; set; }
-        
+        public DbSet<TechStack> TechStacks { get; set; }
+
         public DbSet<Project> Projects { get; set; }
         
         public DbSet<WorkDate> WorkDates { get; set; }
+        
+        public DbSet<ProjectMember> ProjectMembers { get; set; }
         
         public DbSet<WorkSchedule> WorkSchedules { get; set; }
         public ProjectHrDbContext(DbContextOptions<ProjectHrDbContext> options)
