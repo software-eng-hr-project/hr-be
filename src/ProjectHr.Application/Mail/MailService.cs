@@ -70,7 +70,7 @@ public class MailService : ProjectHrAppServiceBase
 
     [AbpAllowAnonymous]
     [HttpPost("invite-user")]
-    public async Task ResetPasswordMail(ResetPasswordMailInput input)
+    public async Task InviteUserMail(ResetPasswordMailInput input)
     {
         var user = await _userRepository.FirstOrDefaultAsync(x => x.EmailAddress == input.EmailAddress);
 

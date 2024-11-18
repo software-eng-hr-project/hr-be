@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjectHr.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using ProjectHr.EntityFrameworkCore;
 namespace ProjectHr.Migrations
 {
     [DbContext(typeof(ProjectHrDbContext))]
-    partial class ProjectHrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230810154852_team name  - project type")]
+    partial class teamnameprojecttype
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1820,9 +1823,6 @@ namespace ProjectHr.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsManager")
                         .HasColumnType("boolean");
 
                     b.Property<int>("JobTitleId")

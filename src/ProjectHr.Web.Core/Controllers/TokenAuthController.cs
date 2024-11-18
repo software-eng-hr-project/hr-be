@@ -193,9 +193,16 @@ namespace ProjectHr.Controllers
             {
                 case AbpLoginResultType.Success:
                     return loginResult;
-                default:
+                case AbpLoginResultType.InvalidPassword:
                     throw new UserFriendlyException(
                         "Şifre, hesapla uyuşmuyor. Şifrenizi hatırlamıyorsanız Şifremi Unuttum seçeneğini kullanabilirsiniz.");
+                case AbpLoginResultType.UserIsNotActive:
+                    throw new UserFriendlyException(
+                        "Görünüşe göre hesabınız etkin değil.");
+                default:
+                    throw new UserFriendlyException(
+                        "Oops! Bir Şeyler Ters Gitti.");
+                    
             }
         }
 

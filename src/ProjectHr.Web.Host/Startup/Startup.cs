@@ -26,6 +26,7 @@ using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.SimpleEmailV2;
+using Bugsnag.AspNet.Core;
 using Newtonsoft.Json.Converters;
 using ProjectHr.Users;
 
@@ -48,6 +49,10 @@ namespace ProjectHr.Web.Host.Startup
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddBugsnag(configuration => {
+                configuration.ApiKey = "4e76aa17f8e6a3f3b16735784cbfe878";
+                configuration.NotifyReleaseStages = new[] { "production" };
+            });
             
             var awsOptions = new AWSOptions
             {

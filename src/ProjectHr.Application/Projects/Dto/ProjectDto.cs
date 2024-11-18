@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
+using ProjectHr.ProjectMembers.Dto;
 
 namespace ProjectHr.Projects.Dto;
 
@@ -17,5 +18,5 @@ public class ProjectDto
     
     [CanBeNull] public string Description { get; set; }
     
-    [CanBeNull] public ICollection<ProjectMember> ProjectMembers {get; set; }
+    [CanBeNull] public ICollection<ProjectMemberDto> ProjectMembers {get; set; }
 }

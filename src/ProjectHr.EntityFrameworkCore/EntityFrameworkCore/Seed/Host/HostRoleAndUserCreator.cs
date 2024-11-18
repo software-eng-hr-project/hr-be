@@ -100,7 +100,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
             
             for (int i = 0; i< 10; i++)
             {
-                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == 1 && u.EmailAddress == $"{firstNames.GetValue(i)}_{surnames.GetValue(i)}@example.com");
+                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == 1 && u.EmergencyContactPhone == $"+90505555050{i}");
                 if (seedUserForHost == null)
                 {
                     var user = new User
@@ -109,8 +109,8 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
                         UserName = new Guid().ToString(),
                         Name = $"{firstNames.GetValue(i)}",
                         Surname = $"{surnames.GetValue(i)}",
-                        EmailAddress = $"{firstNames.GetValue(i)}_{surnames.GetValue(i)}@example.com",
-                        WorkEmailAddress = $"{firstNames.GetValue(i)}_{surnames.GetValue(i)}@example.com",
+                        EmailAddress = $"{firstNames.GetValue(i)?.ToString()?.ToLower()}_{surnames.GetValue(i)?.ToString()?.ToLower()}@example.com",
+                        WorkEmailAddress = $"{firstNames.GetValue(i)?.ToString()?.ToLower()}_{surnames.GetValue(i)?.ToString()?.ToLower()}@example.com",
                         WorkPhone = $"+90505555050{i}",
                         PersonalPhone = $"+90505555050{i}",
                         EmergencyContactPhone = $"+90505555050{i}",
@@ -122,8 +122,9 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
                         DisabilityLevel = DisabilityLevel.None,          
 
                         IsEmailConfirmed = true,
-                        IsActive = new Random().Next(2) != 0,
+                        IsActive = true,
                         JobTitleId = i + 1,
+                        JobStartDate = DateTime.Now,
                     };
 
                     user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");
