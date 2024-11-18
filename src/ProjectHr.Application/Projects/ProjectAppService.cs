@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectHr.Authorization;
 using ProjectHr.Authorization.Users;
+using ProjectHr.Common.Errors;
+using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
 using ProjectHr.ProjectMembers.Dto;
 using ProjectHr.Projects.Dto;
@@ -40,6 +42,10 @@ public class ProjectAppService: ProjectHrAppServiceBase
         await _projectRepository.InsertAsync(project);
         await CurrentUnitOfWork.SaveChangesAsync();
         var user = _userRepository.FirstOrDefault(u => u.Id == input.Manager.UserId);
+        if (user is null)
+        {
+            throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+        }
         var member = new ProjectMember();
         member.UserId = user.Id;
         member.ProjectId = project.Id;
@@ -61,18 +67,34 @@ public class ProjectAppService: ProjectHrAppServiceBase
         var project = await _projectRepository.GetAll()
             .Include(p => p.ProjectMembers)
             .FirstOrDefaultAsync(p => p.Id == projectId);
+        if (project is null)
+            throw new UserFriendlyException("Böyle bir proje Bulunamadı");
 
-        bool isManager = project.ProjectMembers.FirstOrDefault(p => p.UserId == abpSessionUserId).IsManager;
+        bool isManager =  project.ProjectMembers.Any(p => p.UserId == abpSessionUserId && p.IsManager == true);
         if (!isManager)
-        {   
             throw new UserFriendlyException("Bu projede yetkili değilsiniz.");
+        
+
+        foreach (var member in input.ProjectMembers)
+        {
+            bool isExist =  _userRepository.GetAll().Any(u => u.Id == member.UserId);
+            if(!isExist)
+                throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+            
+            var newMember = new ProjectMember();
+            newMember.UserId = member.UserId;
+            newMember.ProjectId = project.Id;
+            newMember.IsManager = false;
+            newMember.JobTitleId = member.JobTitleId;
+            
+            project.ProjectMembers.Add(newMember);
         }
+
+        await _projectRepository.UpdateAsync(project);
+        await CurrentUnitOfWork.SaveChangesAsync();
         
-        var projectDto = ObjectMapper.Map(input, project);
-        
-        // await _projectRepository.UpdateAsync(projectDto);
-        // await CurrentUnitOfWork.SaveChangesAsync();
-        return null;
+        var projectDto = ObjectMapper.Map<ProjectDto>(project);
+        return projectDto;
     }
 
     [AbpAuthorize(PermissionNames.Update_Project)]
@@ -83,19 +105,32 @@ public class ProjectAppService: ProjectHrAppServiceBase
             .Include(p => p.ProjectMembers)
             .FirstOrDefaultAsync(p => p.Id == projectId);
         
-        var updatedetProject = ObjectMapper.Map(input, project);
+        var updatedProject = ObjectMapper.Map(input, project);
+        var currentManager = updatedProject.ProjectMembers.FirstOrDefault(p => p.IsManager == true);
+        if (currentManager.UserId != input.Manager.UserId)
+        {
+            updatedProject.ProjectMembers.Remove(currentManager);
+            var newManager = await _userRepository.FirstOrDefaultAsync(u=>u.Id == input.Manager.UserId);
+            var manager = new ProjectMember();
+            manager.UserId = newManager.Id;
+            manager.ProjectId = project.Id;
+            manager.IsManager = true;
+            manager.JobTitleId = 6;
+            updatedProject.ProjectMembers.Add(manager);
+        }
         
-        await _projectRepository.UpdateAsync(updatedetProject);
+        await _projectRepository.UpdateAsync(updatedProject);
         await CurrentUnitOfWork.SaveChangesAsync();
-        var projectDto = ObjectMapper.Map<ProjectDto>(project);
+        var projectDto = ObjectMapper.Map<ProjectDto>(project); 
         return projectDto;
     } 
     
     [AbpAuthorize(PermissionNames.List_Project)]
     [HttpGet]
-    public async Task<List<ProjectDto>> GetProjectAsync()
+    public async Task<List<ProjectDto>> GetAllProjectAsync()
     {
         var project = await _projectRepository.GetAll()
+            .OrderBy(p => p.Id)
             .Include(p => p.ProjectMembers)
             .ToListAsync();
         var projectDto = ObjectMapper.Map<List<ProjectDto>>(project);

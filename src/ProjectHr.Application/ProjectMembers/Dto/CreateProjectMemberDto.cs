@@ -10,7 +10,6 @@ public class CreateProjectMemberDto
     public int JobTitleId { get; set; }
     
      [CanBeNull] public string TeamName { get; set; }
-
-    public bool IsManager { get; set; } = false;
+     
 
 }
