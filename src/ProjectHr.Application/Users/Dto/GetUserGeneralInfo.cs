@@ -37,6 +37,4 @@ public class GetUserGeneralInfo : EntityDto<long>
     
     public string Country { get; set; }
     public string City { get; set; }
-    
-    public bool IsActive { get; set; }
 }

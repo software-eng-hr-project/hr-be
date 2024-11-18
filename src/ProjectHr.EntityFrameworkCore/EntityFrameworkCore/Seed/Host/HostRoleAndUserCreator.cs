@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Abp.Authorization;
@@ -94,34 +95,35 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
 
                 _context.SaveChanges();
             }
-            for (int i = 1; i< 11; i++)
+            string[] firstNames = { "Ahmet", "Mehmet", "Ali", "Ayşe", "Fatma", "Zeynep", "Mustafa", "Emine", "Hüseyin", "Hatice" };
+            string[] surnames = { "Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Kara", "Öztürk", "Arslan", "Yıldız", "Ergün" };
+            
+            for (int i = 0; i< 10; i++)
             {
-                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == 1 && u.UserName == $"testuser{i}");
+                var seedUserForHost = _context.Users.IgnoreQueryFilters().FirstOrDefault(u => u.TenantId == 1 && u.EmailAddress == $"{firstNames.GetValue(i)}_{surnames.GetValue(i)}@example.com");
                 if (seedUserForHost == null)
                 {
                     var user = new User
                     {
                         TenantId = 1,
-                        UserName = $"testuser{i}",
-                        Name = $"testuser{i}",
-                        Surname = $"testuser{i}",
-                        EmailAddress = $"testuser{i}@example.com",
-                        WorkEmailAddress = $"testuser{i}@example.com",
-                        WorkPhone = $"0555555555{i}",
-                        PersonalPhone = $"0555555555{i}",
-                        EmergencyContactPhone = $"0555555555{i}",
+                        UserName = new Guid().ToString(),
+                        Name = $"{firstNames.GetValue(i)}",
+                        Surname = $"{surnames.GetValue(i)}",
+                        EmailAddress = $"{firstNames.GetValue(i)}_{surnames.GetValue(i)}@example.com",
+                        WorkEmailAddress = $"{firstNames.GetValue(i)}_{surnames.GetValue(i)}@example.com",
+                        WorkPhone = $"+90505555050{i}",
+                        PersonalPhone = $"+90505555050{i}",
+                        EmergencyContactPhone = $"+90505555050{i}",
                         EmploymentType = EmploymentType.FullTime,
                         Gender = Gender.Female,
                         Nationality = "türkiye",
                         BloodType = BloodType.ANegative,
                         MarriedStatus = MarriedStatus.Single,
-                        DisabilityLevel = DisabilityLevel.None,
-                        //
-                        
+                        DisabilityLevel = DisabilityLevel.None,          
 
                         IsEmailConfirmed = true,
-                        IsActive = true,
-                        JobTitleId = i,
+                        IsActive = new Random().Next(2) != 0,
+                        JobTitleId = i + 1,
                     };
 
                     user.Password = new PasswordHasher<User>(new OptionsWrapper<PasswordHasherOptions>(new PasswordHasherOptions())).HashPassword(user, "123qwe");

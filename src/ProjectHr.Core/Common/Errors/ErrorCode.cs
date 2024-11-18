@@ -41,10 +41,9 @@ public enum ErrorCode
     PanelAccessWithoutEmail = 4006,
     PanelAccessDenied = 4007,
     FirstLoginChangePassword = 4008,
-    AlreadyEnabled2fa = 4009,
     ChangePasswordException = 4010,
-    EmailCannotFound = 4011,
-    ResetTokenAlreadyUsed = 4012,
+    AlreadyEnabled2fa = 4009,
+    EmailCannotFound = 4010,
 
 // Language - 5
     LanguageSameName = 5001,
@@ -163,10 +162,6 @@ public static class CustomError
         {
             ErrorCode.WorkEmailAdressUnique,
             "İş email adresi başka bir kullanıcıyla aynı olamaz. "
-        },
-        {
-            ErrorCode.ResetTokenAlreadyUsed,
-            "Şifre sıfırlama isteğiniz maalesef geçerli değil. Sanırım daha önce bu isteği zaten gerçekleştirdiniz."
         },
         {
             ErrorCode.IdentityNumberUnique,
