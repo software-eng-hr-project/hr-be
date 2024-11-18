@@ -33,19 +33,23 @@ using ProjectHr.Common.Exceptions;
 using ProjectHr.JobTitles.Dto;
 
 namespace ProjectHr.Users
-{   
+{
     [AbpAuthorize]
     [Route("/api/users")]
-    public class UserAppService : AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
+    public class UserAppService :
+        AsyncCrudAppService<User, UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>, IUserAppService
     {
         private readonly UserManager _userManager;
         private readonly RoleManager _roleManager;
         private readonly IRepository<Role> _roleRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IAbpSession _abpSession;
+
         private readonly LogInManager _logInManager;
+
         // private readonly ISESService _sesService;
         private readonly IRepository<User, long> _userRepository;
+
         // private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -57,10 +61,9 @@ namespace ProjectHr.Users
             IPasswordHasher<User> passwordHasher,
             // IOptions<EmailSettings> emailSettings,
             IAbpSession abpSession,
-            LogInManager logInManager, 
+            LogInManager logInManager,
             // ISESService sesService, 
             IHttpContextAccessor httpContextAccessor)
-        
             : base(userRepository)
         {
             _userManager = userManager;
@@ -74,7 +77,7 @@ namespace ProjectHr.Users
             _userRepository = userRepository;
             // _emailSettings = emailSettings.Value;
         }
-        
+
         [AbpAuthorize(PermissionNames.Create_User)]
         [HttpPost]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
@@ -82,7 +85,7 @@ namespace ProjectHr.Users
             try
             {
                 CheckCreatePermission();
-                
+
                 var user = ObjectMapper.Map<User>(input);
 
                 user.TenantId = AbpSession.TenantId;
@@ -92,7 +95,7 @@ namespace ProjectHr.Users
                 user.IsInvited = true;
 
                 await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
-                
+
                 var password = Guid.NewGuid().ToString();
 
                 CheckErrors(await _userManager.CreateAsync(user, password));
@@ -105,7 +108,6 @@ namespace ProjectHr.Users
                 CurrentUnitOfWork.SaveChanges();
 
                 return MapToEntityDto(user);
-
             }
             catch (Exception e)
             {
@@ -113,7 +115,7 @@ namespace ProjectHr.Users
                 throw e;
             }
         }
-        
+
         [AbpAuthorize(PermissionNames.Delete_User)]
         [HttpDelete]
         public override async Task DeleteAsync(EntityDto<long> input)
@@ -121,24 +123,19 @@ namespace ProjectHr.Users
             var user = await _userManager.GetUserByIdAsync(input.Id);
             await _userManager.DeleteAsync(user);
         }
-        
+
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
         [HttpPost("activate")]
         public async Task Activate(EntityDto<long> user)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) =>
-            {
-                entity.IsActive = true;
-            });
+            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = true; });
         }
+
         [HttpPost("de-activate")]
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
         public async Task DeActivate(EntityDto<long> user)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) =>
-            {
-                entity.IsActive = false;
-            });
+            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = false; });
         }
 
         protected override User MapToEntity(CreateUserDto createInput)
@@ -147,75 +144,77 @@ namespace ProjectHr.Users
             user.SetNormalizedNames();
             return user;
         }
-        
+
         protected override void MapToEntity(UserDto input, User user)
         {
             ObjectMapper.Map(input, user);
             user.SetNormalizedNames();
         }
-        
+
         protected override UserDto MapToEntityDto(User user)
         {
             var roleIds = user.Roles.Select(x => x.RoleId).ToArray();
-        
+
             var roles = _roleManager.Roles.Where(r => roleIds.Contains(r.Id)).Select(r => r.NormalizedName);
-        
+
             var userDto = base.MapToEntityDto(user);
             userDto.RoleNames = roles.ToArray();
-        
+
             return userDto;
         }
-        
+
         protected override IQueryable<User> CreateFilteredQuery(PagedUserResultRequestDto input)
         {
             return Repository.GetAllIncluding(x => x.Roles)
-                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x => x.UserName.Contains(input.Keyword) || x.Name.Contains(input.Keyword) || x.EmailAddress.Contains(input.Keyword))
+                .WhereIf(!input.Keyword.IsNullOrWhiteSpace(),
+                    x => x.UserName.Contains(input.Keyword) || x.Name.Contains(input.Keyword) ||
+                         x.EmailAddress.Contains(input.Keyword))
                 .WhereIf(input.IsActive.HasValue, x => x.IsActive == input.IsActive);
         }
-        
+
         protected override async Task<User> GetEntityByIdAsync(long id)
         {
             var user = await Repository.GetAllIncluding(x => x.Roles).FirstOrDefaultAsync(x => x.Id == id);
-        
+
             if (user == null)
             {
                 throw new EntityNotFoundException(typeof(User), id);
             }
-        
+
             return user;
         }
-        
+
         protected override IQueryable<User> ApplySorting(IQueryable<User> query, PagedUserResultRequestDto input)
         {
             return query.OrderBy(r => r.UserName);
         }
-        
+
         protected virtual void CheckErrors(IdentityResult identityResult)
         {
             identityResult.CheckErrors(LocalizationManager);
         }
+
         [HttpPut("change-password")]
         public async Task<bool> ChangePassword(ChangePasswordDto input)
         {
             await _userManager.InitializeOptionsAsync(AbpSession.TenantId);
-        
+
             var user = await _userManager.FindByIdAsync(AbpSession.GetUserId().ToString());
             if (user == null)
             {
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
             }
-            
+
             if (!await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
             {
                 throw new UserFriendlyException("Mevcut şifreniz yanlış");
-                
             }
-            
+
             if (input.CurrentPassword == input.NewPassword)
             {
                 throw new UserFriendlyException("Yeni şifreniz mevcut ile aynı olamaz");
             }
-            
+
             if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
             {
                 CheckErrors(await _userManager.ChangePasswordAsync(user, input.NewPassword));
@@ -227,25 +226,24 @@ namespace ProjectHr.Users
                     Description = "Yanlis sifre."
                 }));
             }
-        
+
             return true;
         }
+
         [AbpAllowAnonymous]
         [HttpPut("reset-password")]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
             var user = _userRepository.GetAll().FirstOrDefault(u => u.PasswordResetToken == input.Token);
-            
+
             // var result = await _userManager.ResetPasswordAsync(user, input.Token, input.NewPassword);
-            if (user is null)
-            {
-                throw ExceptionHelper.Create(ErrorCode.EmailCannotFound);
-            }
+            if (user is null) throw ExceptionHelper.Create(ErrorCode.ResetTokenAlreadyUsed);
+
             user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
             user.PasswordResetToken = null;
             await CurrentUnitOfWork.SaveChangesAsync();
-            
-        
+
+
             return true;
         }
         // [AbpAllowAnonymous]
@@ -291,18 +289,17 @@ namespace ProjectHr.Users
         //         await _sesService.SendMail(mail);
         //     // }
         // }
-        
+
         [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}")]
-        public async Task<UserDto> UpdateAllInfo( UserAllUpdateDto input, long userId)
+        public async Task<UserDto> UpdateAllInfo(UserAllUpdateDto input, long userId)
         {
-            
             try
             {
                 var user = _userRepository.GetAll()
                     .Include(u => u.Roles)
-                    .Include(u=> u.JobTitle)
-                    .FirstOrDefault( u => u.Id == userId);
+                    .Include(u => u.JobTitle)
+                    .FirstOrDefault(u => u.Id == userId);
 
                 await _userManager.SetRolesAsync(user, input.RoleNames);
 
@@ -320,23 +317,21 @@ namespace ProjectHr.Users
 
                 throw e;
             }
-            
-
         }
-        
+
         [HttpPut("profile")]
-        public async Task<UserDto> UpdateOwnInfo( UserOwnUpdateDto input) 
+        public async Task<UserDto> UpdateOwnInfo(UserOwnUpdateDto input)
         {
             try
             {
                 var abpSessionUserId = AbpSession.GetUserId();
                 var user = _userRepository.GetAll()
                     .Include(u => u.Roles)
-                    .Include(u=> u.JobTitle)
+                    .Include(u => u.JobTitle)
                     .FirstOrDefault(u => u.Id == abpSessionUserId);
 
                 ObjectMapper.Map(input, user);
-            
+
                 await _userRepository.UpdateAsync(user);
                 await CurrentUnitOfWork.SaveChangesAsync();
 
@@ -348,47 +343,47 @@ namespace ProjectHr.Users
                 ErrorCodeHelpers.DuplicateMessageHelper(e);
                 throw e;
             }
-            
-            
         }
-        
-        
+
+
         // public async Task
         [HttpGet]
         public async Task<List<GetUserGeneralInfo>> GetAll(PagedUserResultRequestDto input)
         {
             var users = _userRepository.GetAll()
+                .OrderBy(u => u.Name)
                 .Include(u => u.JobTitle);
 
             var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
 
-            
+
             return userDtos;
         }
+
         [HttpGet("profile")]
         public async Task<UserDto> GetProfile()
         {
             var abpSessionUserId = AbpSession.GetUserId();
-            
+
             var user = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == abpSessionUserId);
-        
-            
+
+
             if (user == null)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-            
+
             var roles = await _roleRepository.GetAllListAsync();
-            
+
             var userDtos = ObjectMapper.Map<UserDto>(user);
-            
+
             var roleIds = user.Roles.Select(x => x.RoleId);
 
-            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
+            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
             return userDtos;
-        }        
- 
+        }
+
         [AbpAuthorize(PermissionNames.View_Info_User)]
         [HttpGet("{userId}")]
         public async Task<UserDto> GetUserByIdAdmin(long userId)
@@ -397,33 +392,35 @@ namespace ProjectHr.Users
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == userId);
-        
+
             if (user == null)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-            
+
             var roles = await _roleRepository.GetAllListAsync();
-            
+
             var userDtos = ObjectMapper.Map<UserDto>(user);
-            
+
             var roleIds = user.Roles.Select(x => x.RoleId);
 
-            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x=>x.Name).ToArray();
+            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
             return userDtos;
-        }        
+        }
+
         [HttpGet("profile/{userId}")]
         public async Task<GetUserGeneralInfo> GetUserById(long userId)
         {
             var user = _userRepository.GetAll()
                 .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == userId);
-        
+
             if (user == null)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-            
+
             var userDtos = ObjectMapper.Map<GetUserGeneralInfo>(user);
-            
+
             return userDtos;
         }
+
         [AbpAllowAnonymous]
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
@@ -433,63 +430,64 @@ namespace ProjectHr.Users
             {
                 throw ExceptionHelper.Create(ErrorCode.EmailCannotFound);
             }
+
             return ObjectMapper.Map<ResetPasswordMailInput>(user);
         }
 
         #region OverridePart
-        
-            [RemoteService(false)]
-            [HttpGet("get-roles")]
-            public async Task<ListResultDto<RoleDto>> GetRoles()
+
+        [RemoteService(false)]
+        [HttpGet("get-roles")]
+        public async Task<ListResultDto<RoleDto>> GetRoles()
+        {
+            var roles = await _roleRepository.GetAllListAsync();
+            return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
+        }
+
+        [RemoteService(false)]
+        [HttpGet("todo-remove-2{id}")] // template name vermeyince duplicate hatası alıyoruz o yüzden default bir değer atadık 
+        public override Task<UserDto> GetAsync(EntityDto<long> id)
+        {
+            return base.GetAsync(id);
+        }
+
+        [RemoteService(false)]
+        [HttpGet("todo-remove-1")] //hata verdiği için templateye bir şey vermemiz gerekti
+        public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
+        {
+            return base.GetAllAsync(input);
+        }
+
+        [RemoteService(false)]
+        [HttpPut("todo-remove-3")]
+        public override async Task<UserDto> UpdateAsync(UserDto input)
+        {
+            CheckUpdatePermission();
+
+            var user = await _userManager.GetUserByIdAsync(input.Id);
+
+            MapToEntity(input, user);
+
+            CheckErrors(await _userManager.UpdateAsync(user));
+
+            if (input.RoleNames != null)
             {
-                var roles = await _roleRepository.GetAllListAsync();
-                return new ListResultDto<RoleDto>(ObjectMapper.Map<List<RoleDto>>(roles));
-            }
-        
-            [RemoteService(false)]
-            [HttpGet("todo-remove-2{id}")] // template name vermeyince duplicate hatası alıyoruz o yüzden default bir değer atadık 
-            public override Task<UserDto> GetAsync(EntityDto<long> id)
-            {
-                return base.GetAsync(id);
+                CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
             }
 
-            [RemoteService(false)]
-            [HttpGet("todo-remove-1")] //hata verdiği için templateye bir şey vermemiz gerekti
-            public override Task<PagedResultDto<UserDto>> GetAllAsync(PagedUserResultRequestDto input)
-            {
-                return base.GetAllAsync(input);
-            }
-            
-            [RemoteService(false)]
-            [HttpPut("todo-remove-3")]
-            public override async Task<UserDto> UpdateAsync(UserDto input)
-            {
-                CheckUpdatePermission();
+            return await GetAsync(input);
+        }
 
-                var user = await _userManager.GetUserByIdAsync(input.Id);
+        [RemoteService(false)]
+        public async Task ChangeLanguage(ChangeUserLanguageDto input)
+        {
+            await SettingManager.ChangeSettingForUserAsync(
+                AbpSession.ToUserIdentifier(),
+                LocalizationSettingNames.DefaultLanguage,
+                input.LanguageName
+            );
+        }
 
-                MapToEntity(input, user);
-
-                CheckErrors(await _userManager.UpdateAsync(user));
-
-                if (input.RoleNames != null)
-                {
-                    CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
-                }
-
-                return await GetAsync(input);
-            }
-            
-            [RemoteService(false)]
-            public async Task ChangeLanguage(ChangeUserLanguageDto input)
-            {
-                await SettingManager.ChangeSettingForUserAsync(
-                    AbpSession.ToUserIdentifier(),
-                    LocalizationSettingNames.DefaultLanguage,
-                    input.LanguageName
-                );
-            }
-            #endregion
+        #endregion
     }
 }
-
