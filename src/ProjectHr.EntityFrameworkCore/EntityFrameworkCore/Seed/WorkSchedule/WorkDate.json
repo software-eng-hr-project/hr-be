@@ -1,0 +1,44 @@
+[
+  {
+    "Label": "Monday",
+    "StartHour": "09:00:00",
+    "EndHour": "17:00:00",
+    "DayOfTheWeek": 1
+  },
+  {
+    "Label": "Tuesday",
+    "StartHour": "09:00:00",
+    "EndHour": "17:00:00",
+    "DayOfTheWeek": 2
+  },
+  {
+    "Label": "Wednesday",
+    "StartHour": "09:00:00",
+    "EndHour": "17:00:00",
+    "DayOfTheWeek": 3
+  },
+  {
+    "Label": "Thursday",
+    "StartHour": "09:00:00",
+    "EndHour": "17:00:00",
+    "DayOfTheWeek": 4
+  },
+  {
+    "Label": "Friday",
+    "StartHour": "09:00:00",
+    "EndHour": "17:00:00",
+    "DayOfTheWeek": 5
+  },
+  {
+    "Label": "Saturday",
+    "StartHour": "09:00:00",
+    "EndHour": "09:00:00",
+    "DayOfTheWeek": 6
+  },
+  {
+    "Label": "Sunday",
+    "StartHour": "09:00:00",
+    "EndHour": "09:00:00",
+    "DayOfTheWeek": 7
+  }
+]
