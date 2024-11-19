@@ -394,6 +394,31 @@ namespace ProjectHr.Users
             return userDtos;
         }
 
+        [AbpAuthorize(PermissionNames.List_Role)]
+        [HttpGet("users-wtih-role")]
+        public async Task<List<UserDto>> GetAllUsersWithRole(PagedUserResultRequestDto input)
+        {
+            var users = _userRepository.GetAll()
+                .OrderBy(u => u.Name)
+                .Include(x => x.Roles)
+                .Include(x => x.JobTitle);
+            
+            var roles = await _roleRepository.GetAllListAsync();
+            
+            var userDtos = ObjectMapper.Map<List<UserDto>>(users);
+            
+            foreach (var user in users)
+            {
+                var roleIds = user.Roles.Select(x => x.RoleId);
+                foreach (var userDto in userDtos)
+                {
+                    userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+                }
+            }
+            return userDtos;
+
+        }
+        
         [AbpAllowAnonymous]
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
@@ -407,6 +432,8 @@ namespace ProjectHr.Users
             return ObjectMapper.Map<ResetPasswordMailInput>(user);
         }
 
+        
+        
         #region OverridePart
 
         [RemoteService(false)]
