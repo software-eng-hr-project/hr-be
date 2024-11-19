@@ -11,6 +11,8 @@ using Abp.Authorization.Users;
 using Abp.MultiTenancy;
 using Abp.Runtime.Security;
 using Abp.UI;
+using Amazon.Runtime.Internal;
+using Castle.Core.Internal;
 using ProjectHr.Authentication.External;
 using ProjectHr.Authentication.JwtBearer;
 using ProjectHr.Authorization;
@@ -66,6 +68,7 @@ namespace ProjectHr.Controllers
                 EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
                 ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
                 UserId = loginResult.User.Id
+                //grantedpermission
             };
         }
 
@@ -191,8 +194,16 @@ namespace ProjectHr.Controllers
             {
                 case AbpLoginResultType.Success:
                     return loginResult;
+                case AbpLoginResultType.InvalidPassword:
+                    throw new UserFriendlyException(
+                        "Şifre, hesapla uyuşmuyor. Şifrenizi hatırlamıyorsanız Şifremi Unuttum seçeneğini kullanabilirsiniz.");
+                case AbpLoginResultType.UserIsNotActive:
+                    throw new UserFriendlyException(
+                        "Görünüşe göre hesabınız etkin değil.");
                 default:
-                    throw _abpLoginResultTypeHelper.CreateExceptionForFailedLoginAttempt(loginResult.Result, usernameOrEmailAddress, tenancyName);
+                    throw new UserFriendlyException(
+                        "Oops! Bir Şeyler Ters Gitti.");
+                    
             }
         }
 

@@ -15,6 +15,8 @@ public class Project: FullAuditedEntity
     
     public ProjectStatus Status { get; set; }
     
+    public ProjectType Type { get; set; }
+    
     [CanBeNull] public string Description { get; set; }
     
     [CanBeNull] public ICollection<ProjectMember> ProjectMembers {get; set; }

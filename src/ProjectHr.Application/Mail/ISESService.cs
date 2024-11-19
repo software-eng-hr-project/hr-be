@@ -4,7 +4,7 @@ using Abp.Dependency;
 
 namespace ProjectHr.Users;
 
-public interface ISESService : ITransientDependency
+public interface ISESService : ISingletonDependency
 {
     Task SendMail(SendMailModel input);
 

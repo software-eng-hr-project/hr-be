@@ -20,7 +20,7 @@ namespace ProjectHr.Roles.Dto
 
             CreateMap<Role, RoleDto>().ForMember(x => x.GrantedPermissions,
                 opt => opt.MapFrom(x => x.Permissions.Where(p => p.IsGranted)));
-
+            CreateMap<Permission, PermissionWithRoleDto>();
             CreateMap<Role, RoleListDto>();
             CreateMap<Role, RoleEditDto>();
             CreateMap<Permission, FlatPermissionDto>();

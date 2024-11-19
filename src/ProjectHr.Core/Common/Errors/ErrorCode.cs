@@ -41,8 +41,10 @@ public enum ErrorCode
     PanelAccessWithoutEmail = 4006,
     PanelAccessDenied = 4007,
     FirstLoginChangePassword = 4008,
-    ChangePasswordException = 4010,
     AlreadyEnabled2fa = 4009,
+    ChangePasswordException = 4010,
+    EmailCannotFound = 4011,
+    ResetTokenAlreadyUsed = 4012,
 
 // Language - 5
     LanguageSameName = 5001,
@@ -163,6 +165,10 @@ public static class CustomError
             "İş email adresi başka bir kullanıcıyla aynı olamaz. "
         },
         {
+            ErrorCode.ResetTokenAlreadyUsed,
+            "Şifre sıfırlama isteğiniz maalesef geçerli değil. Sanırım daha önce bu isteği zaten gerçekleştirdiniz."
+        },
+        {
             ErrorCode.IdentityNumberUnique,
             "Kimlik Numarası başka bir kullanıcıyla aynı olamaz."
         },
@@ -193,6 +199,10 @@ public static class CustomError
         {
             ErrorCode.EmailAlreadyExist,
             "Bu email adresi başka bir kullanıcya ait."
+        },
+        {
+            ErrorCode.EmailCannotFound,
+            "Girmiş olduğunuz E-posta sistemimizde bulunmuyor. Bir hata olduğunu düşünüyorsanız lütfen yetkili ile iletişime geçin."
         },
         {
             ErrorCode.NameLength,

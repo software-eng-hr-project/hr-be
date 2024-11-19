@@ -10,6 +10,10 @@ public class ProjectMember: FullAuditedEntity
     public int JobTitleId { get; set; }
     public long UserId { get; set; }
     public int ProjectId { get; set; }
+
+    public string TeamName { get; set; }
+
+    public bool IsManager { get; set; } = false;
     
     [ForeignKey(nameof(JobTitleId))]
     public JobTitle JobTitle { get; set; }

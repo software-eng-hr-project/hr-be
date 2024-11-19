@@ -7,7 +7,7 @@ namespace ProjectHr.Roles
 {
     public interface IRoleAppService : IAsyncCrudAppService<RoleDto, int, PagedRoleResultRequestDto, CreateRoleDto, RoleDto>
     {
-        Task<ListResultDto<PermissionDto>> GetAllPermissions();
+        Task<ListResultDto<PermissionWithRoleDto>> GetAllPermissions();
 
         Task<GetRoleForEditOutput> GetRoleForEdit(EntityDto input);
 

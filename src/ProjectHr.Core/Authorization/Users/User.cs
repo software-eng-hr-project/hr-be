@@ -66,9 +66,6 @@ namespace ProjectHr.Authorization.Users
         public string EmergencyContactName { get; set; }
         public string EmergencyContactDegree { get; set; }
         public string EmergencyContactPhone { get; set; }
-      
-        public string PasswordResetToken { get; set; }
-
         public bool IsInvited { get; set; } = false;
 
         [ForeignKey(nameof(JobTitleId))]
@@ -78,6 +75,8 @@ namespace ProjectHr.Authorization.Users
         public EmployeeLayoff EmployeeLayoff { get; set; }
         
         [CanBeNull] public ICollection<ProjectMember> ProjectMembers {get; set; }
+        
+        [CanBeNull] public ICollection<TechStack> TechStack { get; set; }
 
     }
 }

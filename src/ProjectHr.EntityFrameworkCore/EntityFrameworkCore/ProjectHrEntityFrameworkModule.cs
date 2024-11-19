@@ -44,6 +44,7 @@ namespace ProjectHr.EntityFrameworkCore
             if (!SkipDbSeed)
             {
                 SeedHelper.SeedHostDb(IocManager);
+                //service helper ses  // IocManager  asenkron 
             }
         }
     }
