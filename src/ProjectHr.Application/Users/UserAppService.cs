@@ -54,6 +54,7 @@ namespace ProjectHr.Users
         // private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Project> _projectRepository;
+        private readonly IMailService _mailService;
 
         public UserAppService(
             IRepository<User, long> userRepository,
@@ -61,12 +62,11 @@ namespace ProjectHr.Users
             RoleManager roleManager,
             IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
-            // IOptions<EmailSettings> emailSettings,
             IAbpSession abpSession,
             LogInManager logInManager,
-            // ISESService sesService, 
             IHttpContextAccessor httpContextAccessor,
-            IRepository<Project> projectRepository
+            IRepository<Project> projectRepository,
+            IMailService mailService
             )
             : base(userRepository)
         {
@@ -76,11 +76,12 @@ namespace ProjectHr.Users
             _passwordHasher = passwordHasher;
             _abpSession = abpSession;
             _logInManager = logInManager;
-            // _sesService = sesService;
             _httpContextAccessor = httpContextAccessor;
             _projectRepository = projectRepository;
+            _mailService = mailService;
             _userRepository = userRepository;
-            // _emailSettings = emailSettings.Value;
+
+            
         }
 
         [AbpAuthorize(PermissionNames.Create_User)]
@@ -111,7 +112,9 @@ namespace ProjectHr.Users
                 }
 
                 CurrentUnitOfWork.SaveChanges();
-//
+
+                await _mailService.InviteUserMail(user.EmailAddress);
+
                 return MapToEntityDto(user);
             }
             catch (Exception e)
@@ -318,16 +321,15 @@ namespace ProjectHr.Users
                 .Include(u => u.ProjectMembers);
 
             users.Select(u => u.ProjectMembers.Select(pm => pm.ProjectId));
-            
 
-            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);   
+
+            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
             foreach (var getUserGeneralInfo in userDtos)
             {
                 getUserGeneralInfo.Projects = _projectRepository.GetAll()
                     .Where(p => p.ProjectMembers.Any(pm => pm.UserId == getUserGeneralInfo.Id))
                     .Select(p => p.Name)
                     .ToArray();
-
             }
 
             return userDtos;
@@ -402,11 +404,11 @@ namespace ProjectHr.Users
                 .OrderBy(u => u.Name)
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle);
-            
+
             var roles = await _roleRepository.GetAllListAsync();
-            
+
             var userDtos = ObjectMapper.Map<List<UserDto>>(users);
-            
+
             foreach (var user in users)
             {
                 var roleIds = user.Roles.Select(x => x.RoleId);
@@ -415,10 +417,10 @@ namespace ProjectHr.Users
                     userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
                 }
             }
-            return userDtos;
 
+            return userDtos;
         }
-        
+
         [AbpAllowAnonymous]
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
@@ -432,8 +434,7 @@ namespace ProjectHr.Users
             return ObjectMapper.Map<ResetPasswordMailInput>(user);
         }
 
-        
-        
+
         #region OverridePart
 
         [RemoteService(false)]

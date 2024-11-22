@@ -106,7 +106,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Host
                     var user = new User
                     {
                         TenantId = 1,
-                        UserName = Guid.NewGuid().ToString(),
+                        UserName = new Guid().ToString(),
                         Name = $"{firstNames.GetValue(i)}",
                         Surname = $"{surnames.GetValue(i)}",
                         EmailAddress = $"{firstNames.GetValue(i)?.ToString()?.ToLower()}_{surnames.GetValue(i)?.ToString()?.ToLower()}@example.com",
