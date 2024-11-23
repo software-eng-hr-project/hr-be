@@ -283,6 +283,24 @@ namespace ProjectHr.Users
                 throw e;
             }
         }
+        
+        [AbpAuthorize(PermissionNames.Update_Info_User)]
+        [HttpPut("{userId}/role")]
+        public async Task<UserDto> UpdateRole(UserRoleUpdateDto input, long userId)
+        {
+            var user = _userRepository.GetAll()
+                    .Include(u => u.Roles)
+                    .FirstOrDefault(u => u.Id == userId);
+
+                await _userManager.SetRolesAsync(user, input.RoleNames);
+                
+                await _userRepository.UpdateAsync(user);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                var userDto = MapToEntityDto(user);
+                return userDto;
+
+        }
 
         [HttpPut("profile")]
         public async Task<UserDto> UpdateOwnInfo(UserOwnUpdateDto input)
@@ -380,7 +398,7 @@ namespace ProjectHr.Users
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
             return userDtos;
         }
-
+        
         [HttpGet("profile/{userId}")]
         public async Task<GetUserGeneralInfo> GetUserById(long userId)
         {
@@ -400,22 +418,25 @@ namespace ProjectHr.Users
         [HttpGet("users-with-role")]
         public async Task<List<UserDto>> GetAllUsersWithRole(PagedUserResultRequestDto input)
         {
-            var users = _userRepository.GetAll()
+            var users = await _userRepository.GetAll()
                 .OrderBy(u => u.Name)
                 .Include(x => x.Roles)
-                .Include(x => x.JobTitle);
+                .Include(x => x.JobTitle)
+                .ToListAsync(); // Asynchronous retrieval of users
 
             var roles = await _roleRepository.GetAllListAsync();
 
-            var userDtos = ObjectMapper.Map<List<UserDto>>(users);
+            var userDtos = new List<UserDto>();
 
             foreach (var user in users)
             {
+                var userDto = ObjectMapper.Map<UserDto>(user);
+
                 var roleIds = user.Roles.Select(x => x.RoleId);
-                foreach (var userDto in userDtos)
-                {
-                    userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
-                }
+
+                userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+
+                userDtos.Add(userDto);
             }
 
             return userDtos;
