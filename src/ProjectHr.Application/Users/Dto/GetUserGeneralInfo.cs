@@ -19,6 +19,10 @@ public class GetUserGeneralInfo : EntityDto<long>
 
     [EmailAddress]
     [StringLength(AbpUserBase.MaxEmailAddressLength)]
+    public string EmailAddress { get; set; } 
+    
+    [EmailAddress]
+    [StringLength(AbpUserBase.MaxEmailAddressLength)]
     [CanBeNull]
     public string WorkEmailAddress { get; set; } = null;
 

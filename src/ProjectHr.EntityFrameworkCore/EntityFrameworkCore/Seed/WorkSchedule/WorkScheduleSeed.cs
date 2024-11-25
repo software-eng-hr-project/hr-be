@@ -24,7 +24,7 @@ public class WorkScheduleSeed
     public void CreateWorkScheduleSeeds()
     {
         string filePath = Path.Combine(
-            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location),
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "EntityFrameworkCore", "Seed", "WorkSchedule",
             "WorkDate.json");
 
         using (StreamReader r = new StreamReader(filePath))

@@ -54,6 +54,7 @@ namespace ProjectHr.Users
         // private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Project> _projectRepository;
+        private readonly IRepository<EmployeeLayoffInfo> _employeeLayoffInfoRepository;
         private readonly IMailService _mailService;
 
         public UserAppService(
@@ -66,8 +67,9 @@ namespace ProjectHr.Users
             LogInManager logInManager,
             IHttpContextAccessor httpContextAccessor,
             IRepository<Project> projectRepository,
+            IRepository<EmployeeLayoffInfo> employeeLayoffInfoRepository,
             IMailService mailService
-            )
+        )
             : base(userRepository)
         {
             _userManager = userManager;
@@ -78,10 +80,9 @@ namespace ProjectHr.Users
             _logInManager = logInManager;
             _httpContextAccessor = httpContextAccessor;
             _projectRepository = projectRepository;
+            _employeeLayoffInfoRepository = employeeLayoffInfoRepository;
             _mailService = mailService;
             _userRepository = userRepository;
-
-            
         }
 
         [AbpAuthorize(PermissionNames.Create_User)]
@@ -136,15 +137,31 @@ namespace ProjectHr.Users
         [HttpPost("activate")]
         public async Task Activate(EntityDto<long> user)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = true; entity.EmployeeLayoffId = null;});
+            await Repository.UpdateAsync(user.Id, async (entity) =>
+            {
+                entity.IsActive = true;
+                var deletedEmployeeLayoffInfo = _employeeLayoffInfoRepository.FirstOrDefault(x => x.Id == entity.EmployeeLayoffInfoId);
+                await _employeeLayoffInfoRepository.DeleteAsync(deletedEmployeeLayoffInfo);
+                entity.EmployeeLayoffInfoId = null;
+            });
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
         [HttpPost("de-activate")]
-        public async Task DeActivate( EntityDto<long> user, int layoffId)
+        public async Task DeActivate(EntityDto<long> user, int layoffId)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = false;
-                entity.EmployeeLayoffId = layoffId;
+            var layoffInfo = new EmployeeLayoffInfo()
+            {
+                EmployeeLayoffId = layoffId,
+                LayoffReason = "çünkü",
+                DismissalDate = DateTime.Now,
+            };
+            await _employeeLayoffInfoRepository.InsertAsync(layoffInfo);
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await Repository.UpdateAsync(user.Id, async (entity) =>
+            {
+                entity.IsActive = false;
+                entity.EmployeeLayoffInfoId = layoffInfo.Id;
             });
         }
 
@@ -224,9 +241,11 @@ namespace ProjectHr.Users
             {
                 throw new UserFriendlyException("Yeni şifreniz mevcut ile aynı olamaz");
             }
+
             if (!IsPasswordValid(input.NewPassword))
             {
-                throw new UserFriendlyException("Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
+                throw new UserFriendlyException(
+                    "Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
             }
 
             if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
@@ -254,10 +273,11 @@ namespace ProjectHr.Users
             {
                 throw ExceptionHelper.Create(ErrorCode.ResetTokenAlreadyUsed);
             }
-            
+
             if (!IsPasswordValid(input.NewPassword))
             {
-                throw new UserFriendlyException("Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
+                throw new UserFriendlyException(
+                    "Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
             }
 
             user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
@@ -273,7 +293,7 @@ namespace ProjectHr.Users
             var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$");
             return regex.IsMatch(password);
         }
-        
+
         [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo(UserAllUpdateDto input, long userId)
@@ -302,23 +322,22 @@ namespace ProjectHr.Users
                 throw e;
             }
         }
-        
+
         [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}/role")]
         public async Task<UserDto> UpdateRole(UserRoleUpdateDto input, long userId)
         {
             var user = _userRepository.GetAll()
-                    .Include(u => u.Roles)
-                    .FirstOrDefault(u => u.Id == userId);
+                .Include(u => u.Roles)
+                .FirstOrDefault(u => u.Id == userId);
 
-                await _userManager.SetRolesAsync(user, input.RoleNames);
-                
-                await _userRepository.UpdateAsync(user);
-                await CurrentUnitOfWork.SaveChangesAsync();
+            await _userManager.SetRolesAsync(user, input.RoleNames);
 
-                var userDto = MapToEntityDto(user);
-                return userDto;
+            await _userRepository.UpdateAsync(user);
+            await CurrentUnitOfWork.SaveChangesAsync();
 
+            var userDto = MapToEntityDto(user);
+            return userDto;
         }
 
         [HttpPut("profile")]
@@ -417,7 +436,7 @@ namespace ProjectHr.Users
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
             return userDtos;
         }
-        
+
         [HttpGet("profile/{userId}")]
         public async Task<GetUserGeneralInfo> GetUserById(long userId)
         {
@@ -441,7 +460,7 @@ namespace ProjectHr.Users
                 .OrderBy(u => u.Name)
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
-                .ToListAsync(); 
+                .ToListAsync();
 
             var roles = await _roleRepository.GetAllListAsync();
 
@@ -465,6 +484,11 @@ namespace ProjectHr.Users
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
         {
+            await _mailService.ResetPassword(new ResetPasswordMailInput()
+            {
+                EmailAddress = input.EmailAddress
+            });
+
             var user = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.EmailAddress == input.EmailAddress);
             if (user is null)
             {

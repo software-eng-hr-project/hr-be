@@ -21,19 +21,19 @@ public class MailService : ProjectHrAppServiceBase, IMailService
     private readonly IRepository<User, long> _userRepository;
     private readonly UserManager _userManager;
     private readonly EmailSettings _emailSettings;
-    private readonly ISESService _sesService;
+     private readonly ISESService _sesService;
 
     public MailService(
         IRepository<User, long> userRepository,
         UserManager userManager,
         IOptions<EmailSettings> emailSettings,
-        ISESService sesService
+         ISESService sesService
     )
     {
         _userRepository = userRepository;
         _userManager = userManager;
         _emailSettings = emailSettings.Value;
-        _sesService = sesService;
+         _sesService = sesService;
     }
 
     [AbpAllowAnonymous]

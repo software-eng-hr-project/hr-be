@@ -36,7 +36,7 @@ namespace ProjectHr.Authorization.Users
             return user;
         }
         public int JobTitleId { get; set; }
-        public int? EmployeeLayoffId { get; set; }
+        public int? EmployeeLayoffInfoId { get; set; }
         public string AvatarUrl { get; set; } 
         public string WorkEmailAddress { get; set; }
         public string WorkPhone { get; set; }
@@ -71,8 +71,8 @@ namespace ProjectHr.Authorization.Users
         [ForeignKey(nameof(JobTitleId))]
         public JobTitle JobTitle { get; set; }
         
-        [ForeignKey(nameof(EmployeeLayoffId))]
-        public EmployeeLayoff EmployeeLayoff { get; set; }
+        [ForeignKey(nameof(EmployeeLayoffInfoId))]
+        public EmployeeLayoffInfo EmployeeLayoffInfo { get; set; }
         
         [CanBeNull] public ICollection<ProjectMember> ProjectMembers {get; set; }
         

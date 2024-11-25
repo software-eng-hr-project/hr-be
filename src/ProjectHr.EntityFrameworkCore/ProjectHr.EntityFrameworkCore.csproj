@@ -29,4 +29,18 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectHr.Core\ProjectHr.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="EntityFrameworkCore\Seed\JobTitle\JobTitles.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EntityFrameworkCore\Seed\EmployeeLayoff\EmployeeLayoff.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EntityFrameworkCore\Seed\TechStack\TechStacks.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="EntityFrameworkCore\Seed\WorkSchedule\WorkDate.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

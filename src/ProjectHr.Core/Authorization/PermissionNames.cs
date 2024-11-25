@@ -46,7 +46,7 @@ namespace ProjectHr.Authorization
             {
                 return new List<string>()
                 {
-                    Pages_Tenants,
+                    // Pages_Tenants,
                     Create_User,
                     List_User,
                     View_Info_User,
@@ -82,7 +82,7 @@ namespace ProjectHr.Authorization
             {
                 return new List<string>()
                 {
-                    Pages_Tenants,
+                    // Pages_Tenants,
                     Update_Project,
                     List_User,
                     List_Project,
@@ -95,7 +95,7 @@ namespace ProjectHr.Authorization
             {
                 return new List<string>()
                 {
-                    Pages_Tenants,
+                    // Pages_Tenants,
                 };
             }
 

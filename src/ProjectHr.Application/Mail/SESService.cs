@@ -6,6 +6,8 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using Abp.Application.Services;
 using Abp.UI;
+using Amazon;
+using Amazon.Runtime;
 using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using Microsoft.Extensions.Options;
@@ -21,108 +23,113 @@ public class SendMailModel
 }
 
 public class SESService : ISESService
+{
+    private readonly EmailSettings _settings;
+
+    public SESService(IOptions<EmailSettings> settings
+    )
     {
-        private readonly EmailSettings _settings;
-        private readonly IAmazonSimpleEmailServiceV2 _amazonSimpleEmailServiceV2;
+        // _amazonSimpleEmailServiceV2 = amazonSimpleEmailServiceV2;
+        _settings = settings.Value;
+    }
 
-        public SESService(IOptions<EmailSettings> settings, IAmazonSimpleEmailServiceV2 amazonSimpleEmailServiceV2)
+    public string GetEmailTemplate(EmailType emailType,
+        Dictionary<string, string>? keys = null)
+    {
+        string emailTemplate;
+
+
+        if (emailType == EmailType.UserInvite)
         {
-            _amazonSimpleEmailServiceV2 = amazonSimpleEmailServiceV2;
-            _settings = settings.Value;
+            emailTemplate = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "email_invite_template.html"));
+        }
+        else if (emailType == EmailType.PasswordReset)
+        {
+            emailTemplate = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "email_reset_password_template.html"));
+        }
+        else
+        {
+            throw new Exception("Invalid type of email.");
         }
 
-        public string GetEmailTemplate(EmailType emailType,
-            Dictionary<string, string>? keys = null)
+        if (keys != null)
         {
-            string emailTemplate;
-
-
-            if (emailType == EmailType.UserInvite)
-            {
-                emailTemplate = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                    "email_invite_template.html"));
-            }
-            else if (emailType == EmailType.PasswordReset)
-            {
-                emailTemplate = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                    "email_reset_password_template.html"));
-            }
-            else
-            {
-                throw new Exception("Invalid type of email.");
-            }
-            
-            if (keys != null)
-            {
-                var replaced = ReplacePlaceholders(keys, emailTemplate);
-                return replaced;
-            }
-
-            return emailTemplate;
+            var replaced = ReplacePlaceholders(keys, emailTemplate);
+            return replaced;
         }
 
-        private string ReplacePlaceholders(Dictionary<string, string> keys, string body)
-        {
-            var val = body;
-            foreach (var keyValuePair in keys)
-            {
-                val = val.Replace(keyValuePair.Key, keyValuePair.Value);
-            }
+        return emailTemplate;
+    }
 
-            return val;
+    private string ReplacePlaceholders(Dictionary<string, string> keys, string body)
+    {
+        var val = body;
+        foreach (var keyValuePair in keys)
+        {
+            val = val.Replace(keyValuePair.Key, keyValuePair.Value);
         }
 
-        public async Task SendMail(SendMailModel input)
+        return val;
+    }
+
+    public async Task SendMail(SendMailModel input)
+    {
+        Content subject = new Content
         {
-            Content subject = new Content
-            {
-                Data = input.Subject
-            };
+            Data = input.Subject
+        };
 
-            Content text = new Content
-            {
-                Data = input.LinkWithToken
-            };
+        Content text = new Content
+        {
+            Data = input.LinkWithToken
+        };
 
-            Body body = new Body
+        Body body = new Body
+        {
+            Html = new Content
             {
-                Html = new Content
-                {
-                    Data = input.Body
-                },
-                Text = text // just in case, if any problem occurs with template there will also be link as text.
-            };
+                Data = input.Body
+            },
+            Text = text // just in case, if any problem occurs with template there will also be link as text.
+        };
 
-            var emailContent = new EmailContent
+        var emailContent = new EmailContent
+        {
+            Simple = new Message
             {
-                Simple = new Message
-                {
-                    Subject = subject,
-                    Body = body,
-                    
-                }
-            };
-
-            var destination = new Destination
-            {
-                 ToAddresses = new List<string> { input.To }
-            };
-
-
-            var sendEmailRequest = new SendEmailRequest
-            {
-                Content = emailContent,
-                Destination = destination,
-                FromEmailAddress = _settings.MailFrom // buraya değer null geliyor şimdilik static verdik
-            };
-
-            try
-            {
-                await _amazonSimpleEmailServiceV2.SendEmailAsync(sendEmailRequest);
+                Subject = subject,
+                Body = body,
             }
-            catch (Exception e)
+        };
+
+        var destination = new Destination
+        {
+            ToAddresses = new List<string> { input.To }
+        };
+
+
+        var sendEmailRequest = new SendEmailRequest
+        {
+            Content = emailContent,
+            Destination = destination,
+            FromEmailAddress = _settings.MailFrom // buraya değer null geliyor şimdilik static verdik
+        };
+
+        try
+        {
+            var client = new AmazonSimpleEmailServiceV2Client(new BasicAWSCredentials(_settings.AccessKey,_settings.SecretKey)
+, new AmazonSimpleEmailServiceV2Config()
             {
-                throw new UserFriendlyException(e.InnerException != null ? e.InnerException.Message : e.Message);
-            }
+                RegionEndpoint = RegionEndpoint.USWest2
+            });
+            await client.SendEmailAsync(sendEmailRequest);
+            // await _amazonSimpleEmailServiceV2.SendEmailAsync(sendEmailRequest);
+        }
+        catch (Exception e)
+        {
+            throw new UserFriendlyException(e.InnerException != null ? e.InnerException.Message : e.Message);
         }
     }
+}
