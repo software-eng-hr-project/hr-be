@@ -65,7 +65,7 @@ namespace ProjectHr.Controllers
                 GetTenancyNameOrNull()
             );
 
-            var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
+            var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity), model.RememberClient == true ? TimeSpan.FromDays(7) : (TimeSpan?)null);
 
             var grantedPermissions = _roleManager.Roles.Include(r => r.Permissions).FirstOrDefault(r => r.Id == 2).Permissions;
             List<string> permissions = new List<string>();
@@ -77,7 +77,7 @@ namespace ProjectHr.Controllers
             {
                 AccessToken = accessToken,
                 EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
-                ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
+                ExpireInSeconds = model.RememberClient == true ?  (int)TimeSpan.FromDays(7).TotalSeconds : (int)_configuration.Expiration.TotalSeconds,
                 UserId = loginResult.User.Id,
                 GrantedPermissions = permissions
             };
@@ -223,7 +223,7 @@ namespace ProjectHr.Controllers
             var now = DateTime.UtcNow;
 
             var jwtSecurityToken = new JwtSecurityToken(
-                issuer: _configuration.Issuer,
+                issuer: _configuration.Issuer,     
                 audience: _configuration.Audience,
                 claims: claims,
                 notBefore: now,

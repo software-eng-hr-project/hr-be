@@ -1,7 +1,7 @@
+using Abp;
 using Abp.Dependency;
 using Abp.Events.Bus.Exceptions;
 using Abp.Events.Bus.Handlers;
-using Abp.UI;
 using Bugsnag;
 
 namespace ProjectHr.Web.Host
@@ -17,7 +17,7 @@ namespace ProjectHr.Web.Host
         public void HandleEvent(AbpHandledExceptionData eventData)
         {
             var ex = eventData.Exception;
-            if (!(ex is UserFriendlyException))
+            if (!(ex is AbpException))
                 _bugsnag.Notify(eventData.Exception);
         }
     }

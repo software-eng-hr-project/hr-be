@@ -59,7 +59,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Tenants
             var adminRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Admin);
             if (adminRole == null)
             {
-                adminRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Admin, StaticRoleNames.Tenants.Admin) { IsStatic = true }).Entity;
+                adminRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Admin, StaticRoleNames.DisplayNames.Admin) { IsStatic = true }).Entity;
                 _context.SaveChanges();
             }
             
@@ -67,7 +67,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Tenants
             var managerRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Manager);
             if (managerRole == null)
             {
-                managerRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Manager, StaticRoleNames.Tenants.Manager) { IsStatic = true }).Entity;
+                managerRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Manager, StaticRoleNames.DisplayNames.Manager) { IsStatic = true }).Entity;
                 _context.SaveChanges();
             }
             
@@ -75,7 +75,7 @@ namespace ProjectHr.EntityFrameworkCore.Seed.Tenants
             var employeeRole = _context.Roles.IgnoreQueryFilters().FirstOrDefault(r => r.TenantId == _tenantId && r.Name == StaticRoleNames.Tenants.Employee);
             if (employeeRole == null)
             {
-                employeeRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Employee, StaticRoleNames.Tenants.Employee) { IsStatic = true }).Entity;
+                employeeRole = _context.Roles.Add(new Role(_tenantId, StaticRoleNames.Tenants.Employee, StaticRoleNames.DisplayNames.Employee) { IsStatic = true }).Entity;
                 _context.SaveChanges();
             }
 
