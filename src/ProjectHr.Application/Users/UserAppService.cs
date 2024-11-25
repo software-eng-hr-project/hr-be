@@ -244,17 +244,30 @@ namespace ProjectHr.Users
         {
             var user = _userRepository.GetAll().FirstOrDefault(u => u.PasswordResetCode == input.Token);
 
-            // var result = await _userManager.ResetPasswordAsync(user, input.Token, input.NewPassword);
-            if (user is null) throw ExceptionHelper.Create(ErrorCode.ResetTokenAlreadyUsed);
+            if (user is null)
+            {
+                throw ExceptionHelper.Create(ErrorCode.ResetTokenAlreadyUsed);
+            }
+            
+            if (!IsPasswordValid(input.NewPassword))
+            {
+                throw new UserFriendlyException("Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
+            }
 
             user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
             user.PasswordResetCode = null;
             await CurrentUnitOfWork.SaveChangesAsync();
 
-
             return true;
         }
 
+        private bool IsPasswordValid(string password)
+        {
+            // En az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içeren regex kontrolü
+            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$");
+            return regex.IsMatch(password);
+        }
+        
         [AbpAuthorize(PermissionNames.Update_Info_User)]
         [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo(UserAllUpdateDto input, long userId)
