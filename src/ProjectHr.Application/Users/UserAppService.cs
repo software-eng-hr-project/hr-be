@@ -31,7 +31,7 @@ using Microsoft.Extensions.Options;
 using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users
 {
@@ -136,14 +136,16 @@ namespace ProjectHr.Users
         [HttpPost("activate")]
         public async Task Activate(EntityDto<long> user)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = true; });
+            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = true; entity.EmployeeLayoffId = null;});
         }
 
-        [HttpPost("de-activate")]
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        public async Task DeActivate(EntityDto<long> user)
+        [HttpPost("de-activate")]
+        public async Task DeActivate( EntityDto<long> user, int layoffId)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = false; });
+            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = false;
+                entity.EmployeeLayoffId = layoffId;
+            });
         }
 
         protected override User MapToEntity(CreateUserDto createInput)
@@ -221,6 +223,10 @@ namespace ProjectHr.Users
             if (input.CurrentPassword == input.NewPassword)
             {
                 throw new UserFriendlyException("Yeni şifreniz mevcut ile aynı olamaz");
+            }
+            if (!IsPasswordValid(input.NewPassword))
+            {
+                throw new UserFriendlyException("Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
             }
 
             if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
@@ -435,7 +441,7 @@ namespace ProjectHr.Users
                 .OrderBy(u => u.Name)
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
-                .ToListAsync(); // Asynchronous retrieval of users
+                .ToListAsync(); 
 
             var roles = await _roleRepository.GetAllListAsync();
 

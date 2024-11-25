@@ -4,7 +4,7 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using JetBrains.Annotations;
 using ProjectHr.Enums;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users.Dto;
 

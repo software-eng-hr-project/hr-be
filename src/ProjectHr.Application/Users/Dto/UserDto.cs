@@ -7,7 +7,7 @@ using ProjectHr.Authorization.Users;
 using ProjectHr.Constants;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users.Dto
 {

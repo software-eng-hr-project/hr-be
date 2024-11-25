@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Authorization.Users;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Enums;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users.Dto;
 
