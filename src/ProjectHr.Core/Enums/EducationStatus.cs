@@ -2,11 +2,12 @@
 
 public enum EducationStatus
 {
-    PrimarySchool= 1,
-    MiddleSchool,
-    HighSchool,
-    AssociateDegree,
-    BachelorsDegree,
-    MasterDegree,
-    PhdDegree
+    İlkokul= 1,
+    Ortaokul,
+    Lise,
+    ÖnLisans,
+    Lisans,
+    YüksekLisans,
+    Doktora
+    
 }

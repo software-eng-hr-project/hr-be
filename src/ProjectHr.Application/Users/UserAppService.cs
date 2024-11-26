@@ -134,10 +134,10 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("activate")]
-        public async Task Activate(EntityDto<long> user)
+        [HttpPost("activate/{userId}")]
+        public async Task Activate(long userId)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) =>
+            await Repository.UpdateAsync(userId, async (entity) =>
             {
                 entity.IsActive = true;
                 var deletedEmployeeLayoffInfo = _employeeLayoffInfoRepository.FirstOrDefault(x => x.Id == entity.EmployeeLayoffInfoId);
@@ -147,18 +147,18 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("de-activate")]
-        public async Task DeActivate(EntityDto<long> user, int layoffId)
+        [HttpPost("de-activate/{userId}")]
+        public async Task DeActivate(EmployeeLayoffInfoDto input, long userId)
         {
             var layoffInfo = new EmployeeLayoffInfo()
             {
-                EmployeeLayoffId = layoffId,
-                LayoffReason = "çünkü",
-                DismissalDate = DateTime.Now,
+                EmployeeLayoffId = input.EmployeeLayoffId,
+                LayoffReason = input.LayoffReason,
+                DismissalDate = input.DismissalDate,
             };
             await _employeeLayoffInfoRepository.InsertAsync(layoffInfo);
             await CurrentUnitOfWork.SaveChangesAsync();
-            await Repository.UpdateAsync(user.Id, async (entity) =>
+            await Repository.UpdateAsync(userId, async (entity) =>
             {
                 entity.IsActive = false;
                 entity.EmployeeLayoffInfoId = layoffInfo.Id;

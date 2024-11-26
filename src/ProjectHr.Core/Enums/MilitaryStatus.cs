@@ -4,8 +4,8 @@ namespace ProjectHr.Enums;
 
 public enum MilitaryStatus
 {
-    Done= 1,
-    NotDone,
-    Exempt,
+    Yapıldı = 1,
+    Yapılmadı,
+    Muaf,
     
 }

@@ -163,11 +163,11 @@ namespace ProjectHr.Roles
         }
 
         [AbpAuthorize(PermissionNames.List_Role)]
-        [HttpGet("permission")]
-        public async Task<GetRoleForEditOutput> GetRoleForEdit(EntityDto input)
+        [HttpGet("{roleId}/permissions")]
+        public async Task<GetRoleForEditOutput> GetRoleForEdit(int roleId)
         {
             var permissions = PermissionManager.GetAllPermissions();
-            var role = await _roleManager.GetRoleByIdAsync(input.Id);
+            var role = await _roleManager.GetRoleByIdAsync(roleId);
             var grantedPermissions = (await _roleManager.GetGrantedPermissionsAsync(role)).ToArray();
             var roleEditDto = ObjectMapper.Map<RoleEditDto>(role);
 

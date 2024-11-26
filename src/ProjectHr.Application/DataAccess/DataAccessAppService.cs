@@ -8,7 +8,7 @@ using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.DataAccess;
 
-[Route("/api/job-title")]
+[Route("/api/data-access")]
 public class DataAccessAppService: ProjectHrAppServiceBase
 {
     private readonly IRepository<JobTitle, int> _jobTitleRepository;

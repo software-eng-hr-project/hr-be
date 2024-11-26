@@ -9,7 +9,7 @@ namespace ProjectHr.Roles
     {
         Task<ListResultDto<PermissionWithRoleDto>> GetAllPermissions();
 
-        Task<GetRoleForEditOutput> GetRoleForEdit(EntityDto input);
+        Task<GetRoleForEditOutput> GetRoleForEdit(int roleId);
 
         Task<ListResultDto<RoleListDto>> GetRolesAsync(GetRolesInput input);
     }

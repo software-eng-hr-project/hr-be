@@ -8,8 +8,8 @@ namespace ProjectHr.Users
 {
     public interface IUserAppService : IAsyncCrudAppService<UserDto, long, PagedUserResultRequestDto, CreateUserDto, UserDto>
     {
-        Task DeActivate(EntityDto<long> user, int layoffId);
-        Task Activate(EntityDto<long> user);
+        Task DeActivate(EmployeeLayoffInfoDto input, long userId);
+        Task Activate(long userId);
         Task<ListResultDto<RoleDto>> GetRoles();
         Task ChangeLanguage(ChangeUserLanguageDto input);
 

@@ -4,6 +4,6 @@ namespace ProjectHr.Enums;
 
 public enum EmploymentType
 {
-    FullTime = 1,
-    PartTime
+    TamZamanlı = 1,
+    YarıZamanlı
 }

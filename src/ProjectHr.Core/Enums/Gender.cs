@@ -2,7 +2,7 @@
 
 public enum Gender
 {
-    Male= 1,
-    Female,
-    Other,
+    Erkek= 1,
+    Kadın,
+    Diğer,
 }

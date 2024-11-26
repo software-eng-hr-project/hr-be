@@ -2,8 +2,8 @@
 
 public enum ProjectStatus
 {
-        NotStarted = 1,
-        InProgress,
-        Completed,
-        Cancelled 
+        Başlamadı = 1,
+        DevamEdiyor,
+        Tamamlandı,
+        İptalEdildi
 }
