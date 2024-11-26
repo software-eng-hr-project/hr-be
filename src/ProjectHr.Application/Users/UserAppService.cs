@@ -399,6 +399,7 @@ namespace ProjectHr.Users
             var user = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
+                .Include(x => x.ProjectMembers)
                 .FirstOrDefault(x => x.Id == abpSessionUserId);
 
 

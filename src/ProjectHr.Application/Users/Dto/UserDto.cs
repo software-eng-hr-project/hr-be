@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
@@ -8,6 +9,7 @@ using ProjectHr.Constants;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
 using ProjectHr.DataAccess.Dto;
+using ProjectHr.ProjectMembers.Dto;
 
 namespace ProjectHr.Users.Dto
 {
@@ -87,5 +89,9 @@ namespace ProjectHr.Users.Dto
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string EmergencyContactPhone { get; set; }
+
+        public ICollection<ProjectMemberDto> ProjectMembers { get; set; }
+        
+        
     }
 }

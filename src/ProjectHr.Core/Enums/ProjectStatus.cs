@@ -2,7 +2,8 @@
 
 public enum ProjectStatus
 {
-        Başlamadı = 1,
+        Taslak = 1,
+        Başlamadı ,
         DevamEdiyor,
         Tamamlandı,
         İptalEdildi
