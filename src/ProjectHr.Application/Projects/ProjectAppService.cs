@@ -88,13 +88,22 @@ public class ProjectAppService : ProjectHrAppServiceBase
             if (isAlreadyExist)
                 throw new UserFriendlyException($"Id'si {userId} olan kullanıcı projede aynı rolle zaten kayıtlı");
         }
-        
+        // inputta olmayanı dbden siler 
+        foreach (var projectMember in project.ProjectMembers)
+        {
+            var hasMember = input.ProjectMembers.FirstOrDefault(pm => pm.UserId == projectMember.UserId); 
+            if (hasMember is  null && projectMember.IsManager == false)
+            {
+                project.ProjectMembers.Remove(projectMember);
+            }
+        }
+
         foreach (var member in input.ProjectMembers)
         {
             bool isExist = _userRepository.GetAll().Any(u => u.Id == member.UserId);
             if (!isExist)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-
+            
             var newMember = new ProjectMember();
             newMember.UserId = member.UserId;
             newMember.ProjectId = project.Id;
@@ -102,7 +111,7 @@ public class ProjectAppService : ProjectHrAppServiceBase
             newMember.TeamName = member.TeamName;
             newMember.JobTitleId = member.JobTitleId;
             newMember.IsContributing = true;
-
+            
             project.ProjectMembers.Add(newMember);
         }
         project.StartDate = input.StartDate;

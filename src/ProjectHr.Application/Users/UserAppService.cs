@@ -417,24 +417,11 @@ namespace ProjectHr.Users
         public async Task<List<ProjectDto>> GetProfileCareerInfo()
         {
             var abpSessionUserId = AbpSession.GetUserId();
-
-            // var user = _userRepository.GetAll()
-            //     .Include(x => x.ProjectMembers)
-            //     .ThenInclude(x => x.JobTitle)
-            //     .Include(x => x.ProjectMembers)
-            //     .ThenInclude(x => x.Project)
-            //     .FirstOrDefault(x => x.Id == abpSessionUserId);
-            //
-            // if (user == null)
-            //     throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-            //
-            // var userDtos = ObjectMapper.Map<UserCareerDto>(user);
-            //
-            // return userDtos;
+            
             var userProjects = await _projectRepository.GetAll()
                 .Include(p => p.ProjectMembers)
                 .ThenInclude(p => p.JobTitle)
-                 .Include(p => p.ProjectMembers)
+                .Include(p => p.ProjectMembers)
                 .ThenInclude(p => p.User)
                 .Where(p => p.ProjectMembers.Any(pm => pm.UserId == abpSessionUserId)).ToListAsync();
             var userProjectsDto = ObjectMapper.Map<List<ProjectDto>>(userProjects);
