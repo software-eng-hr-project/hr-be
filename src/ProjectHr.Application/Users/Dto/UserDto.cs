@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
@@ -7,7 +8,8 @@ using ProjectHr.Authorization.Users;
 using ProjectHr.Constants;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
+using ProjectHr.ProjectMembers.Dto;
 
 namespace ProjectHr.Users.Dto
 {
@@ -44,7 +46,7 @@ namespace ProjectHr.Users.Dto
         public string WorkPhone { get; set; }
         
         [Required]
-        public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
+        public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
         
         [Required]
         public DateTime JobStartDate { get; set; }
@@ -87,5 +89,7 @@ namespace ProjectHr.Users.Dto
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string EmergencyContactPhone { get; set; }
+        
+        
     }
 }

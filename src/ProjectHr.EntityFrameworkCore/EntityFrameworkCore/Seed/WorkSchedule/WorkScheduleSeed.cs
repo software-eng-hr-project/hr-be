@@ -24,22 +24,27 @@ public class WorkScheduleSeed
     public void CreateWorkScheduleSeeds()
     {
         string filePath = Path.Combine(
-            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), 
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "EntityFrameworkCore", "Seed", "WorkSchedule",
             "WorkDate.json");
 
         using (StreamReader r = new StreamReader(filePath))
         {
-
             string json = r.ReadToEnd();
             List<Entities.WorkDate> items = JsonConvert.DeserializeObject<List<Entities.WorkDate>>(json);
 
-            _context.WorkDates.AddRange(items); // Add all work dates
 
-            _context.WorkSchedules.Add(new WorkSchedule
+            foreach (var item in items)
             {
-                Name = "Default Work Schedule",
-                Dates = items // Associate the work dates with the new work schedule
-            });
+                if (!_context.WorkDates.Any(x => x.DayOfTheWeek == item.DayOfTheWeek))
+                    _context.WorkDates.Add(item);
+            }
+
+            if (!_context.WorkSchedules.Any(x => x.Name == "Default Work Schedule"))
+                _context.WorkSchedules.Add(new WorkSchedule
+                {
+                    Name = "Default Work Schedule",
+                    Dates = items // Associate the work dates with the new work schedule
+                });
             _context.SaveChanges();
         }
     }

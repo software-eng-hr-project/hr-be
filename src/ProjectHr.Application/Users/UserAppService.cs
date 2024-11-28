@@ -31,7 +31,9 @@ using Microsoft.Extensions.Options;
 using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
+using ProjectHr.ProjectMembers.Dto;
+using ProjectHr.Projects.Dto;
 
 namespace ProjectHr.Users
 {
@@ -45,15 +47,12 @@ namespace ProjectHr.Users
         private readonly IRepository<Role> _roleRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IAbpSession _abpSession;
-
         private readonly LogInManager _logInManager;
-
-        // private readonly ISESService _sesService;
         private readonly IRepository<User, long> _userRepository;
-
-        // private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Project> _projectRepository;
+        private readonly IRepository<EmployeeLayoffInfo> _employeeLayoffInfoRepository;
+        private readonly IMailService _mailService;
 
         public UserAppService(
             IRepository<User, long> userRepository,
@@ -61,13 +60,13 @@ namespace ProjectHr.Users
             RoleManager roleManager,
             IRepository<Role> roleRepository,
             IPasswordHasher<User> passwordHasher,
-            // IOptions<EmailSettings> emailSettings,
             IAbpSession abpSession,
             LogInManager logInManager,
-            // ISESService sesService, 
             IHttpContextAccessor httpContextAccessor,
-            IRepository<Project> projectRepository
-            )
+            IRepository<Project> projectRepository,
+            IRepository<EmployeeLayoffInfo> employeeLayoffInfoRepository,
+            IMailService mailService
+        )
             : base(userRepository)
         {
             _userManager = userManager;
@@ -76,11 +75,11 @@ namespace ProjectHr.Users
             _passwordHasher = passwordHasher;
             _abpSession = abpSession;
             _logInManager = logInManager;
-            // _sesService = sesService;
             _httpContextAccessor = httpContextAccessor;
             _projectRepository = projectRepository;
+            _employeeLayoffInfoRepository = employeeLayoffInfoRepository;
+            _mailService = mailService;
             _userRepository = userRepository;
-            // _emailSettings = emailSettings.Value;
         }
 
         [AbpAuthorize(PermissionNames.Create_User)]
@@ -111,7 +110,9 @@ namespace ProjectHr.Users
                 }
 
                 CurrentUnitOfWork.SaveChanges();
-//
+
+                await _mailService.InviteUserMail(user.EmailAddress);
+
                 return MapToEntityDto(user);
             }
             catch (Exception e)
@@ -130,17 +131,36 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("activate")]
-        public async Task Activate(EntityDto<long> user)
+        [HttpPost("activate/{userId}")]
+        public async Task Activate(long userId)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = true; });
+            await Repository.UpdateAsync(userId, async (entity) =>
+            {
+                entity.IsActive = true;
+                var deletedEmployeeLayoffInfo =
+                    _employeeLayoffInfoRepository.FirstOrDefault(x => x.Id == entity.EmployeeLayoffInfoId);
+                await _employeeLayoffInfoRepository.DeleteAsync(deletedEmployeeLayoffInfo);
+                entity.EmployeeLayoffInfoId = null;
+            });
         }
 
-        [HttpPost("de-activate")]
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        public async Task DeActivate(EntityDto<long> user)
+        [HttpPost("de-activate/{userId}")]
+        public async Task DeActivate(EmployeeLayoffInfoDto input, long userId)
         {
-            await Repository.UpdateAsync(user.Id, async (entity) => { entity.IsActive = false; });
+            var layoffInfo = new EmployeeLayoffInfo()
+            {
+                EmployeeLayoffId = input.EmployeeLayoffId,
+                LayoffReason = input.LayoffReason,
+                DismissalDate = input.DismissalDate,
+            };
+            await _employeeLayoffInfoRepository.InsertAsync(layoffInfo);
+            await CurrentUnitOfWork.SaveChangesAsync();
+            await Repository.UpdateAsync(userId, async (entity) =>
+            {
+                entity.IsActive = false;
+                entity.EmployeeLayoffInfoId = layoffInfo.Id;
+            });
         }
 
         protected override User MapToEntity(CreateUserDto createInput)
@@ -220,6 +240,12 @@ namespace ProjectHr.Users
                 throw new UserFriendlyException("Yeni şifreniz mevcut ile aynı olamaz");
             }
 
+            if (!IsPasswordValid(input.NewPassword))
+            {
+                throw new UserFriendlyException(
+                    "Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
+            }
+
             if (await _userManager.CheckPasswordAsync(user, input.CurrentPassword))
             {
                 CheckErrors(await _userManager.ChangePasswordAsync(user, input.NewPassword));
@@ -239,17 +265,31 @@ namespace ProjectHr.Users
         [HttpPut("reset-password")]
         public async Task<bool> ResetPassword(ResetPasswordDto input)
         {
-            var user = _userRepository.GetAll().FirstOrDefault(u => u.PasswordResetToken == input.Token);
+            var user = _userRepository.GetAll().FirstOrDefault(u => u.PasswordResetCode == input.Token);
 
-            // var result = await _userManager.ResetPasswordAsync(user, input.Token, input.NewPassword);
-            if (user is null) throw ExceptionHelper.Create(ErrorCode.ResetTokenAlreadyUsed);
+            if (user is null)
+            {
+                throw ExceptionHelper.Create(ErrorCode.ResetTokenAlreadyUsed);
+            }
+
+            if (!IsPasswordValid(input.NewPassword))
+            {
+                throw new UserFriendlyException(
+                    "Şifreniz en az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içermelidir.");
+            }
 
             user.Password = _passwordHasher.HashPassword(user, input.NewPassword);
-            user.PasswordResetToken = null;
+            user.PasswordResetCode = null;
             await CurrentUnitOfWork.SaveChangesAsync();
 
-
             return true;
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            // En az 6 karakter, en az bir büyük harf, bir küçük harf ve bir sayı içeren regex kontrolü
+            var regex = new Regex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$");
+            return regex.IsMatch(password);
         }
 
         [AbpAuthorize(PermissionNames.Update_Info_User)]
@@ -279,6 +319,23 @@ namespace ProjectHr.Users
 
                 throw e;
             }
+        }
+
+        [AbpAuthorize(PermissionNames.Update_Info_User)]
+        [HttpPut("{userId}/role")]
+        public async Task<UserDto> UpdateRole(UserRoleUpdateDto input, long userId)
+        {
+            var user = _userRepository.GetAll()
+                .Include(u => u.Roles)
+                .FirstOrDefault(u => u.Id == userId);
+
+            await _userManager.SetRolesAsync(user, input.RoleNames);
+
+            await _userRepository.UpdateAsync(user);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            var userDto = MapToEntityDto(user);
+            return userDto;
         }
 
         [HttpPut("profile")]
@@ -318,16 +375,15 @@ namespace ProjectHr.Users
                 .Include(u => u.ProjectMembers);
 
             users.Select(u => u.ProjectMembers.Select(pm => pm.ProjectId));
-            
 
-            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);   
+
+            var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
             foreach (var getUserGeneralInfo in userDtos)
             {
                 getUserGeneralInfo.Projects = _projectRepository.GetAll()
                     .Where(p => p.ProjectMembers.Any(pm => pm.UserId == getUserGeneralInfo.Id))
                     .Select(p => p.Name)
                     .ToArray();
-
             }
 
             return userDtos;
@@ -343,7 +399,6 @@ namespace ProjectHr.Users
                 .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == abpSessionUserId);
 
-
             if (user == null)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
 
@@ -354,7 +409,36 @@ namespace ProjectHr.Users
             var roleIds = user.Roles.Select(x => x.RoleId);
 
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+
             return userDtos;
+        }
+
+        [HttpGet("profile/career")]
+        public async Task<List<ProjectDto>> GetProfileCareerInfo()
+        {
+            var abpSessionUserId = AbpSession.GetUserId();
+
+            // var user = _userRepository.GetAll()
+            //     .Include(x => x.ProjectMembers)
+            //     .ThenInclude(x => x.JobTitle)
+            //     .Include(x => x.ProjectMembers)
+            //     .ThenInclude(x => x.Project)
+            //     .FirstOrDefault(x => x.Id == abpSessionUserId);
+            //
+            // if (user == null)
+            //     throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
+            //
+            // var userDtos = ObjectMapper.Map<UserCareerDto>(user);
+            //
+            // return userDtos;
+            var userProjects = await _projectRepository.GetAll()
+                .Include(p => p.ProjectMembers)
+                .ThenInclude(p => p.JobTitle)
+                 .Include(p => p.ProjectMembers)
+                .ThenInclude(p => p.User)
+                .Where(p => p.ProjectMembers.Any(pm => pm.UserId == abpSessionUserId)).ToListAsync();
+            var userProjectsDto = ObjectMapper.Map<List<ProjectDto>>(userProjects);
+            return userProjectsDto;
         }
 
         [AbpAuthorize(PermissionNames.View_Info_User)]
@@ -395,34 +479,42 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.List_Role)]
-        [HttpGet("users-wtih-role")]
+        [HttpGet("users-with-role")]
         public async Task<List<UserDto>> GetAllUsersWithRole(PagedUserResultRequestDto input)
         {
-            var users = _userRepository.GetAll()
+            var users = await _userRepository.GetAll()
                 .OrderBy(u => u.Name)
                 .Include(x => x.Roles)
-                .Include(x => x.JobTitle);
-            
+                .Include(x => x.JobTitle)
+                .ToListAsync();
+
             var roles = await _roleRepository.GetAllListAsync();
-            
-            var userDtos = ObjectMapper.Map<List<UserDto>>(users);
-            
+
+            var userDtos = new List<UserDto>();
+
             foreach (var user in users)
             {
-                var roleIds = user.Roles.Select(x => x.RoleId);
-                foreach (var userDto in userDtos)
-                {
-                    userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
-                }
-            }
-            return userDtos;
+                var userDto = ObjectMapper.Map<UserDto>(user);
 
+                var roleIds = user.Roles.Select(x => x.RoleId);
+
+                userDto.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+
+                userDtos.Add(userDto);
+            }
+
+            return userDtos;
         }
-        
+
         [AbpAllowAnonymous]
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
         {
+            await _mailService.ResetPassword(new ResetPasswordMailInput()
+            {
+                EmailAddress = input.EmailAddress
+            });
+
             var user = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.EmailAddress == input.EmailAddress);
             if (user is null)
             {
@@ -432,8 +524,7 @@ namespace ProjectHr.Users
             return ObjectMapper.Map<ResetPasswordMailInput>(user);
         }
 
-        
-        
+
         #region OverridePart
 
         [RemoteService(false)]

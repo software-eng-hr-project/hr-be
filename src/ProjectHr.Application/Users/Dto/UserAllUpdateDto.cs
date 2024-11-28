@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Abp.Authorization.Users;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Enums;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users.Dto;
 
@@ -19,7 +19,7 @@ public class UserAllUpdateDto
     public string Surname { get; set; }
     
     [Required]
-    public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
+    public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
     
     [Required]
     public DateTime JobStartDate { get; set; }

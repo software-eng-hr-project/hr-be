@@ -1516,7 +1516,7 @@ namespace ProjectHr.Migrations
                     b.Property<string>("EmergencyContactPhone")
                         .HasColumnType("text");
 
-                    b.Property<int?>("EmployeeLayoffId")
+                    b.Property<int?>("EmployeeLayoffInfoId")
                         .HasColumnType("integer");
 
                     b.Property<int>("EmploymentType")
@@ -1606,9 +1606,6 @@ namespace ProjectHr.Migrations
                         .HasMaxLength(328)
                         .HasColumnType("character varying(328)");
 
-                    b.Property<string>("PasswordResetToken")
-                        .HasColumnType("text");
-
                     b.Property<string>("PersonalPhone")
                         .HasColumnType("text");
 
@@ -1648,7 +1645,7 @@ namespace ProjectHr.Migrations
                     b.HasIndex("EmergencyContactPhone")
                         .IsUnique();
 
-                    b.HasIndex("EmployeeLayoffId");
+                    b.HasIndex("EmployeeLayoffInfoId");
 
                     b.HasIndex("IdentityNumber")
                         .IsUnique();
@@ -1708,6 +1705,51 @@ namespace ProjectHr.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EmployeeLayoff");
+                });
+
+            modelBuilder.Entity("ProjectHr.Entities.EmployeeLayoffInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long?>("CreatorUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeleterUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("DismissalDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("EmployeeLayoffId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long?>("LastModifierUserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("LayoffReason")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeLayoffId");
+
+                    b.ToTable("EmployeeLayoffInfos");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.JobTitle", b =>
@@ -1818,6 +1860,9 @@ namespace ProjectHr.Migrations
 
                     b.Property<DateTime?>("DeletionTime")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsContributing")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -2202,9 +2247,9 @@ namespace ProjectHr.Migrations
                         .WithMany()
                         .HasForeignKey("DeleterUserId");
 
-                    b.HasOne("ProjectHr.Entities.EmployeeLayoff", "EmployeeLayoff")
-                        .WithMany("Users")
-                        .HasForeignKey("EmployeeLayoffId");
+                    b.HasOne("ProjectHr.Entities.EmployeeLayoffInfo", "EmployeeLayoffInfo")
+                        .WithMany()
+                        .HasForeignKey("EmployeeLayoffInfoId");
 
                     b.HasOne("ProjectHr.Entities.JobTitle", "JobTitle")
                         .WithMany("Users")
@@ -2220,11 +2265,22 @@ namespace ProjectHr.Migrations
 
                     b.Navigation("DeleterUser");
 
-                    b.Navigation("EmployeeLayoff");
+                    b.Navigation("EmployeeLayoffInfo");
 
                     b.Navigation("JobTitle");
 
                     b.Navigation("LastModifierUser");
+                });
+
+            modelBuilder.Entity("ProjectHr.Entities.EmployeeLayoffInfo", b =>
+                {
+                    b.HasOne("ProjectHr.Entities.EmployeeLayoff", "EmployeeLayoff")
+                        .WithMany("EmployeeLayoffInfos")
+                        .HasForeignKey("EmployeeLayoffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EmployeeLayoff");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.ProjectMember", b =>
@@ -2382,7 +2438,7 @@ namespace ProjectHr.Migrations
 
             modelBuilder.Entity("ProjectHr.Entities.EmployeeLayoff", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("EmployeeLayoffInfos");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.JobTitle", b =>

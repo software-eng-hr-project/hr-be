@@ -2,6 +2,6 @@
 
 public enum ProjectType
 {
-      Internal = 1,
-      External 
+      İçProje = 1,
+      DışProje
 }

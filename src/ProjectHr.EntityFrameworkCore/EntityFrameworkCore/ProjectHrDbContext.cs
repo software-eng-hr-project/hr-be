@@ -14,6 +14,7 @@ namespace ProjectHr.EntityFrameworkCore
         /* Define a DbSet for each entity of the application */
         public DbSet<JobTitle> JobTitles { get; set; }
 
+        public DbSet<EmployeeLayoffInfo> EmployeeLayoffInfos { get; set; }
         public DbSet<EmployeeLayoff> EmployeeLayoff { get; set; }
         
         public DbSet<TechStack> TechStacks { get; set; }

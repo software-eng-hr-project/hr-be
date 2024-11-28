@@ -24,7 +24,7 @@ public class JobTitleSeed
     public void CreateJobTitleSeeds()
     {
         string filePath = Path.Combine(
-            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), 
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "EntityFrameworkCore", "Seed", "JobTitle",
             "JobTitles.json"); 
 
         using (StreamReader r = new StreamReader(filePath))

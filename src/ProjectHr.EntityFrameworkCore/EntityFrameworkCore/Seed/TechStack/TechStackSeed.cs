@@ -23,7 +23,7 @@ public class TechStackSeed
     public void CreateJobTitleSeeds()
     {
         string filePath = Path.Combine(
-            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), 
+            Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "EntityFrameworkCore", "Seed", "TechStack",
             "TechStacks.json"); 
 
         using (StreamReader r = new StreamReader(filePath))

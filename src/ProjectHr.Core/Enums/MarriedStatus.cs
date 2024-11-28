@@ -2,7 +2,7 @@
 
 public enum MarriedStatus
 {
-    Single= 1,
-    Married,
-    Divorced,
+    Bekar = 1,
+    Evli,
+    Boşanmış,
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Abp.Application.Services;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Domain.Uow;
@@ -15,24 +16,24 @@ using ExceptionHelper = ProjectHr.Common.Exceptions.ExceptionHelper;
 namespace ProjectHr.Users;
 
 [Route("/api/mail")]
-public class MailService : ProjectHrAppServiceBase
+public class MailService : ProjectHrAppServiceBase, IMailService
 {
     private readonly IRepository<User, long> _userRepository;
     private readonly UserManager _userManager;
     private readonly EmailSettings _emailSettings;
-    private readonly ISESService _sesService;
+     private readonly ISESService _sesService;
 
     public MailService(
         IRepository<User, long> userRepository,
         UserManager userManager,
         IOptions<EmailSettings> emailSettings,
-        ISESService sesService
+         ISESService sesService
     )
     {
         _userRepository = userRepository;
         _userManager = userManager;
         _emailSettings = emailSettings.Value;
-        _sesService = sesService;
+         _sesService = sesService;
     }
 
     [AbpAllowAnonymous]
@@ -45,7 +46,7 @@ public class MailService : ProjectHrAppServiceBase
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        user.PasswordResetToken = token;
+        user.PasswordResetCode = token;
         await _userRepository.UpdateAsync(user);
 
         var link = _emailSettings.ClientURL;
@@ -67,18 +68,19 @@ public class MailService : ProjectHrAppServiceBase
 
         await _sesService.SendMail(mail);
     }
-
+    
+    [RemoteService(false)]
     [AbpAllowAnonymous]
     [HttpPost("invite-user")]
-    public async Task InviteUserMail(ResetPasswordMailInput input)
+    public async Task InviteUserMail(string emailAdress)
     {
-        var user = await _userRepository.FirstOrDefaultAsync(x => x.EmailAddress == input.EmailAddress);
+        var user = await _userRepository.FirstOrDefaultAsync(x => x.EmailAddress == emailAdress);
 
         if (user is null) throw ExceptionHelper.Create(ErrorCode.EmailCannotFound);
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         
-        user.PasswordResetToken = token;
+        user.PasswordResetCode = token;
         await _userRepository.UpdateAsync(user);
         
         var link = _emailSettings.ClientURL;
@@ -92,7 +94,7 @@ public class MailService : ProjectHrAppServiceBase
 
         var mail = new SendMailModel
         {
-            To = input.EmailAddress,
+            To = emailAdress,
             Body = template,
             Subject = "Welcome to QandQHR",
             LinkWithToken = linkWithToken,

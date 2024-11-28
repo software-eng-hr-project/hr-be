@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
@@ -9,10 +8,12 @@ using Abp.UI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectHr.Authorization;
+using ProjectHr.Authorization.Roles;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
+using ProjectHr.Enums;
 using ProjectHr.ProjectMembers.Dto;
 using ProjectHr.Projects.Dto;
 
@@ -24,14 +25,16 @@ public class ProjectAppService : ProjectHrAppServiceBase
 {
     private readonly IRepository<Project> _projectRepository;
     private readonly IRepository<User, long> _userRepository;
-
+    private readonly UserManager _userManager;
     public ProjectAppService(
         IRepository<Project> projectRepository,
-        IRepository<User, long> userRepository
+        IRepository<User, long> userRepository,
+        UserManager userManager
     )
     {
         _projectRepository = projectRepository;
         _userRepository = userRepository;
+        _userManager = userManager;
     }
 
     [AbpAuthorize(PermissionNames.Create_Project)]
@@ -53,7 +56,9 @@ public class ProjectAppService : ProjectHrAppServiceBase
         member.ProjectId = project.Id;
         member.IsManager = true;
         member.JobTitleId = 6;
+        member.TeamName = "Proje Yöneticisi";
         project.ProjectMembers.Add(member);
+        project.Status = ProjectStatus.Taslak;
         await _projectRepository.UpdateAsync(project);
         await CurrentUnitOfWork.SaveChangesAsync();
         var projectDto = ObjectMapper.Map<ProjectDto>(project);
@@ -65,18 +70,25 @@ public class ProjectAppService : ProjectHrAppServiceBase
     public async Task<ProjectDto> CreateProjectDetailsAsync(int projectId, CreateProjectDetailsDto input)
     {
         var abpSessionUserId = AbpSession.GetUserId();
+        var listOfUserId = input.ProjectMembers.Select(p => p.UserId);
 
         var project = await _projectRepository.GetAll()
             .Include(p => p.ProjectMembers)
             .FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null)
             throw new UserFriendlyException("Böyle bir proje Bulunamadı");
-
+        
         bool isManager = project.ProjectMembers.Any(p => p.UserId == abpSessionUserId && p.IsManager == true);
         if (!isManager)
             throw new UserFriendlyException("Bu projede yetkili değilsiniz.");
-
-
+        
+        foreach (var userId in listOfUserId)
+        {
+            bool isAlreadyExist = project.ProjectMembers.Any(p => p.UserId == userId  && input.ProjectMembers.Any(x=>x.JobTitleId == p.JobTitleId));
+            if (isAlreadyExist)
+                throw new UserFriendlyException($"Id'si {userId} olan kullanıcı projede aynı rolle zaten kayıtlı");
+        }
+        
         foreach (var member in input.ProjectMembers)
         {
             bool isExist = _userRepository.GetAll().Any(u => u.Id == member.UserId);
@@ -89,9 +101,12 @@ public class ProjectAppService : ProjectHrAppServiceBase
             newMember.IsManager = false;
             newMember.TeamName = member.TeamName;
             newMember.JobTitleId = member.JobTitleId;
+            newMember.IsContributing = true;
 
             project.ProjectMembers.Add(newMember);
         }
+        project.StartDate = input.StartDate;
+        project.EndDate = input.EndDate;
 
         await _projectRepository.UpdateAsync(project);
         await CurrentUnitOfWork.SaveChangesAsync();
@@ -106,6 +121,8 @@ public class ProjectAppService : ProjectHrAppServiceBase
     {
         var project = await _projectRepository.GetAll()
             .Include(p => p.ProjectMembers)
+            .ThenInclude(p => p.User)
+            .ThenInclude(p => p.JobTitle)
             .FirstOrDefaultAsync(p => p.Id == projectId);
 
         var updatedProject = ObjectMapper.Map(input, project);
@@ -127,15 +144,38 @@ public class ProjectAppService : ProjectHrAppServiceBase
         var projectDto = ObjectMapper.Map<ProjectDto>(project);
         return projectDto;
     }
-
-    [AbpAuthorize(PermissionNames.List_Project)]
+    
     [HttpGet]
     public async Task<List<ProjectDto>> GetAllProjectAsync()
     {
-        var project = await _projectRepository.GetAll()
-            .OrderBy(p => p.Id)
-            .Include(p => p.ProjectMembers)
-            .ToListAsync();
+        var abpSessionUserId = AbpSession.GetUserId();
+        
+        var hasPermission = _userManager
+            .GetGrantedPermissionsAsync(_userManager.GetUserById(abpSessionUserId)).Result
+            .Any(p => p.Name is PermissionNames.List_Project);
+
+        var project = new List<Project>();
+        if (hasPermission)
+        {
+            var allProjects = await _projectRepository.GetAll()
+                .OrderBy(p => p.Id)
+                .Include(p => p.ProjectMembers)
+                .ThenInclude(pm=>pm.JobTitle)
+                .Include(p => p.ProjectMembers)
+                .ThenInclude(pm=> pm.User)
+                .ToListAsync();
+            project.AddRange(allProjects);
+        }
+        else
+        {
+            var usersProject = await _projectRepository.GetAll()
+                .Include(p => p.ProjectMembers)
+                .Where(p => p.ProjectMembers.Any(member => member.UserId == abpSessionUserId))
+                .ToListAsync();
+
+            project.AddRange(usersProject);
+        }
+
         var projectDto = ObjectMapper.Map<List<ProjectDto>>(project);
         return projectDto;
     }
@@ -146,6 +186,9 @@ public class ProjectAppService : ProjectHrAppServiceBase
     {
         var project = await _projectRepository.GetAll()
             .Include(p => p.ProjectMembers)
+            .ThenInclude(pm=>pm.JobTitle)
+            .Include(p => p.ProjectMembers)
+            .ThenInclude(pm=> pm.User)
             .FirstOrDefaultAsync(p => p.Id == projectId);
         var projectDto = ObjectMapper.Map<ProjectDto>(project);
         return projectDto;
@@ -157,7 +200,7 @@ public class ProjectAppService : ProjectHrAppServiceBase
     {
         var project = await _projectRepository.FirstOrDefaultAsync(p => p.Id == projectId);
         _projectRepository.DeleteAsync(project);
-        
+
         await CurrentUnitOfWork.SaveChangesAsync();
     }
 }

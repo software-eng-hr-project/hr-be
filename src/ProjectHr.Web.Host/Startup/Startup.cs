@@ -53,7 +53,10 @@ namespace ProjectHr.Web.Host.Startup
                 configuration.ApiKey = "4e76aa17f8e6a3f3b16735784cbfe878";
                 configuration.NotifyReleaseStages = new[] { "production" };
             });
-            
+
+            services.Configure<EmailSettings>(options =>
+                _appConfiguration.GetSection(nameof(EmailSettings)).Bind(options));
+
             var awsOptions = new AWSOptions
             {
                 Credentials = new BasicAWSCredentials(
@@ -63,9 +66,9 @@ namespace ProjectHr.Web.Host.Startup
                 Region = RegionEndpoint.USWest2
                 
             };
-            services.Configure<EmailSettings>(options =>
-                _appConfiguration.GetSection(nameof(EmailSettings)).Bind(options));
+
             services.AddDefaultAWSOptions(awsOptions);
+
             services.AddAWSService<IAmazonSimpleEmailServiceV2>();
             
             services.AddControllers()

@@ -15,6 +15,8 @@ public class ProjectMember: FullAuditedEntity
 
     public bool IsManager { get; set; } = false;
     
+    public bool IsContributing { get; set; } = true;
+    
     [ForeignKey(nameof(JobTitleId))]
     public JobTitle JobTitle { get; set; }
     

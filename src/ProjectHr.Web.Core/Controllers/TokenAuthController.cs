@@ -8,14 +8,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Abp.Authorization;
 using Abp.Authorization.Users;
+using Abp.Domain.Repositories;
 using Abp.MultiTenancy;
 using Abp.Runtime.Security;
 using Abp.UI;
 using Amazon.Runtime.Internal;
 using Castle.Core.Internal;
+using Microsoft.EntityFrameworkCore;
 using ProjectHr.Authentication.External;
 using ProjectHr.Authentication.JwtBearer;
 using ProjectHr.Authorization;
+using ProjectHr.Authorization.Roles;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Models.TokenAuth;
 using ProjectHr.MultiTenancy;
@@ -31,7 +34,10 @@ namespace ProjectHr.Controllers
         private readonly TokenAuthConfiguration _configuration;
         private readonly IExternalAuthConfiguration _externalAuthConfiguration;
         private readonly IExternalAuthManager _externalAuthManager;
+        private readonly RoleManager _roleManager;
+        private readonly IRepository<User, long> _userRepository;
         private readonly UserRegistrationManager _userRegistrationManager;
+        
 
         public TokenAuthController(
             LogInManager logInManager,
@@ -40,7 +46,10 @@ namespace ProjectHr.Controllers
             TokenAuthConfiguration configuration,
             IExternalAuthConfiguration externalAuthConfiguration,
             IExternalAuthManager externalAuthManager,
+            RoleManager roleManager,
+            IRepository<User, long> userRepository,
             UserRegistrationManager userRegistrationManager)
+        
         {
             _logInManager = logInManager;
             _tenantCache = tenantCache;
@@ -48,6 +57,8 @@ namespace ProjectHr.Controllers
             _configuration = configuration;
             _externalAuthConfiguration = externalAuthConfiguration;
             _externalAuthManager = externalAuthManager;
+            _roleManager = roleManager;
+            _userRepository = userRepository;
             _userRegistrationManager = userRegistrationManager;
         }
 
@@ -60,14 +71,25 @@ namespace ProjectHr.Controllers
                 GetTenancyNameOrNull()
             );
 
-            var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity));
+            var accessToken = CreateAccessToken(CreateJwtClaims(loginResult.Identity), model.RememberClient == true ? TimeSpan.FromDays(7) : (TimeSpan?)null);
 
+            var roleId = _userRepository.GetAll().Include(x => x.Roles)
+                .FirstOrDefault(u => u.Id == loginResult.User.Id)
+                .Roles.Select(x => x.RoleId).ToList();
+           
+            var grantedPermissions = _roleManager.Roles.Include(r => r.Permissions).FirstOrDefault(r => r.Id == roleId[0]).Permissions;
+            List<string> permissions = new List<string>();
+            foreach (var permission in grantedPermissions)
+            {
+                permissions.Add(permission.Name);
+            }
             return new AuthenticateResultModel
             {
                 AccessToken = accessToken,
                 EncryptedAccessToken = GetEncryptedAccessToken(accessToken),
-                ExpireInSeconds = (int)_configuration.Expiration.TotalSeconds,
-                UserId = loginResult.User.Id
+                ExpireInSeconds = model.RememberClient == true ?  (int)TimeSpan.FromDays(7).TotalSeconds : (int)_configuration.Expiration.TotalSeconds,
+                UserId = loginResult.User.Id,
+                GrantedPermissions = permissions
             };
         }
 
@@ -211,7 +233,7 @@ namespace ProjectHr.Controllers
             var now = DateTime.UtcNow;
 
             var jwtSecurityToken = new JwtSecurityToken(
-                issuer: _configuration.Issuer,
+                issuer: _configuration.Issuer,     
                 audience: _configuration.Audience,
                 claims: claims,
                 notBefore: now,

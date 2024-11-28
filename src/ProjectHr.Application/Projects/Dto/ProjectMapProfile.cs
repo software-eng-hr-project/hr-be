@@ -13,6 +13,8 @@ public class ProjectMapProfile: Profile
         CreateMap<Project, ProjectDto>().ReverseMap();
         CreateMap<User, ProjectMember>();
         CreateMap<ProjectMember, ProjectMemberDto>();
+        CreateMap<ProjectMember, ProjectMemberWithUserDto>();
+        CreateMap<ProjectMember, ProjectMemberWithProject>();
         CreateMap<CreateProjectDetailsDto, Project>();
         CreateMap<CreateProjectMemberDto, ProjectMember>();
         CreateMap<UpdateProjectDto, Project>();

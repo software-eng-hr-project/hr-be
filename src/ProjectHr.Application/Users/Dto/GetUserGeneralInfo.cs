@@ -4,7 +4,7 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using JetBrains.Annotations;
 using ProjectHr.Enums;
-using ProjectHr.JobTitles.Dto;
+using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users.Dto;
 
@@ -19,6 +19,10 @@ public class GetUserGeneralInfo : EntityDto<long>
 
     [EmailAddress]
     [StringLength(AbpUserBase.MaxEmailAddressLength)]
+    public string EmailAddress { get; set; } 
+    
+    [EmailAddress]
+    [StringLength(AbpUserBase.MaxEmailAddressLength)]
     [CanBeNull]
     public string WorkEmailAddress { get; set; } = null;
 
@@ -27,7 +31,7 @@ public class GetUserGeneralInfo : EntityDto<long>
     [CanBeNull]
     public string WorkPhone { get; set; } = null;
 
-    public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
+    public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
 
 
     public DateTime JobStartDate { get; set; }

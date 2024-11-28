@@ -2,9 +2,9 @@
 
 public enum DisabilityLevel
 {
-    None= 1,
-    FirstDegree,
-    SecondDegree,
-    ThirdDegree,
+    Yok = 1,
+    BirinciDerece,
+    İkinciDerece,
+    ÜçüncüDerece,
 
 }

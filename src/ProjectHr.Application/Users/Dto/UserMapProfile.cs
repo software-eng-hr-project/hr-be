@@ -11,7 +11,6 @@ namespace ProjectHr.Users.Dto
             CreateMap<UserDto, User>()
                 .ForMember(x => x.Roles, opt => opt.Ignore())
                 .ForMember(x => x.CreationTime, opt => opt.Ignore());
-
             CreateMap<CreateUserDto, User>().ReverseMap();
             CreateMap<CreateUserDto, User>().ForMember(x => x.Roles, opt => opt.Ignore());
             

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Abp.Application.Services.Dto;
 using JetBrains.Annotations;
 using ProjectHr.Entities;
 using ProjectHr.Enums;
@@ -7,7 +8,7 @@ using ProjectHr.ProjectMembers.Dto;
 
 namespace ProjectHr.Projects.Dto;
 
-public class ProjectDto
+public class ProjectDto: EntityDto
 {
     public string Name { get; set; }
     
@@ -18,5 +19,5 @@ public class ProjectDto
     
     [CanBeNull] public string Description { get; set; }
     
-    [CanBeNull] public ICollection<ProjectMemberDto> ProjectMembers {get; set; }
+    [CanBeNull] public ICollection<ProjectMemberWithUserDto> ProjectMembers {get; set; }
 }
