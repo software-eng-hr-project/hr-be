@@ -47,7 +47,6 @@ namespace ProjectHr.Users
         private readonly IRepository<Role> _roleRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IAbpSession _abpSession;
-
         private readonly LogInManager _logInManager;
         private readonly IRepository<User, long> _userRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -398,7 +397,6 @@ namespace ProjectHr.Users
             var user = _userRepository.GetAll()
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
-                .Include(x => x.ProjectMembers)
                 .FirstOrDefault(x => x.Id == abpSessionUserId);
 
             if (user == null)
@@ -499,11 +497,6 @@ namespace ProjectHr.Users
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
         {
-            await _mailService.ResetPassword(new ResetPasswordMailInput()
-            {
-                EmailAddress = input.EmailAddress
-            });
-
             var user = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.EmailAddress == input.EmailAddress);
             if (user is null)
             {
