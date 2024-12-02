@@ -32,6 +32,8 @@ using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
 using ProjectHr.DataAccess.Dto;
+using ProjectHr.ProjectMembers.Dto;
+using ProjectHr.Projects.Dto;
 
 namespace ProjectHr.Users
 {
@@ -47,11 +49,7 @@ namespace ProjectHr.Users
         private readonly IAbpSession _abpSession;
 
         private readonly LogInManager _logInManager;
-
-        // private readonly ISESService _sesService;
         private readonly IRepository<User, long> _userRepository;
-
-        // private readonly EmailSettings _emailSettings;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Project> _projectRepository;
         private readonly IRepository<EmployeeLayoffInfo> _employeeLayoffInfoRepository;
@@ -140,7 +138,8 @@ namespace ProjectHr.Users
             await Repository.UpdateAsync(userId, async (entity) =>
             {
                 entity.IsActive = true;
-                var deletedEmployeeLayoffInfo = _employeeLayoffInfoRepository.FirstOrDefault(x => x.Id == entity.EmployeeLayoffInfoId);
+                var deletedEmployeeLayoffInfo =
+                    _employeeLayoffInfoRepository.FirstOrDefault(x => x.Id == entity.EmployeeLayoffInfoId);
                 await _employeeLayoffInfoRepository.DeleteAsync(deletedEmployeeLayoffInfo);
                 entity.EmployeeLayoffInfoId = null;
             });
@@ -402,7 +401,6 @@ namespace ProjectHr.Users
                 .Include(x => x.ProjectMembers)
                 .FirstOrDefault(x => x.Id == abpSessionUserId);
 
-
             if (user == null)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
 
@@ -413,7 +411,23 @@ namespace ProjectHr.Users
             var roleIds = user.Roles.Select(x => x.RoleId);
 
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+
             return userDtos;
+        }
+
+        [HttpGet("profile/career")]
+        public async Task<List<ProjectDto>> GetProfileCareerInfo()
+        {
+            var abpSessionUserId = AbpSession.GetUserId();
+            
+            var userProjects = await _projectRepository.GetAll()
+                .Include(p => p.ProjectMembers)
+                .ThenInclude(p => p.JobTitle)
+                .Include(p => p.ProjectMembers)
+                .ThenInclude(p => p.User)
+                .Where(p => p.ProjectMembers.Any(pm => pm.UserId == abpSessionUserId)).ToListAsync();
+            var userProjectsDto = ObjectMapper.Map<List<ProjectDto>>(userProjects);
+            return userProjectsDto;
         }
 
         [AbpAuthorize(PermissionNames.View_Info_User)]

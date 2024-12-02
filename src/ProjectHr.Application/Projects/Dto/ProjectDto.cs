@@ -19,5 +19,5 @@ public class ProjectDto: EntityDto
     
     [CanBeNull] public string Description { get; set; }
     
-    [CanBeNull] public ICollection<ProjectMemberDto> ProjectMembers {get; set; }
+    [CanBeNull] public ICollection<ProjectMemberWithUserDto> ProjectMembers {get; set; }
 }

@@ -1,15 +1,16 @@
 ﻿using JetBrains.Annotations;
-using ProjectHr.Users.Dto;
+using ProjectHr.DataAccess.Dto;
+using ProjectHr.Projects.Dto;
 
 namespace ProjectHr.ProjectMembers.Dto;
 
-public class ProjectMemberDto
+public class ProjectMemberWithProject
 {
-    public int JobTitleId { get; set; }
+    public JobTitleDto JobTitle { get; set; }
     
     public long UserId { get; set; }
     
-    public int ProjectId { get; set; }
+    public ProjectDto Project { get; set; }
     
     [CanBeNull] public string TeamName { get; set; }
 

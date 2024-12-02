@@ -89,8 +89,6 @@ namespace ProjectHr.Users.Dto
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string EmergencyContactPhone { get; set; }
-
-        public ICollection<ProjectMemberDto> ProjectMembers { get; set; }
         
         
     }
