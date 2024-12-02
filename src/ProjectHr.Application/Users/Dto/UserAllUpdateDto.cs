@@ -19,7 +19,7 @@ public class UserAllUpdateDto
     public string Surname { get; set; }
     
     [Required]
-    public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
+    public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
     
     [Required]
     public DateTime JobStartDate { get; set; }

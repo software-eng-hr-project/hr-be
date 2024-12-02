@@ -1,8 +1,13 @@
-﻿namespace ProjectHr.Enums;
+﻿using ProjectHr.Extensions;
+
+namespace ProjectHr.Enums;
 
 public enum MarriedStatus
 {
-    Bekar = 1,
-    Evli,
-    Boşanmış,
+    [AlternateValue("Bekar")]
+    Single= 1,
+    [AlternateValue("Evli")]
+    Married,
+    [AlternateValue("Boşanmış")]
+    Divorced,
 }

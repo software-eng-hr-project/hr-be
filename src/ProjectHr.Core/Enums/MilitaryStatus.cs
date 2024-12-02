@@ -1,11 +1,15 @@
 ﻿using System.Text.Json.Serialization;
+using ProjectHr.Extensions;
 
 namespace ProjectHr.Enums;
 
 public enum MilitaryStatus
 {
-    Yapıldı = 1,
-    Yapılmadı,
-    Muaf,
+    [AlternateValue("Yapıldı")]
+    Done= 1,
+    [AlternateValue("Yapılmadı")]
+    NotDone,
+    [AlternateValue("Muaf")]
+    Exempt,
     
 }

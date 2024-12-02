@@ -58,7 +58,7 @@ public class ProjectAppService : ProjectHrAppServiceBase
         member.JobTitleId = 6;
         member.TeamName = "Proje Yöneticisi";
         project.ProjectMembers.Add(member);
-        project.Status = ProjectStatus.Taslak;
+        project.Status = ProjectStatus.Draft ;
         await _projectRepository.UpdateAsync(project);
         await CurrentUnitOfWork.SaveChangesAsync();
         var projectDto = ObjectMapper.Map<ProjectDto>(project);
@@ -145,6 +145,7 @@ public class ProjectAppService : ProjectHrAppServiceBase
             manager.ProjectId = project.Id;
             manager.IsManager = true;
             manager.JobTitleId = 6;
+            manager.TeamName = "Proje Yöneticisi";
             updatedProject.ProjectMembers.Add(manager);
         }
 
@@ -155,7 +156,7 @@ public class ProjectAppService : ProjectHrAppServiceBase
     }
     
     [HttpGet]
-    public async Task<List<ProjectDto>> GetAllProjectAsync()
+    public async Task<List<ProjectWithUserDto>> GetAllProjectAsync()
     {
         var abpSessionUserId = AbpSession.GetUserId();
         
@@ -185,13 +186,13 @@ public class ProjectAppService : ProjectHrAppServiceBase
             project.AddRange(usersProject);
         }
 
-        var projectDto = ObjectMapper.Map<List<ProjectDto>>(project);
+        var projectDto = ObjectMapper.Map<List<ProjectWithUserDto>>(project);
         return projectDto;
     }
 
     // [AbpAuthorize(PermissionNames.List_Project)]
     [HttpGet("{projectId}")]
-    public async Task<ProjectDto> GetProjectByIdAsync(int projectId)
+    public async Task<ProjectWithUserDto> GetProjectByIdAsync(int projectId)
     {
         var project = await _projectRepository.GetAll()
             .Include(p => p.ProjectMembers)
@@ -199,7 +200,7 @@ public class ProjectAppService : ProjectHrAppServiceBase
             .Include(p => p.ProjectMembers)
             .ThenInclude(pm=> pm.User)
             .FirstOrDefaultAsync(p => p.Id == projectId);
-        var projectDto = ObjectMapper.Map<ProjectDto>(project);
+        var projectDto = ObjectMapper.Map<ProjectWithUserDto>(project);
         return projectDto;
     }
 

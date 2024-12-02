@@ -40,7 +40,7 @@ namespace ProjectHr.Users.Dto
         [CanBeNull]
         public string WorkPhone { get; set; } = null;
 
-        [Required] public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
+        [Required] public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
 
         [Required]
         public DateTime JobStartDate { get; set; }

@@ -32,6 +32,7 @@ using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
 using ProjectHr.DataAccess.Dto;
+using ProjectHr.ExportFiles;
 using ProjectHr.ProjectMembers.Dto;
 using ProjectHr.Projects.Dto;
 
@@ -409,12 +410,13 @@ namespace ProjectHr.Users
             var roleIds = user.Roles.Select(x => x.RoleId);
 
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+            
 
             return userDtos;
         }
 
         [HttpGet("profile/career")]
-        public async Task<List<ProjectDto>> GetProfileCareerInfo()
+        public async Task<List<ProjectWithUserDto>> GetProfileCareerInfo()
         {
             var abpSessionUserId = AbpSession.GetUserId();
             
@@ -424,7 +426,7 @@ namespace ProjectHr.Users
                 .Include(p => p.ProjectMembers)
                 .ThenInclude(p => p.User)
                 .Where(p => p.ProjectMembers.Any(pm => pm.UserId == abpSessionUserId)).ToListAsync();
-            var userProjectsDto = ObjectMapper.Map<List<ProjectDto>>(userProjects);
+            var userProjectsDto = ObjectMapper.Map<List<ProjectWithUserDto>>(userProjects);
             return userProjectsDto;
         }
 
