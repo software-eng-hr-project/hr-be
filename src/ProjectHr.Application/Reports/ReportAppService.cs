@@ -15,6 +15,7 @@ using ProjectHr.Enums;
 using ProjectHr.Extensions;
 using ProjectHr.Reports.Dto;
 using ProjectHr.Reports.Dto.Blood;
+using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
 
 namespace ProjectHr.Reports;
@@ -41,6 +42,11 @@ public class ReportAppService : ProjectHrAppServiceBase
             return GetEducationReport(input);
         if (reportParams == ReportParams.EmploymentType)
             return GetEmploymentTypeReport(input);
+        if (reportParams == ReportParams.BloodType)
+            return GetBloodTypeReport(input);
+        if (reportParams == ReportParams.Disability)
+            return GetDisabilityLevelReport(input);
+        
 
         throw new UserFriendlyException("Invalid report type");
     }
@@ -119,33 +125,46 @@ public class ReportAppService : ProjectHrAppServiceBase
         return employmentReportOutput;
     }
     
-    // public BloodTypeReportOutput GetBloodTypeReport(ReportInput input)
-    // {
-    //     var users = GetUserWithFilter(input);
-    //
-    //     var totalCount = users.Count();
-    //     var bloodTypeCounts = Enum.GetValues(typeof(BloodType))
-    //         .Cast<BloodType>()
-    //         .ToDictionary(type => type, type => users.Count(x => x.BloodType == type));
-    //
-    //
-    //     var userDto = ObjectMapper.Map<List<BloodTypeReportDto>>(users);
-    //     var bloodTypeReportOutput = new BloodTypeReportOutput
-    //     {
-    //         Data = userDto,
-    //         TotalCount = totalCount,
-    //         ONegativeCount = bloodTypeCounts.GetValueOrDefault(BloodType.ONegative),
-    //         OPositiveCount = bloodTypeCounts.GetValueOrDefault(BloodType.OPositive),
-    //         ANegativeCount = bloodTypeCounts.GetValueOrDefault(BloodType.ANegative),
-    //         APositiveCount = bloodTypeCounts.GetValueOrDefault(BloodType.APositive),
-    //         BNegativeCount = bloodTypeCounts.GetValueOrDefault(BloodType.BNegative),
-    //         BPositiveCount = bloodTypeCounts.GetValueOrDefault(BloodType.BPositive),
-    //         ABNegativeCount = bloodTypeCounts.GetValueOrDefault(BloodType.ABNegative),
-    //         ABPositiveCount = bloodTypeCounts.GetValueOrDefault(BloodType.ABPositive),
-    //     };
-    //
-    //     return bloodTypeReportOutput;
-    // }
+    private BloodTypeReportOutput GetBloodTypeReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input);
+    
+        var totalCount = users.Count();
+        var bloodTypeCounts = Enum.GetValues(typeof(BloodType))
+            .Cast<BloodType>()
+            .ToDictionary(type => type, type => users.Count(x => x.BloodType == type));
+    
+    
+        var userDto = ObjectMapper.Map<List<BloodTypeReportDto>>(users);
+        var bloodTypeReportOutput = new BloodTypeReportOutput()
+        {
+            Data = userDto, 
+            TotalCount = totalCount
+        };
+        SetCounts(bloodTypeReportOutput, bloodTypeCounts);
+    
+        return bloodTypeReportOutput;
+    }
+    private DisabilityLevelReportOutput GetDisabilityLevelReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input);
+    
+        var totalCount = users.Count();
+        var disabilityLevelCounts = Enum.GetValues(typeof(BloodType))
+            .Cast<BloodType>()
+            .ToDictionary(type => type, type => users.Count(x => x.BloodType == type));
+    
+    
+        var userDto = ObjectMapper.Map<List<DisabilityLevelReportDto>>(users);
+        var disabilityLevelReportOutput = new DisabilityLevelReportOutput()
+        {
+            Data = userDto, 
+            TotalCount = totalCount
+        };
+        SetCounts(disabilityLevelReportOutput, disabilityLevelCounts);
+    
+        return disabilityLevelReportOutput;
+    }
     
     private void SetCounts<TEnum>(object reportOutput, Dictionary<TEnum, int> counts)
         where TEnum : Enum

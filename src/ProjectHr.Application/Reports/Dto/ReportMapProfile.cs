@@ -2,6 +2,8 @@
 using ProjectHr.Authorization.Users;
 using ProjectHr.Enums;
 using ProjectHr.Extensions;
+using ProjectHr.Reports.Dto.Blood;
+using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
 
 namespace ProjectHr.Reports.Dto;
@@ -22,5 +24,11 @@ public class ReportMapProfile : Profile
         CreateMap<User, EmploymentTypeReportDto>()
             .ForMember(dest => dest.EmploymentType, opt => opt
                 .MapFrom(src => src.EmploymentType.GetAlternateValue()));
+        CreateMap<User, BloodTypeReportDto>()
+            .ForMember(dest => dest.BloodType, opt => opt
+                .MapFrom(src => src.BloodType.GetAlternateValue()));
+        CreateMap<User, DisabilityLevelReportDto>()
+            .ForMember(dest => dest.DisabilityLevel, opt => opt
+                .MapFrom(src => src.DisabilityLevel.GetAlternateValue()));
     }
 }

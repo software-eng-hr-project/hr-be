@@ -9,7 +9,7 @@ public enum ReportParams
     Age,
     BloodType,
     Birthday,
-    DisabledEmployees,
+    Disability,
     EmployeeList,
     MaritalStatus,
     EmployeeTitle,
