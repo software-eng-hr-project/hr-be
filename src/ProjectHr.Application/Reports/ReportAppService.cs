@@ -55,14 +55,12 @@ public class ReportAppService : ProjectHrAppServiceBase
         
         var userDto = ObjectMapper.Map<List<GenderReportDto>>(users);
         
-        var genderReportOutput = new GenderReportOutput
+        var genderReportOutput = new GenderReportOutput()
         {
-            Data = userDto,
-            TotalCount = totalCount,
-            MaleCount = genderCounts.GetValueOrDefault(Gender.Male),
-            FemaleCount = genderCounts.GetValueOrDefault(Gender.Female),
-            OtherCount = genderCounts.GetValueOrDefault(Gender.Other)
+            Data = userDto, 
+            TotalCount = totalCount
         };
+        SetCounts(genderReportOutput, genderCounts);
         return genderReportOutput;
     }
     private  MilitaryReportOutput GetMilitaryReport(ReportInput input)
@@ -77,12 +75,10 @@ public class ReportAppService : ProjectHrAppServiceBase
         var userDto = ObjectMapper.Map<List<MilitaryReportDto>>(users);
         var militaryReportOutput = new MilitaryReportOutput()
         {
-            Data = userDto,
-            TotalCount = totalCount,
-            DoneCount = militaryStatusCounts.GetValueOrDefault(MilitaryStatus.Done),
-            NotDoneCount= militaryStatusCounts.GetValueOrDefault(MilitaryStatus.NotDone),
-            ExemptCount = militaryStatusCounts.GetValueOrDefault(MilitaryStatus.Exempt)
+            Data = userDto, 
+            TotalCount = totalCount
         };
+        SetCounts(militaryReportOutput, militaryStatusCounts);
         return militaryReportOutput;
     }
     private  EducationReportOutput GetEducationReport(ReportInput input)
@@ -95,19 +91,13 @@ public class ReportAppService : ProjectHrAppServiceBase
             .ToDictionary(type => type, type => users.Count(x => x.HigherEducationStatus == type));
 
         var userDto = ObjectMapper.Map<List<EducationReportDto>>(users);
-        var militaryReportOutput = new EducationReportOutput()
+        var educationReportOutput = new EducationReportOutput()
         {
-            Data = userDto,
-            TotalCount = totalCount,
-            PrimarySchoolCount = educationStatusCounts.GetValueOrDefault(EducationStatus.PrimarySchool),
-            MiddleSchoolCount= educationStatusCounts.GetValueOrDefault(EducationStatus.MiddleSchool),
-            HighSchoolCount= educationStatusCounts.GetValueOrDefault(EducationStatus.HighSchool),
-            AssociateDegreeCount = educationStatusCounts.GetValueOrDefault(EducationStatus.AssociateDegree),
-            BachelorsDegreeCount = educationStatusCounts.GetValueOrDefault(EducationStatus.BachelorsDegree),
-            MasterDegreeCount = educationStatusCounts.GetValueOrDefault(EducationStatus.MasterDegree),
-            PhdDegreeCount = educationStatusCounts.GetValueOrDefault(EducationStatus.PhdDegree)
+            Data = userDto, 
+            TotalCount = totalCount
         };
-        return militaryReportOutput;
+        SetCounts(educationReportOutput, educationStatusCounts);
+        return educationReportOutput;
     }
     private EmploymentTypeReportOutput GetEmploymentTypeReport(ReportInput input)
     {
@@ -119,13 +109,12 @@ public class ReportAppService : ProjectHrAppServiceBase
             .ToDictionary(type => type, type => users.Count(x => x.EmploymentType == type));
 
         var userDto = ObjectMapper.Map<List<EmploymentTypeReportDto>>(users);
-        var employmentReportOutput = new EmploymentTypeReportOutput
+        var employmentReportOutput = new EmploymentTypeReportOutput()
         {
-            Data = userDto,
-            TotalCount = totalCount,
-            FullTimeCount = employmentTypeCounts.GetValueOrDefault(EmploymentType.FullTime),
-            PartTimeCount = employmentTypeCounts.GetValueOrDefault(EmploymentType.PartTime)
+            Data = userDto, 
+            TotalCount = totalCount
         };
+        SetCounts(employmentReportOutput, employmentTypeCounts);
 
         return employmentReportOutput;
     }
@@ -157,7 +146,22 @@ public class ReportAppService : ProjectHrAppServiceBase
     //
     //     return bloodTypeReportOutput;
     // }
+    
+    private void SetCounts<TEnum>(object reportOutput, Dictionary<TEnum, int> counts)
+        where TEnum : Enum
+    {
+        foreach (var enumValue in Enum.GetValues(typeof(TEnum)).Cast<TEnum>())
+        {
+            var propertyName = enumValue.ToString() + "Count";
+            var count = counts.GetValueOrDefault(enumValue);
 
+            var propertyInfo = reportOutput.GetType().GetProperty(propertyName);
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(reportOutput, count);
+            }
+        }
+    }
     private IQueryable<User>GetUserWithFilter(ReportInput input)
     {
         var users = _userRepository.GetAll()
