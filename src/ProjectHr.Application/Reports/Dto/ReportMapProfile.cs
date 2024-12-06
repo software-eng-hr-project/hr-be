@@ -5,6 +5,8 @@ using ProjectHr.Extensions;
 using ProjectHr.Reports.Dto.Blood;
 using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
+using ProjectHr.Reports.Dto.JobTitle;
+using ProjectHr.Reports.Dto.MarriedStatus;
 
 namespace ProjectHr.Reports.Dto;
 
@@ -30,5 +32,11 @@ public class ReportMapProfile : Profile
         CreateMap<User, DisabilityLevelReportDto>()
             .ForMember(dest => dest.DisabilityLevel, opt => opt
                 .MapFrom(src => src.DisabilityLevel.GetAlternateValue()));
+        CreateMap<User, MarriedStatusReportDto>()
+            .ForMember(dest => dest.MarriedStatus, opt => opt
+                .MapFrom(src => src.MarriedStatus.GetAlternateValue()));
+        CreateMap<User, JobTitleReportDto>()
+            .ForMember(dest => dest.JobTitle, opt => opt
+                .MapFrom(src => src.JobTitle.Name));
     }
 }

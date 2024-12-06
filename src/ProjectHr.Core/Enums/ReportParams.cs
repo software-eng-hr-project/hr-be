@@ -11,7 +11,7 @@ public enum ReportParams
     Birthday,
     Disability,
     EmployeeList,
-    MaritalStatus,
-    EmployeeTitle,
+    MarriedStatus,
+    JobTitle,
 
 }

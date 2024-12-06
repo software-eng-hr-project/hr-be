@@ -11,12 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectHr.Authorization;
 using ProjectHr.Authorization.Users;
+using ProjectHr.Entities;
 using ProjectHr.Enums;
 using ProjectHr.Extensions;
 using ProjectHr.Reports.Dto;
+using ProjectHr.Reports.Dto.Age;
 using ProjectHr.Reports.Dto.Blood;
 using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
+using ProjectHr.Reports.Dto.JobTitle;
+using ProjectHr.Reports.Dto.MarriedStatus;
 
 namespace ProjectHr.Reports;
 
@@ -25,10 +29,15 @@ namespace ProjectHr.Reports;
 public class ReportAppService : ProjectHrAppServiceBase
 {
     private readonly IRepository<User, long> _userRepository;
+    private readonly IRepository<JobTitle, int> _jobTitleRepository;
 
-    public ReportAppService(IRepository<User, long> userRepository)
+    public ReportAppService(
+        IRepository<User, long> userRepository,
+        IRepository<JobTitle, int> jobTitleRepository
+    )
     {
         _userRepository = userRepository;
+        _jobTitleRepository = jobTitleRepository;
     }
     [AbpAuthorize(PermissionNames.Page_Report)]
     [HttpPost]
@@ -46,6 +55,14 @@ public class ReportAppService : ProjectHrAppServiceBase
             return GetBloodTypeReport(input);
         if (reportParams == ReportParams.Disability)
             return GetDisabilityLevelReport(input);
+        if (reportParams == ReportParams.MarriedStatus)
+            return GetMarriedStatusReport(input);
+        if (reportParams == ReportParams.Age)
+            return GetAgeReport(input);
+        if (reportParams == ReportParams.JobTitle)
+            return GetJobTitleReport(input);
+        // if (reportParams == ReportParams.JobTitle)
+        //     return GetJobTitleReport(input);
         
 
         throw new UserFriendlyException("Invalid report type");
@@ -150,9 +167,9 @@ public class ReportAppService : ProjectHrAppServiceBase
         var users = GetUserWithFilter(input);
     
         var totalCount = users.Count();
-        var disabilityLevelCounts = Enum.GetValues(typeof(BloodType))
-            .Cast<BloodType>()
-            .ToDictionary(type => type, type => users.Count(x => x.BloodType == type));
+        var disabilityLevelCounts = Enum.GetValues(typeof(DisabilityLevel))
+            .Cast<DisabilityLevel>()
+            .ToDictionary(type => type, type => users.Count(x => x.DisabilityLevel == type));
     
     
         var userDto = ObjectMapper.Map<List<DisabilityLevelReportDto>>(users);
@@ -165,7 +182,82 @@ public class ReportAppService : ProjectHrAppServiceBase
     
         return disabilityLevelReportOutput;
     }
+    private MarriedStatusReportOutput GetMarriedStatusReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input);
     
+        var totalCount = users.Count();
+        var marriedStatusCounts = Enum.GetValues(typeof(MarriedStatus))
+            .Cast<MarriedStatus>()
+            .ToDictionary(type => type, type => users.Count(x => x.MarriedStatus == type));
+        
+        var userDto = ObjectMapper.Map<List<MarriedStatusReportDto>>(users);
+        var  marriedStatusReportOutput = new MarriedStatusReportOutput()
+        {
+            Data = userDto, 
+            TotalCount = totalCount
+        };
+        SetCounts(marriedStatusReportOutput, marriedStatusCounts);
+    
+        return marriedStatusReportOutput;
+    }
+    private AgeReportOutput GetAgeReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input).ToList();
+            
+        // new int[] = {18, 25, 34  }
+        var totalCount = users.Count();
+        var usersWithBirthday = users.Where(user => user.Birthday.Year > 1900);
+        var under18Count =  usersWithBirthday.Count(user => DateTime.Now.Year - user.Birthday.Year < 18 );
+        var between18_25Count =  usersWithBirthday.Count(user => DateTime.Now.Year - user.Birthday.Year >= 18 &&  DateTime.Now.Year - user.Birthday.Year <= 25);
+
+        return null;
+    }
+
+    private JobTitleReportOutput GetJobTitleReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input).Include(u => u.JobTitle);
+        var totalCount = users.Count();
+    
+        var jobTitles = _jobTitleRepository.GetAllList(); 
+        var jobTitleCounts = new Dictionary<int, int>();
+    
+        foreach (var jobTitle in jobTitles)
+        {
+            var count = users.Count(u => u.JobTitleId == jobTitle.Id);
+            jobTitleCounts[jobTitle.Id] = count;
+        }
+    
+        var userDto = ObjectMapper.Map<List<JobTitleReportDto>>(users);
+        var jobTitleReportOutput = new JobTitleReportOutput()
+        {
+            Data = userDto,
+            TotalCount = totalCount
+        };
+    
+        SetJobTitleCounts(jobTitleReportOutput, jobTitleCounts);
+    
+        return jobTitleReportOutput;
+    }
+    
+    private void SetJobTitleCounts(JobTitleReportOutput reportOutput, Dictionary<int, int> counts)
+    {
+        var jobTitles = _jobTitleRepository.GetAll();
+    
+        foreach (var jobTitle in jobTitles)
+        {
+            var propertyName = jobTitle.Name.Replace(" ", "") + "Count";
+            var count = counts.GetValueOrDefault(jobTitle.Id);
+        
+            var propertyInfo = reportOutput.GetType().GetProperty(propertyName);
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(reportOutput, count);
+            }
+        }
+    }
+    
+
     private void SetCounts<TEnum>(object reportOutput, Dictionary<TEnum, int> counts)
         where TEnum : Enum
     {
