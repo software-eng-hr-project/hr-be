@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using ProjectHr.Authorization.Users;
+using ProjectHr.DataAccess.Dto;
+using ProjectHr.Entities;
 using ProjectHr.Extensions;
 
 namespace ProjectHr.Users.Dto
@@ -35,6 +37,8 @@ namespace ProjectHr.Users.Dto
                 .ForMember(dest => dest.EmploymentType,
                     opt => opt.MapFrom(src => src.EmploymentType.GetAlternateValue()));
             CreateMap<User, ResetPasswordMailInput>();
+            CreateMap<EmployeeLayoffInfo, EmployeeLayoffInfoWithLayoffNameDto>();
+            CreateMap<EmployeeLayoff, EmployeeLayoffDto>();
         }
     }
 }

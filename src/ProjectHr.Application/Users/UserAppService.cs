@@ -435,6 +435,8 @@ namespace ProjectHr.Users
         public async Task<UserDto> GetUserByIdAdmin(long userId)
         {
             var user = _userRepository.GetAll()
+                .Include(x=>x.EmployeeLayoffInfo)
+                .ThenInclude(x => x.EmployeeLayoff)
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == userId);

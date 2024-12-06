@@ -89,7 +89,8 @@ namespace ProjectHr.Users.Dto
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string EmergencyContactPhone { get; set; }
-        
+
+        public EmployeeLayoffInfoWithLayoffNameDto EmployeeLayoffInfo { get; set; }
         
     }
 }
