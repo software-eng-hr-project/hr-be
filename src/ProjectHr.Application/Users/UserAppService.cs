@@ -84,7 +84,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Create_User)]
-        [HttpPost]
+        [HttpPost("/api/admin/users")]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
             try
@@ -124,7 +124,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Delete_User)]
-        [HttpDelete]
+        [HttpDelete("/api/admin/users")]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
             var user = await _userManager.GetUserByIdAsync(input.Id);
@@ -132,7 +132,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("activate/{userId}")]
+        [HttpPost("/api/admin/users/activate/{userId}")]
         public async Task Activate(long userId)
         {
             await Repository.UpdateAsync(userId, async (entity) =>
@@ -146,7 +146,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("de-activate/{userId}")]
+        [HttpPost("/api/admin/users/de-activate/{userId}")]
         public async Task DeActivate(EmployeeLayoffInfoDto input, long userId)
         {
             var layoffInfo = new EmployeeLayoffInfo()
@@ -294,7 +294,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Update_Info_User)]
-        [HttpPut("{userId}")]
+        [HttpPut("/api/admin/users/{userId}")]
         public async Task<UserDto> UpdateAllInfo(UserAllUpdateDto input, long userId)
         {
             try
@@ -323,7 +323,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Update_Info_User)]
-        [HttpPut("{userId}/role")]
+        [HttpPut("/api/admin/users/{userId}/role")]
         public async Task<UserDto> UpdateRole(UserRoleUpdateDto input, long userId)
         {
             var user = _userRepository.GetAll()
@@ -372,19 +372,29 @@ namespace ProjectHr.Users
         {
             var users = _userRepository.GetAll()
                 .OrderBy(u => u.Name)
+                .Include(u => u.Roles)
                 .Include(u => u.JobTitle)
                 .Include(u => u.ProjectMembers);
 
-            users.Select(u => u.ProjectMembers.Select(pm => pm.ProjectId));
-
-
             var userDtos = ObjectMapper.Map<List<GetUserGeneralInfo>>(users);
+
+            var roles = await _roleRepository.GetAllListAsync();
+            var projects = _projectRepository.GetAll();
+
             foreach (var getUserGeneralInfo in userDtos)
             {
-                getUserGeneralInfo.Projects = _projectRepository.GetAll()
-                    .Where(p => p.ProjectMembers.Any(pm => pm.UserId == getUserGeneralInfo.Id))
-                    .Select(p => p.Name)
-                    .ToArray();
+                var user = users.FirstOrDefault(u => u.Id == getUserGeneralInfo.Id);
+        
+                if (user != null)
+                {
+                    var roleIds = user.Roles.Select(x => x.RoleId);
+                    getUserGeneralInfo.RoleNames = roles.Where(x => roleIds.Contains(x.Id)).Select(x => x.Name).ToArray();
+            
+                    getUserGeneralInfo.Projects = projects
+                        .Where(p => p.ProjectMembers.Any(pm => pm.UserId == getUserGeneralInfo.Id))
+                        .Select(p => p.Name)
+                        .ToArray();
+                }
             }
 
             return userDtos;
@@ -416,7 +426,7 @@ namespace ProjectHr.Users
         }
 
         [HttpGet("profile/career")]
-        public async Task<List<ProjectWithUserDto>> GetProfileCareerInfo()
+        public async Task<List<CareerPageProjectDto>> GetProfileCareerInfo()
         {
             var abpSessionUserId = AbpSession.GetUserId();
             
@@ -426,12 +436,16 @@ namespace ProjectHr.Users
                 .Include(p => p.ProjectMembers)
                 .ThenInclude(p => p.User)
                 .Where(p => p.ProjectMembers.Any(pm => pm.UserId == abpSessionUserId)).ToListAsync();
-            var userProjectsDto = ObjectMapper.Map<List<ProjectWithUserDto>>(userProjects);
+            
+            var projectMembers = userProjects.Select(x =>
+                x.ProjectMembers.Where(y => y.IsManager == true || y.JobTitle.Name == "Team Lead").ToList());
+            
+            var userProjectsDto = ObjectMapper.Map<List<CareerPageProjectDto>>(userProjects);
             return userProjectsDto;
         }
 
         [AbpAuthorize(PermissionNames.View_Info_User)]
-        [HttpGet("{userId}")]
+        [HttpGet("/api/admin/users/{userId}")]
         public async Task<UserDto> GetUserByIdAdmin(long userId)
         {
             var user = _userRepository.GetAll()
@@ -459,19 +473,26 @@ namespace ProjectHr.Users
         {
             var user = _userRepository.GetAll()
                 .Include(x => x.JobTitle)
+                .Include(x => x.Roles)
                 .FirstOrDefault(x => x.Id == userId);
 
             if (user == null)
                 throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
 
             var userDtos = ObjectMapper.Map<GetUserGeneralInfo>(user);
+            
+            var roles = await _roleRepository.GetAllListAsync();
+            
+            var roleIds = user.Roles.Select(x => x.RoleId);
+            
+            userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
 
             return userDtos;
         }
 
         [AbpAuthorize(PermissionNames.List_Role)]
-        [HttpGet("users-with-role")]
-        public async Task<List<UserDto>> GetAllUsersWithRole(PagedUserResultRequestDto input)
+        [HttpGet("/api/admin/users/roles")]
+        public async Task<List<UserRolesPageDto>> GetAllUsersWithRole(PagedUserResultRequestDto input)
         {
             var users = await _userRepository.GetAll()
                 .OrderBy(u => u.Name)
@@ -481,11 +502,11 @@ namespace ProjectHr.Users
 
             var roles = await _roleRepository.GetAllListAsync();
 
-            var userDtos = new List<UserDto>();
+            var userDtos = new List<UserRolesPageDto>();
 
             foreach (var user in users)
             {
-                var userDto = ObjectMapper.Map<UserDto>(user);
+                var userDto = ObjectMapper.Map<UserRolesPageDto>(user);
 
                 var roleIds = user.Roles.Select(x => x.RoleId);
 

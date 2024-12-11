@@ -39,6 +39,7 @@ namespace ProjectHr.Users.Dto
             CreateMap<User, ResetPasswordMailInput>();
             CreateMap<EmployeeLayoffInfo, EmployeeLayoffInfoWithLayoffNameDto>();
             CreateMap<EmployeeLayoff, EmployeeLayoffDto>();
+            CreateMap<User, UserRolesPageDto>();
         }
     }
 }
