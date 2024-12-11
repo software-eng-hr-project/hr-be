@@ -5,7 +5,7 @@ namespace ProjectHr.Enums;
 
 public enum MilitaryStatus
 {
-    [AlternateValue("Yapıldı ")]
+    [AlternateValue("Yapıldı")]
     Done= 1,
     [AlternateValue("Yapılmadı")]
     NotDone,

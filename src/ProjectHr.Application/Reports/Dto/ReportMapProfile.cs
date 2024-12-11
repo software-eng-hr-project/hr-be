@@ -1,7 +1,10 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using ProjectHr.Authorization.Users;
 using ProjectHr.Enums;
 using ProjectHr.Extensions;
+using ProjectHr.Reports.Dto.Age;
+using ProjectHr.Reports.Dto.Birthday;
 using ProjectHr.Reports.Dto.Blood;
 using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
@@ -38,5 +41,11 @@ public class ReportMapProfile : Profile
         CreateMap<User, JobTitleReportDto>()
             .ForMember(dest => dest.JobTitle, opt => opt
                 .MapFrom(src => src.JobTitle.Name));
+        CreateMap<User, AgeReportDto>()
+            .ForMember(dest => dest.Age, opt => opt
+                .MapFrom(src => src.Birthday.Year > 1900 ?  Math.Round((DateTime.Now - src.Birthday).TotalDays  / 365.25 , 2): (double?)null ));
+        CreateMap<User, BirthdayReportDto>()
+            .ForMember(dest => dest.Birthday, opt => opt
+                .MapFrom(src => src.Birthday.Year > 1900 ? src.Birthday : (DateTime?)null ));
     }
 }

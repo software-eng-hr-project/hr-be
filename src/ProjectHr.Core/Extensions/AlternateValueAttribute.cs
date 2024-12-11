@@ -21,7 +21,7 @@ public static class IEnumExtensions
         Type Type = Value.GetType();
 
         FieldInfo FieldInfo = Type.GetField(Value.ToString());
-        if (Value is null)
+        if ( Convert.ToInt32(Value) == 0)
             return null;
 
             AlternateValueAttribute Attribute = FieldInfo.GetCustomAttribute(

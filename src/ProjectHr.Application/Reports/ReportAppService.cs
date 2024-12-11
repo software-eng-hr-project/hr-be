@@ -16,6 +16,7 @@ using ProjectHr.Enums;
 using ProjectHr.Extensions;
 using ProjectHr.Reports.Dto;
 using ProjectHr.Reports.Dto.Age;
+using ProjectHr.Reports.Dto.Birthday;
 using ProjectHr.Reports.Dto.Blood;
 using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
@@ -59,10 +60,10 @@ public class ReportAppService : ProjectHrAppServiceBase
             return GetMarriedStatusReport(input);
         if (reportParams == ReportParams.Age)
             return GetAgeReport(input);
+        if (reportParams == ReportParams.Birthday)
+            return GetBirthdayReport(input);
         if (reportParams == ReportParams.JobTitle)
             return GetJobTitleReport(input);
-        // if (reportParams == ReportParams.JobTitle)
-        //     return GetJobTitleReport(input);
         
 
         throw new UserFriendlyException("Invalid report type");
@@ -204,14 +205,99 @@ public class ReportAppService : ProjectHrAppServiceBase
     private AgeReportOutput GetAgeReport(ReportInput input)
     {
         var users = GetUserWithFilter(input).ToList();
-            
-        // new int[] = {18, 25, 34  }
+        
         var totalCount = users.Count();
         var usersWithBirthday = users.Where(user => user.Birthday.Year > 1900);
-        var under18Count =  usersWithBirthday.Count(user => DateTime.Now.Year - user.Birthday.Year < 18 );
-        var between18_25Count =  usersWithBirthday.Count(user => DateTime.Now.Year - user.Birthday.Year >= 18 &&  DateTime.Now.Year - user.Birthday.Year <= 25);
+        
+        var ageRanges = new List<(string RangeName, int MinAge, int MaxAge)>
+        {
+            ("Under18", 0, 18),
+            ("Between18_25", 18, 26),
+            ("Between26_34", 26, 35),
+            ("Between35_44", 35, 45),
+            ("Between45_54", 45, 55),
+            ("Between55_64", 55, 65),
+            ("Over65", 65, int.MaxValue)
+        };
 
-        return null;
+        var ageCounts = new Dictionary<string, int>();
+
+        foreach (var range in ageRanges)
+        {
+            // var count = usersWithBirthday.Count(user =>
+            //     user.Birthday.Year <= DateTime.Now.Year - range.MinAge &&
+            //     user.Birthday.Year >= DateTime.Now.Year - range.MaxAge);
+            var count = usersWithBirthday.Count(user =>
+                (DateTime.Now - user.Birthday).TotalDays  / 365.25 >= range.MinAge &&
+                (DateTime.Now - user.Birthday).TotalDays / 365.25 < range.MaxAge);
+
+            ageCounts[range.RangeName] = count;
+        }
+        var userDto = ObjectMapper.Map<List<AgeReportDto>>(users);
+        var ageReportOutput = new AgeReportOutput
+        {
+            Data = userDto,
+            TotalCount = totalCount
+        };
+        foreach (var ageCount in ageCounts)
+        {
+            var propertyName = ageCount.Key + "Count";
+            var propertyInfo = ageReportOutput.GetType().GetProperty(propertyName);
+        
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(ageReportOutput, ageCount.Value);
+            }
+        }
+        return ageReportOutput;
+    }
+    private BirthdayReportOutput GetBirthdayReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input).ToList();
+        
+        var totalCount = users.Count();
+        var usersWithBirthday = users.Where(user => user.Birthday.Year > 1900);
+
+        var months = new List<(string MonthName, int MonthOrder)>
+        {
+            ( "January",1 ),
+            ( "February",2 ),
+            ( "March",3 ),
+            ( "April",4 ),
+            ( "May",5 ),
+            ( "June",6 ),
+            ( "July",7 ),
+            ( "August",8 ),
+            ( "September",9 ),
+            ( "October",10 ),
+            ( "November",11 ),
+            ( "December",12 )
+        };
+
+        var monthCounts = new Dictionary<string, int>();
+
+        foreach (var month in months)
+        {
+            var count = usersWithBirthday.Count(user => user.Birthday.Month == month.MonthOrder);
+            monthCounts[month.MonthName] = count;
+        }
+        var userDto = ObjectMapper.Map<List<BirthdayReportDto>>(users);
+        var birthdayReportOutput = new BirthdayReportOutput
+        {
+            Data = userDto,
+            TotalCount = totalCount
+        };
+        foreach (var monthCount in monthCounts)
+        {
+            var propertyName = monthCount.Key + "Count";
+            var propertyInfo = birthdayReportOutput.GetType().GetProperty(propertyName);
+        
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(birthdayReportOutput, monthCount.Value);
+            }
+        }
+        return birthdayReportOutput;
     }
 
     private JobTitleReportOutput GetJobTitleReport(ReportInput input)
