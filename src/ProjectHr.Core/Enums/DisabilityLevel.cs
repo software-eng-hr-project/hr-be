@@ -1,16 +1,10 @@
-﻿using ProjectHr.Extensions;
-
-namespace ProjectHr.Enums;
+﻿namespace ProjectHr.Enums;
 
 public enum DisabilityLevel
 {
-    [AlternateValue("Yok")]
-    None= 1,
-    [AlternateValue("Birinci Derece")]
-    FirstDegree,
-    [AlternateValue("İkinci Derece")]
-    SecondDegree,
-    [AlternateValue(" Üçüncü Derece")]
-    ThirdDegree,
+    Yok = 1,
+    BirinciDerece,
+    İkinciDerece,
+    ÜçüncüDerece,
 
 }

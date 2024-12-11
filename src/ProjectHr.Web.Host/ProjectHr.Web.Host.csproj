@@ -76,11 +76,5 @@
   <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
     <Copy SourceFiles="..\ProjectHr.EntityFrameworkCore\EntityFrameworkCore\Seed\TechStack\TechStacks.json" DestinationFolder="$(PublishDir)" />
   </Target>
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="..\ProjectHr.EntityFrameworkCore\EntityFrameworkCore\Seed\DayOffType\DayOffTypes.json" DestinationFolder="$(OutDir)" />
-  </Target>
-  <Target Name="CopyCustomContentOnPublish" AfterTargets="Publish">
-    <Copy SourceFiles="..\ProjectHr.EntityFrameworkCore\EntityFrameworkCore\Seed\DayOffType\DayOffTypes.json" DestinationFolder="$(PublishDir)" />
-  </Target>
 
 </Project>

@@ -1,22 +1,13 @@
-﻿using ProjectHr.Extensions;
-
-namespace ProjectHr.Enums;
+﻿namespace ProjectHr.Enums;
 
 public enum EducationStatus
 {
-    [AlternateValue("İlkokul")]
-    PrimarySchool= 1,
-    [AlternateValue("Ortaokul")]
-    MiddleSchool,
-    [AlternateValue("Lise")]
-    HighSchool,
-    [AlternateValue("Ön Lisans")]
-    AssociateDegree,
-    [AlternateValue("Lisans")]
-    BachelorsDegree,
-    [AlternateValue("Yüksek Lisans")]
-    MasterDegree,
-    [AlternateValue("Doktora")]
-    PhdDegree
+    İlkokul= 1,
+    Ortaokul,
+    Lise,
+    ÖnLisans,
+    Lisans,
+    YüksekLisans,
+    Doktora
     
 }

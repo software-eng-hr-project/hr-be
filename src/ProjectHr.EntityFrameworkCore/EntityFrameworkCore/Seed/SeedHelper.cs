@@ -10,7 +10,6 @@ using ProjectHr.EntityFrameworkCore.Seed.Host;
 using ProjectHr.EntityFrameworkCore.Seed.JobTitle;
 using ProjectHr.EntityFrameworkCore.Seed.TechStack;
 using ProjectHr.EntityFrameworkCore.Seed.Tenants;
-using ProjectHr.EntityFrameworkCore.Seed.DayOffType;
 using ProjectHr.EntityFrameworkCore.Seed.WorkDate;
 
 namespace ProjectHr.EntityFrameworkCore.Seed
@@ -31,7 +30,6 @@ namespace ProjectHr.EntityFrameworkCore.Seed
             new TechStackSeed(context).Create();
             new EmployeeLayoffSeed(context).Create();
             new WorkScheduleSeed(context).Create();
-            new DayOffTypeSeed(context).Create();
             // Host seed
             new InitialHostDbBuilder(context).Create();
 

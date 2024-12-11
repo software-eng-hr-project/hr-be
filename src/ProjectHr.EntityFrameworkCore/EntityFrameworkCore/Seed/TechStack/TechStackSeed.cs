@@ -17,10 +17,10 @@ public class TechStackSeed
 
     public void Create()
     {
-        CreateTechStackSeeds();
+        CreateJobTitleSeeds();
     }
 
-    public void CreateTechStackSeeds()
+    public void CreateJobTitleSeeds()
     {
         string filePath = Path.Combine(
             Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "EntityFrameworkCore", "Seed", "TechStack",

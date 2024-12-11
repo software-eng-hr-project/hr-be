@@ -31,7 +31,7 @@ public class GetUserGeneralInfo : EntityDto<long>
     [CanBeNull]
     public string WorkPhone { get; set; } = null;
 
-    public EmploymentType EmploymentType { get; set; }
+    public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
 
 
     public DateTime JobStartDate { get; set; }
@@ -44,6 +44,5 @@ public class GetUserGeneralInfo : EntityDto<long>
     
     public bool IsActive { get; set; }
     
-    public string[] RoleNames { get; set; }
     public string[] Projects { get; set; }
 }

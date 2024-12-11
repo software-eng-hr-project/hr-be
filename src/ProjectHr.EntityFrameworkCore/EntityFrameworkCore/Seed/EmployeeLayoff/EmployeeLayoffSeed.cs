@@ -17,10 +17,10 @@ public class EmployeeLayoffSeed
 
     public void Create()
     {
-        CreateEmployeeLayoffSeeds();
+        CreateJobTitleSeeds();
     }
 
-    public void CreateEmployeeLayoffSeeds()
+    public void CreateJobTitleSeeds()
     {
         string filePath = Path.Combine(
             Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "EntityFrameworkCore", "Seed", "EmployeeLayoff",

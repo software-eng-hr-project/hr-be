@@ -49,17 +49,12 @@ public class MailService : ProjectHrAppServiceBase, IMailService
         user.PasswordResetCode = token;
         await _userRepository.UpdateAsync(user);
 
-        var qnqLogo = _emailSettings.ClientURL + "/assets/qnq-logo1-bd19a9b7.svg";
-        var qnqLogoWithText = _emailSettings.ClientURL + "/assets/qnq-logo-text-9530855f.svg";
         var link = _emailSettings.ClientURL;
         var linkWithToken = string.Format($"{link}/reset-password?token={System.Web.HttpUtility.UrlEncode(token)}");
 
         var template = _sesService.GetEmailTemplate(EmailType.PasswordReset, new Dictionary<string, string>()
         {
             { "#link_with_token", linkWithToken },
-            {"#qnqLogo", qnqLogo},
-            {"#qnqLogoWithText", qnqLogoWithText},
-            
         });
 
 

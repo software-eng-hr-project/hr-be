@@ -42,8 +42,5 @@
     <None Update="EntityFrameworkCore\Seed\WorkSchedule\WorkDate.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="EntityFrameworkCore\Seed\DayOffType\DayOffTypes.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 </Project>

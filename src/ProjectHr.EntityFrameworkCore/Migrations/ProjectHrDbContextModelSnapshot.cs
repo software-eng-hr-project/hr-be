@@ -1367,22 +1367,6 @@ namespace ProjectHr.Migrations
                     b.ToTable("AbpWebhookSubscriptions");
                 });
 
-            modelBuilder.Entity("Bugsnag.Payload.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
-                });
-
             modelBuilder.Entity("ProjectHr.Authorization.Roles.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -1571,9 +1555,6 @@ namespace ProjectHr.Migrations
                     b.Property<bool>("IsSpouseWorking")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsThemeLight")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsTwoFactorEnabled")
                         .HasColumnType("boolean");
 
@@ -1687,95 +1668,6 @@ namespace ProjectHr.Migrations
                     b.HasIndex("TenantId", "NormalizedUserName");
 
                     b.ToTable("AbpUsers");
-                });
-
-            modelBuilder.Entity("ProjectHr.Entities.DayOffRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<long?>("CreatorUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("DayOffTypeId")
-                        .HasColumnType("integer");
-
-                    b.Property<long?>("DeleterUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<long?>("LastModifierUserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UsedDays")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.Property<long?>("UserId1")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DayOffTypeId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
-
-                    b.ToTable("DayOffRequests");
-                });
-
-            modelBuilder.Entity("ProjectHr.Entities.DayOffType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("MaxAllowedDaysCount")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<int>("SpecificGender")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DayOffType");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.EmployeeLayoff", b =>
@@ -2380,27 +2272,6 @@ namespace ProjectHr.Migrations
                     b.Navigation("LastModifierUser");
                 });
 
-            modelBuilder.Entity("ProjectHr.Entities.DayOffRequest", b =>
-                {
-                    b.HasOne("ProjectHr.Entities.DayOffType", "DayOffType")
-                        .WithMany("DayOffRequests")
-                        .HasForeignKey("DayOffTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bugsnag.Payload.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("ProjectHr.Authorization.Users.User", null)
-                        .WithMany("DayOffRequests")
-                        .HasForeignKey("UserId1");
-
-                    b.Navigation("DayOffType");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ProjectHr.Entities.EmployeeLayoffInfo", b =>
                 {
                     b.HasOne("ProjectHr.Entities.EmployeeLayoff", "EmployeeLayoff")
@@ -2552,8 +2423,6 @@ namespace ProjectHr.Migrations
                 {
                     b.Navigation("Claims");
 
-                    b.Navigation("DayOffRequests");
-
                     b.Navigation("Logins");
 
                     b.Navigation("Permissions");
@@ -2565,11 +2434,6 @@ namespace ProjectHr.Migrations
                     b.Navigation("Settings");
 
                     b.Navigation("Tokens");
-                });
-
-            modelBuilder.Entity("ProjectHr.Entities.DayOffType", b =>
-                {
-                    b.Navigation("DayOffRequests");
                 });
 
             modelBuilder.Entity("ProjectHr.Entities.EmployeeLayoff", b =>

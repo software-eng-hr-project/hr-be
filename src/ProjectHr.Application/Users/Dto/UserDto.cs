@@ -46,7 +46,7 @@ namespace ProjectHr.Users.Dto
         public string WorkPhone { get; set; }
         
         [Required]
-        public EmploymentType EmploymentType { get; set; }
+        public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
         
         [Required]
         public DateTime JobStartDate { get; set; }
@@ -89,8 +89,7 @@ namespace ProjectHr.Users.Dto
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string EmergencyContactPhone { get; set; }
-
-        public EmployeeLayoffInfoWithLayoffNameDto EmployeeLayoffInfo { get; set; }
+        
         
     }
 }
