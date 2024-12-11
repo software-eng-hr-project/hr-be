@@ -94,8 +94,9 @@ namespace ProjectHr.Users
             try
             {
                 CheckCreatePermission();
-                
-                input.AvatarUrl =
+
+                if (!input.AvatarUrl.IsNullOrEmpty())
+                    input.AvatarUrl =
                     await _s3Service.UploadPhotoFromBase64Async(input.AvatarUrl, Guid.NewGuid().ToString());
 
                 var user = ObjectMapper.Map<User>(input);
