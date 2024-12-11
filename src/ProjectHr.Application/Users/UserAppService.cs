@@ -35,6 +35,7 @@ using ProjectHr.DataAccess.Dto;
 using ProjectHr.ExportFiles;
 using ProjectHr.ProjectMembers.Dto;
 using ProjectHr.Projects.Dto;
+using ProjectHr.S3Bucket;
 
 namespace ProjectHr.Users
 {
@@ -53,6 +54,7 @@ namespace ProjectHr.Users
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IRepository<Project> _projectRepository;
         private readonly IRepository<EmployeeLayoffInfo> _employeeLayoffInfoRepository;
+        private readonly IS3BucketService _s3Service;
         private readonly IMailService _mailService;
 
         public UserAppService(
@@ -66,6 +68,7 @@ namespace ProjectHr.Users
             IHttpContextAccessor httpContextAccessor,
             IRepository<Project> projectRepository,
             IRepository<EmployeeLayoffInfo> employeeLayoffInfoRepository,
+            IS3BucketService s3Service,
             IMailService mailService
         )
             : base(userRepository)
@@ -79,6 +82,7 @@ namespace ProjectHr.Users
             _httpContextAccessor = httpContextAccessor;
             _projectRepository = projectRepository;
             _employeeLayoffInfoRepository = employeeLayoffInfoRepository;
+            _s3Service = s3Service;
             _mailService = mailService;
             _userRepository = userRepository;
         }
@@ -90,6 +94,9 @@ namespace ProjectHr.Users
             try
             {
                 CheckCreatePermission();
+                
+                input.AvatarUrl =
+                    await _s3Service.UploadPhotoFromBase64Async(input.AvatarUrl, Guid.NewGuid().ToString());
 
                 var user = ObjectMapper.Map<User>(input);
 
@@ -110,6 +117,7 @@ namespace ProjectHr.Users
                     CheckErrors(await _userManager.SetRolesAsync(user, input.RoleNames));
                 }
 
+                
                 CurrentUnitOfWork.SaveChanges();
 
                 await _mailService.InviteUserMail(user.EmailAddress);
@@ -441,6 +449,20 @@ namespace ProjectHr.Users
                 x.ProjectMembers.Where(y => y.IsManager == true || y.JobTitle.Name == "Team Lead").ToList());
             
             var userProjectsDto = ObjectMapper.Map<List<CareerPageProjectDto>>(userProjects);
+            foreach (var projectDto in userProjectsDto)
+            {
+                var project = userProjects.FirstOrDefault(x => x.Id == projectDto.Id);
+                if (project != null)
+                {
+                    var teamLeadMember = project.ProjectMembers.FirstOrDefault(pm => pm.JobTitle.Name == "Team Lead");
+                    var projectMember = project.ProjectMembers.FirstOrDefault(pm => pm.IsManager );
+                    var profileOwner = project.ProjectMembers.FirstOrDefault(pm => pm.UserId == abpSessionUserId);
+                    projectDto.TeamLead = ObjectMapper.Map<ProjectMemberWithJustNameDto>(teamLeadMember);
+                    projectDto.Manager = ObjectMapper.Map<ProjectMemberWithJustNameDto>(projectMember);
+                    projectDto.ProfileOwner = ObjectMapper.Map<ProjectMemberWithJustNameDto>(profileOwner);
+
+                }
+            }
             return userProjectsDto;
         }
 
