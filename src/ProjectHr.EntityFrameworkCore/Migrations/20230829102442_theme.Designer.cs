@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjectHr.EntityFrameworkCore;
@@ -11,9 +12,11 @@ using ProjectHr.EntityFrameworkCore;
 namespace ProjectHr.Migrations
 {
     [DbContext(typeof(ProjectHrDbContext))]
-    partial class ProjectHrDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230829102442_theme")]
+    partial class theme
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
