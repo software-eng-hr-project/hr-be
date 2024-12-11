@@ -1,0 +1,82 @@
+﻿[
+  {
+    "Id": 1,
+    "Name": "Evlilik İzni",
+    "Description": "Kişinin evlenmesi nedeniyle üç gün süreyle verilen izindir",
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 0
+  },
+  {
+    "Id": 2,
+    "Name": "Doğum İzni",
+    "Description": null,
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 2
+  },
+  {
+    "Id": 3,
+    "Name": "Vefat İzni",
+    "Description": "Kişinin ana veya babasının, eşinin, kardeşinin, çocuğunun ölümü hâlinde üç gün süreyle verilen izindir.",
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 0
+  },
+  {
+    "Id": 4,
+    "Name": "Babalık İzni",
+    "Description": "Kişinin eşinin doğum yapması hâlinde beş gün süreyle verilen izindir.",
+    "MaxAllowedDaysCount": 5,
+    "IsPaid": true,
+    "SpecificGender": 1
+  },
+  {
+    "Id": 5,
+    "Name": "Evlat Edinme İzni",
+    "Description": "Kişinin evlat edinmesi durumunda üç gün süreyle verilen izindir.",
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 0
+  },
+  {
+    "Id": 6,
+    "Name": "Engelli Çocuk İzni",
+    "Description": "Kişinin en az yüzde yetmiş oranında engelli veya süreğen hastalığı olan çocuğunun tedavisinde, hastalık raporuna dayalı olarak bir yıl içinde on gün süreyle verilen izindir.",
+    "MaxAllowedDaysCount": 10,
+    "IsPaid": true,
+    "SpecificGender": 0
+  },
+  {
+    "Id": 7,
+    "Name": "Süt İzni",
+    "Description": null,
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 2
+  },
+  {
+    "Id": 8,
+    "Name": "İş Arama İzni",
+    "Description": null,
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 0
+  },
+  {
+    "Id": 9,
+    "Name": "Yıllık İzin",
+    "Description": null,
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": true,
+    "SpecificGender": 0
+  },
+  {
+    "Id": 10,
+    "Name": "Doğum Sonrası İzni",
+    "Description": null,
+    "MaxAllowedDaysCount": 3,
+    "IsPaid": false,
+    "SpecificGender": 2
+  }
+]

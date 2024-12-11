@@ -33,10 +33,9 @@ public class S3BucketService : IS3BucketService
 
     public async Task<string> UploadPhotoFromBase64Async(string base64String, string objectKey)
     {
-        var contentType = base64String.Split(",");
         try
         {
-            var data = Convert.FromBase64String(contentType[1]);
+            var data = Convert.FromBase64String(base64String);
 
             using MemoryStream stream = new MemoryStream(data);
             var request = new PutObjectRequest
@@ -44,12 +43,12 @@ public class S3BucketService : IS3BucketService
                 BucketName = BucketName,
                 Key = objectKey,
                 InputStream = stream,
-                ContentType = contentType[0].Split(":")[1].Split(";")[0] 
+                ContentType = "image/jpeg" // Set the appropriate content type
             };
 
             var response = await _s3Client.PutObjectAsync(request);
 
-            return response.HttpStatusCode == HttpStatusCode.OK ? BaseUrl + objectKey : null;
+            return response.HttpStatusCode == HttpStatusCode.OK ? $"Successfully uploaded photo to S3: {objectKey}" : $"Failed to upload photo to S3: {objectKey}";
         }
         catch (Exception ex)
         {

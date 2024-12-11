@@ -258,3 +258,4 @@ src/ProjectHr.Migrator/secrets.json
 App_Data/Logs/*
 /src/ProjectHr.Web.Host/App_Data/Logs/*
 appsettings.json
+/src/ProjectHr.Web.Host/appsettings.json
