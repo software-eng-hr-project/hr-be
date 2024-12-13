@@ -78,5 +78,7 @@ namespace ProjectHr.Authorization.Users
         
         [CanBeNull] public ICollection<TechStack> TechStack { get; set; }
 
+        public bool IsThemeLight { get; set; } = true;
+
     }
 }

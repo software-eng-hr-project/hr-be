@@ -1555,6 +1555,9 @@ namespace ProjectHr.Migrations
                     b.Property<bool>("IsSpouseWorking")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsThemeLight")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsTwoFactorEnabled")
                         .HasColumnType("boolean");
 
