@@ -50,8 +50,8 @@ public class ReportAppService : ProjectHrAppServiceBase
             return GetMilitaryReport(input);
         if (reportParams == ReportParams.Education)
             return GetEducationReport(input);
-        if (reportParams == ReportParams.EmploymentType)
-            return GetEmploymentTypeReport(input);
+        if (reportParams == ReportParams.Employmee)
+            return GetEmploymeeReport(input);
         if (reportParams == ReportParams.BloodType)
             return GetBloodTypeReport(input);
         if (reportParams == ReportParams.Disability)
@@ -66,7 +66,7 @@ public class ReportAppService : ProjectHrAppServiceBase
             return GetJobTitleReport(input);
         
 
-        throw new UserFriendlyException("Invalid report type");
+        throw new UserFriendlyException("Geçersiz rapor tipi");
     }
     private GenderReportOutput GetGenderReport(ReportInput input)
     {
@@ -123,17 +123,17 @@ public class ReportAppService : ProjectHrAppServiceBase
         SetCounts(educationReportOutput, educationStatusCounts);
         return educationReportOutput;
     }
-    private EmploymentTypeReportOutput GetEmploymentTypeReport(ReportInput input)
+    private EmployeeReportOutput GetEmploymeeReport(ReportInput input)
     {
-        var users = GetUserWithFilter(input);
+        var users = GetUserWithFilter(input).Include(x => x.JobTitle);
 
         var totalCount = users.Count();
         var employmentTypeCounts = Enum.GetValues(typeof(EmploymentType))
             .Cast<EmploymentType>()
             .ToDictionary(type => type, type => users.Count(x => x.EmploymentType == type));
 
-        var userDto = ObjectMapper.Map<List<EmploymentTypeReportDto>>(users);
-        var employmentReportOutput = new EmploymentTypeReportOutput()
+        var userDto = ObjectMapper.Map<List<EmployeeReportDto>>(users);
+        var employmentReportOutput = new EmployeeReportOutput()
         {
             Data = userDto, 
             TotalCount = totalCount

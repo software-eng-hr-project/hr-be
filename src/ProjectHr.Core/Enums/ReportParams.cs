@@ -5,7 +5,7 @@ public enum ReportParams
     Gender = 1,
     Education,
     Military,
-    EmploymentType,
+    Employmee,
     Age,
     BloodType,
     Birthday,

@@ -84,7 +84,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Create_User)]
-        [HttpPost("/api/admin/users")]
+        [HttpPost]
         public override async Task<UserDto> CreateAsync(CreateUserDto input)
         {
             try
@@ -124,7 +124,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Delete_User)]
-        [HttpDelete("/api/admin/users")]
+        [HttpDelete]
         public override async Task DeleteAsync(EntityDto<long> input)
         {
             var user = await _userManager.GetUserByIdAsync(input.Id);
@@ -132,7 +132,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("/api/admin/users/activate/{userId}")]
+        [HttpPost("activate/{userId}")]
         public async Task Activate(long userId)
         {
             await Repository.UpdateAsync(userId, async (entity) =>
@@ -146,7 +146,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.ActiveOrDisabled_User)]
-        [HttpPost("/api/admin/users/de-activate/{userId}")]
+        [HttpPost("de-activate/{userId}")]
         public async Task DeActivate(EmployeeLayoffInfoDto input, long userId)
         {
             var layoffInfo = new EmployeeLayoffInfo()
@@ -294,7 +294,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Update_Info_User)]
-        [HttpPut("/api/admin/users/{userId}")]
+        [HttpPut("{userId}")]
         public async Task<UserDto> UpdateAllInfo(UserAllUpdateDto input, long userId)
         {
             try
@@ -323,7 +323,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.Update_Info_User)]
-        [HttpPut("/api/admin/users/{userId}/role")]
+        [HttpPut("{userId}/role")]
         public async Task<UserDto> UpdateRole(UserRoleUpdateDto input, long userId)
         {
             var user = _userRepository.GetAll()
@@ -431,7 +431,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.View_Info_User)]
-        [HttpGet("/api/admin/users/{userId}")]
+        [HttpGet("{userId}")]
         public async Task<UserDto> GetUserByIdAdmin(long userId)
         {
             var user = _userRepository.GetAll()
@@ -470,7 +470,7 @@ namespace ProjectHr.Users
         }
 
         [AbpAuthorize(PermissionNames.List_Role)]
-        [HttpGet("/api/admin/users/roles")]
+        [HttpGet("users-with-role")]
         public async Task<List<UserDto>> GetAllUsersWithRole(PagedUserResultRequestDto input)
         {
             var users = await _userRepository.GetAll()

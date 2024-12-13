@@ -26,7 +26,7 @@ public class ReportMapProfile : Profile
         CreateMap<User, EducationReportDto>()
             .ForMember(dest => dest.HigherEducationStatus, opt => opt
                 .MapFrom(src => src.HigherEducationStatus.GetAlternateValue()));
-        CreateMap<User, EmploymentTypeReportDto>()
+        CreateMap<User, EmployeeReportDto>()
             .ForMember(dest => dest.EmploymentType, opt => opt
                 .MapFrom(src => src.EmploymentType.GetAlternateValue()));
         CreateMap<User, BloodTypeReportDto>()
