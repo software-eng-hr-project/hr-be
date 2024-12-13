@@ -1,9 +1,12 @@
 ﻿using System.Text.Json.Serialization;
+using ProjectHr.Extensions;
 
 namespace ProjectHr.Enums;
 
 public enum EmploymentType
 {
-    TamZamanlı = 1,
-    YarıZamanlı
+    [AlternateValue("Tam Zamanlı")]
+    FullTime = 1,
+    [AlternateValue("Yarı Zamanlı")]
+    PartTime
 }

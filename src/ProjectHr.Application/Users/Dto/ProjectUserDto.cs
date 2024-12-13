@@ -37,7 +37,7 @@ public class ProjectUserDto: EntityDto<long>
     [CanBeNull]
     public string WorkPhone { get; set; } = null;
 
-    public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
+    public EmploymentType EmploymentType { get; set; } = EmploymentType.FullTime;
 
 
     public DateTime JobStartDate { get; set; }

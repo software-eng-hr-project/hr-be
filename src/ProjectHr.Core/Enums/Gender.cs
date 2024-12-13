@@ -1,8 +1,13 @@
-﻿namespace ProjectHr.Enums;
+﻿using ProjectHr.Extensions;
+
+namespace ProjectHr.Enums;
 
 public enum Gender
 {
-    Erkek= 1,
-    Kadın,
-    Diğer,
+    [AlternateValue("Erkek")]
+    Male= 1,
+    [AlternateValue("Kadın")]
+    Female,
+    [AlternateValue("Diğer")]
+    Other,
 }

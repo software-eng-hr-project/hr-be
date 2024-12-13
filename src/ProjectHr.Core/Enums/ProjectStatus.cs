@@ -1,10 +1,17 @@
-﻿namespace ProjectHr.Enums;
+﻿using ProjectHr.Extensions;
+
+namespace ProjectHr.Enums;
 
 public enum ProjectStatus
 {
-        Taslak = 1,
-        Başlamadı ,
-        DevamEdiyor,
-        Tamamlandı,
-        İptalEdildi
+        [AlternateValue("Taslak")]
+        Draft = 1,
+        [AlternateValue("Başlamadı ")]
+        NotStarted,
+        [AlternateValue("Devam Ediyor")]
+        InProgress,
+        [AlternateValue("Tamamlandı")]
+        Completed,
+        [AlternateValue("İptal Edildi")]
+        Cancelled 
 }

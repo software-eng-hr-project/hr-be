@@ -32,6 +32,7 @@ using ProjectHr.Common.Errors;
 using ProjectHr.Common.Exceptions;
 using ProjectHr.Entities;
 using ProjectHr.DataAccess.Dto;
+using ProjectHr.ExportFiles;
 using ProjectHr.ProjectMembers.Dto;
 using ProjectHr.Projects.Dto;
 
@@ -409,35 +410,23 @@ namespace ProjectHr.Users
             var roleIds = user.Roles.Select(x => x.RoleId);
 
             userDtos.RoleNames = roles.Where(x => roleIds.Any(y => y == x.Id)).Select(x => x.Name).ToArray();
+            
 
             return userDtos;
         }
 
         [HttpGet("profile/career")]
-        public async Task<List<ProjectDto>> GetProfileCareerInfo()
+        public async Task<List<ProjectWithUserDto>> GetProfileCareerInfo()
         {
             var abpSessionUserId = AbpSession.GetUserId();
-
-            // var user = _userRepository.GetAll()
-            //     .Include(x => x.ProjectMembers)
-            //     .ThenInclude(x => x.JobTitle)
-            //     .Include(x => x.ProjectMembers)
-            //     .ThenInclude(x => x.Project)
-            //     .FirstOrDefault(x => x.Id == abpSessionUserId);
-            //
-            // if (user == null)
-            //     throw ExceptionHelper.Create(ErrorCode.UserCannotFound);
-            //
-            // var userDtos = ObjectMapper.Map<UserCareerDto>(user);
-            //
-            // return userDtos;
+            
             var userProjects = await _projectRepository.GetAll()
                 .Include(p => p.ProjectMembers)
                 .ThenInclude(p => p.JobTitle)
-                 .Include(p => p.ProjectMembers)
+                .Include(p => p.ProjectMembers)
                 .ThenInclude(p => p.User)
                 .Where(p => p.ProjectMembers.Any(pm => pm.UserId == abpSessionUserId)).ToListAsync();
-            var userProjectsDto = ObjectMapper.Map<List<ProjectDto>>(userProjects);
+            var userProjectsDto = ObjectMapper.Map<List<ProjectWithUserDto>>(userProjects);
             return userProjectsDto;
         }
 
@@ -446,6 +435,8 @@ namespace ProjectHr.Users
         public async Task<UserDto> GetUserByIdAdmin(long userId)
         {
             var user = _userRepository.GetAll()
+                .Include(x=>x.EmployeeLayoffInfo)
+                .ThenInclude(x => x.EmployeeLayoff)
                 .Include(x => x.Roles)
                 .Include(x => x.JobTitle)
                 .FirstOrDefault(x => x.Id == userId);
@@ -510,11 +501,6 @@ namespace ProjectHr.Users
         [HttpPost("email-check")]
         public async Task<ResetPasswordMailInput> UserEmailCheck(ResetPasswordMailInput input)
         {
-            await _mailService.ResetPassword(new ResetPasswordMailInput()
-            {
-                EmailAddress = input.EmailAddress
-            });
-
             var user = await _userRepository.GetAll().FirstOrDefaultAsync(u => u.EmailAddress == input.EmailAddress);
             if (user is null)
             {

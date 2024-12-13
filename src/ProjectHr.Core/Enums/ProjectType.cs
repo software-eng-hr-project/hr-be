@@ -1,7 +1,11 @@
-﻿namespace ProjectHr.Enums;
+﻿using ProjectHr.Extensions;
+
+namespace ProjectHr.Enums;
 
 public enum ProjectType
 {
-      İçProje = 1,
-      DışProje
+      [AlternateValue("İç Proje ")]
+      Internal = 1,
+      [AlternateValue("Dış Proje")]
+      External 
 }

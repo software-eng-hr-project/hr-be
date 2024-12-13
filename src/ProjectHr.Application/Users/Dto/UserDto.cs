@@ -46,7 +46,7 @@ namespace ProjectHr.Users.Dto
         public string WorkPhone { get; set; }
         
         [Required]
-        public EmploymentType EmploymentType { get; set; } = EmploymentType.TamZamanlı;
+        public string EmploymentType { get; set; }
         
         [Required]
         public DateTime JobStartDate { get; set; }
@@ -58,8 +58,8 @@ namespace ProjectHr.Users.Dto
         //additional
         public string AvatarUrl { get; set; } 
         
-        public Gender Gender { get; set; }
-        public MilitaryStatus MilitaryStatus { get; set; }
+        public string Gender { get; set; }
+        public string MilitaryStatus { get; set; }
         public DateTime Birthday { get; set; }
         public string Nationality { get; set; } 
         public string IdentityNumber { get; set; }
@@ -68,15 +68,15 @@ namespace ProjectHr.Users.Dto
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string PersonalPhone { get; set; } 
         
-        public BloodType BloodType { get; set; }
+        public string BloodType { get; set; }
         
-        public MarriedStatus MarriedStatus { get; set; }
+        public string MarriedStatus { get; set; }
         public bool IsSpouseWorking { get; set; }
         public int ChildrenCount { get; set; }
         
-        public DisabilityLevel DisabilityLevel { get; set; }
+        public string DisabilityLevel { get; set; }
         public bool IsGraduated { get; set; }
-        public EducationStatus HigherEducationStatus { get; set; }
+        public string HigherEducationStatus { get; set; }
         
         public string Country { get; set; }
         public string City { get; set; }
@@ -89,7 +89,8 @@ namespace ProjectHr.Users.Dto
         [Phone]
         [StringLength(AbpUserBase.MaxPhoneNumberLength)]
         public string EmergencyContactPhone { get; set; }
-        
+
+        public EmployeeLayoffInfoWithLayoffNameDto EmployeeLayoffInfo { get; set; }
         
     }
 }
