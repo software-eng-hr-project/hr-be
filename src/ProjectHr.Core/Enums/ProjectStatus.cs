@@ -6,12 +6,8 @@ public enum ProjectStatus
 {
         [AlternateValue("Taslak")]
         Draft = 1,
-        [AlternateValue("Başlamadı ")]
-        NotStarted,
-        [AlternateValue("Devam Ediyor")]
+        [AlternateValue("Aktif")]
         InProgress,
         [AlternateValue("Tamamlandı")]
         Completed,
-        [AlternateValue("İptal Edildi")]
-        Cancelled 
 }
