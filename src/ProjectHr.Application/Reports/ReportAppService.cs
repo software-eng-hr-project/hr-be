@@ -44,26 +44,31 @@ public class ReportAppService : ProjectHrAppServiceBase
     [HttpPost]
     public async Task<dynamic> GetReports([FromQuery] ReportParams reportParams, [FromBody] ReportInput input)
     {
-        if (reportParams == ReportParams.Gender)
-            return GetGenderReport(input);
-        if (reportParams == ReportParams.Military)
-            return GetMilitaryReport(input);
-        if (reportParams == ReportParams.Education)
-            return GetEducationReport(input);
-        if (reportParams == ReportParams.Employmee)
-            return GetEmploymeeReport(input);
-        if (reportParams == ReportParams.BloodType)
-            return GetBloodTypeReport(input);
-        if (reportParams == ReportParams.Disability)
-            return GetDisabilityLevelReport(input);
-        if (reportParams == ReportParams.MarriedStatus)
-            return GetMarriedStatusReport(input);
-        if (reportParams == ReportParams.Age)
-            return GetAgeReport(input);
-        if (reportParams == ReportParams.Birthday)
-            return GetBirthdayReport(input);
-        if (reportParams == ReportParams.JobTitle)
-            return GetJobTitleReport(input);
+        switch (reportParams)
+        {
+            case ReportParams.Gender:
+                return GetGenderReport(input);
+            case ReportParams.Military:
+                return GetMilitaryReport(input);
+            case ReportParams.Education:
+                return GetEducationReport(input);
+            case ReportParams.Employmee:
+                return GetEmploymeeReport(input);
+            case ReportParams.BloodType:
+                return GetBloodTypeReport(input);
+            case ReportParams.Disability:
+                return GetDisabilityLevelReport(input);
+            case ReportParams.MarriedStatus:
+                return GetMarriedStatusReport(input);
+            case ReportParams.Age:
+                return GetAgeReport(input);
+            case ReportParams.Birthday:
+                return GetBirthdayReport(input);
+            case ReportParams.JobTitle:
+                return GetJobTitleReport(input);
+            default:
+                throw new ArgumentException("Geçersiz rapor parametresi", nameof(reportParams));
+        }
         
 
         throw new UserFriendlyException("Geçersiz rapor tipi");
