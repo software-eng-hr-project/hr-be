@@ -16,6 +16,7 @@ using ProjectHr.Enums;
 using ProjectHr.Extensions;
 using ProjectHr.Reports.Dto;
 using ProjectHr.Reports.Dto.Age;
+using ProjectHr.Reports.Dto.Birthday;
 using ProjectHr.Reports.Dto.Blood;
 using ProjectHr.Reports.Dto.DisabilityLevel;
 using ProjectHr.Reports.Dto.Education;
@@ -59,10 +60,10 @@ public class ReportAppService : ProjectHrAppServiceBase
             return GetMarriedStatusReport(input);
         if (reportParams == ReportParams.Age)
             return GetAgeReport(input);
+        if (reportParams == ReportParams.Birthday)
+            return GetBirthdayReport(input);
         if (reportParams == ReportParams.JobTitle)
             return GetJobTitleReport(input);
-        // if (reportParams == ReportParams.JobTitle)
-        //     return GetJobTitleReport(input);
         
 
         throw new UserFriendlyException("Invalid report type");
@@ -210,12 +211,12 @@ public class ReportAppService : ProjectHrAppServiceBase
         
         var ageRanges = new List<(string RangeName, int MinAge, int MaxAge)>
         {
-            ("Under18", 0, 17),
-            ("Between18_25", 18, 25),
-            ("Between26_34", 26, 34),
-            ("Between35_44", 35, 44),
-            ("Between45_54", 45, 54),
-            ("Between55_64", 55, 64),
+            ("Under18", 0, 18),
+            ("Between18_25", 18, 26),
+            ("Between26_34", 26, 35),
+            ("Between35_44", 35, 45),
+            ("Between45_54", 45, 55),
+            ("Between55_64", 55, 65),
             ("Over65", 65, int.MaxValue)
         };
 
@@ -228,7 +229,7 @@ public class ReportAppService : ProjectHrAppServiceBase
             //     user.Birthday.Year >= DateTime.Now.Year - range.MaxAge);
             var count = usersWithBirthday.Count(user =>
                 (DateTime.Now - user.Birthday).TotalDays  / 365.25 >= range.MinAge &&
-                (DateTime.Now - user.Birthday).TotalDays / 365.25 <= range.MaxAge);
+                (DateTime.Now - user.Birthday).TotalDays / 365.25 < range.MaxAge);
 
             ageCounts[range.RangeName] = count;
         }
@@ -249,6 +250,54 @@ public class ReportAppService : ProjectHrAppServiceBase
             }
         }
         return ageReportOutput;
+    }
+    private BirthdayReportOutput GetBirthdayReport(ReportInput input)
+    {
+        var users = GetUserWithFilter(input).ToList();
+        
+        var totalCount = users.Count();
+        var usersWithBirthday = users.Where(user => user.Birthday.Year > 1900);
+
+        var months = new List<(string MonthName, int MonthOrder)>
+        {
+            ( "January",1 ),
+            ( "February",2 ),
+            ( "March",3 ),
+            ( "April",4 ),
+            ( "May",5 ),
+            ( "June",6 ),
+            ( "July",7 ),
+            ( "August",8 ),
+            ( "September",9 ),
+            ( "October",10 ),
+            ( "November",11 ),
+            ( "December",12 )
+        };
+
+        var monthCounts = new Dictionary<string, int>();
+
+        foreach (var month in months)
+        {
+            var count = usersWithBirthday.Count(user => user.Birthday.Month == month.MonthOrder);
+            monthCounts[month.MonthName] = count;
+        }
+        var userDto = ObjectMapper.Map<List<BirthdayReportDto>>(users);
+        var birthdayReportOutput = new BirthdayReportOutput
+        {
+            Data = userDto,
+            TotalCount = totalCount
+        };
+        foreach (var monthCount in monthCounts)
+        {
+            var propertyName = monthCount.Key + "Count";
+            var propertyInfo = birthdayReportOutput.GetType().GetProperty(propertyName);
+        
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(birthdayReportOutput, monthCount.Value);
+            }
+        }
+        return birthdayReportOutput;
     }
 
     private JobTitleReportOutput GetJobTitleReport(ReportInput input)
