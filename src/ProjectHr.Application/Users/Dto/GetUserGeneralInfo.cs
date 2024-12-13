@@ -44,5 +44,6 @@ public class GetUserGeneralInfo : EntityDto<long>
     
     public bool IsActive { get; set; }
     
+    public string[] RoleNames { get; set; }
     public string[] Projects { get; set; }
 }

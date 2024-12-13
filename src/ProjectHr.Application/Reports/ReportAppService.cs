@@ -67,11 +67,8 @@ public class ReportAppService : ProjectHrAppServiceBase
             case ReportParams.JobTitle:
                 return GetJobTitleReport(input);
             default:
-                throw new ArgumentException("Geçersiz rapor parametresi", nameof(reportParams));
+                throw new ArgumentException("Geçersiz rapor tipi", nameof(reportParams));
         }
-        
-
-        throw new UserFriendlyException("Geçersiz rapor tipi");
     }
     private GenderReportOutput GetGenderReport(ReportInput input)
     {
