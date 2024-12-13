@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Abp.Application.Services.Dto;
 using Abp.Authorization.Users;
 using ProjectHr.DataAccess.Dto;
 
 namespace ProjectHr.Users.Dto;
 
-public class UserRolesPageDto
+public class UserRolesPageDto : EntityDto
 {
     [Required]
     [StringLength(AbpUserBase.MaxNameLength)]
