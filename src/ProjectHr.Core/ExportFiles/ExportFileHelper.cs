@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using ClosedXML.Excel;
@@ -83,50 +84,76 @@ public class ExportFileHelper
         return bytes;
     }
 
-    public byte[] ExportPdf<T>(List<T> datas, string[] columns, string[] columnsName)
+public byte[] ExportPdf<T>(List<T> datas, string[] columns, string[] columnsName)
+{
+    using (MemoryStream ms = new MemoryStream())
     {
-        using (MemoryStream ms = new MemoryStream())
+        PdfDocument document = new PdfDocument();
+        XFont headerFont = new XFont("Arial", 12, XFontStyle.Bold);
+        XFont dataFont = new XFont("Arial", 12, XFontStyle.Regular);
+        
+        int maxRowsPerPage = 20; // Her sayfada gösterilecek maksimum satır sayısı
+        int rowCount = 0;
+        int currentPage = 1;
+
+        do
         {
-            PdfDocument document = new PdfDocument();
             PdfPage page = document.AddPage();
             XGraphics gfx = XGraphics.FromPdfPage(page);
-            XFont headerFont = new XFont("Arial", 12, XFontStyle.Bold);
-            XFont dataFont = new XFont("Arial", 12, XFontStyle.Regular);
+            page.Orientation = PdfSharpCore.PageOrientation.Landscape;
 
-            // Draw column headers
+            double[] columnWidths = new double[columns.Length];
             double xPosition = 50;
             double yPosition = 50;
 
-            foreach (string column in columnsName)
+            for (int i = 0; i < columns.Length; i++)
             {
+                string column = columnsName[i];
                 gfx.DrawString(column, headerFont, XBrushes.Black, xPosition, yPosition);
-                xPosition += 85;
+
+                double maxWidth = gfx.MeasureString(column, headerFont).Width;
+
+                foreach (T data in datas.Skip(rowCount).Take(maxRowsPerPage))
+                {
+                    string value = GetValueByPath(data, columns[i]);
+                    double textWidth = gfx.MeasureString(value, dataFont).Width;
+                    if (textWidth > maxWidth)
+                    {
+                        maxWidth = textWidth;
+                    }
+                }
+
+                columnWidths[i] = maxWidth + 10;
+                xPosition += columnWidths[i];
             }
 
             yPosition += 20;
 
-            // Draw data rows
-            foreach (T data in datas)
+            foreach (T data in datas.Skip(rowCount).Take(maxRowsPerPage))
             {
                 xPosition = 50;
 
-                foreach (string column in columns)
+                for (int i = 0; i < columns.Length; i++)
                 {
-                    string value = GetValueByPath(data, column);
+                    string value = GetValueByPath(data, columns[i]);
                     gfx.DrawString(value, dataFont, XBrushes.Black, xPosition, yPosition);
-                    xPosition += 70;
+                    xPosition += columnWidths[i];
                 }
 
                 yPosition += 20;
+                rowCount++;
             }
 
-            // Save the document to memory stream
-            document.Save(ms);
-            ms.Position = 0;
+            currentPage++;
 
-            return ms.ToArray();
-        }
+        } while (rowCount < datas.Count);
+
+        document.Save(ms);
+        ms.Position = 0;
+
+        return ms.ToArray();
     }
+}
 
     private static string GetValueByPath(object source, string path)
     {

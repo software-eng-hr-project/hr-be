@@ -25,9 +25,11 @@ using System.Text.Json.Serialization;
 using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
+using Amazon.Runtime.SharedInterfaces;
 using Amazon.SimpleEmailV2;
 using Bugsnag.AspNet.Core;
 using Newtonsoft.Json.Converters;
+using ProjectHr.S3Options;
 using ProjectHr.Users;
 
 namespace ProjectHr.Web.Host.Startup
@@ -67,6 +69,9 @@ namespace ProjectHr.Web.Host.Startup
                 
             };
 
+            services.Configure<EmailSettings>(options =>
+                _appConfiguration.GetSection(nameof(EmailSettings)).Bind(options));
+            services.Configure<S3Settings>(options => _appConfiguration.GetSection("S3Settings").Bind(options));
             services.AddDefaultAWSOptions(awsOptions);
 
             services.AddAWSService<IAmazonSimpleEmailServiceV2>();
