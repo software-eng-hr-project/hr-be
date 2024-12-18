@@ -15,7 +15,8 @@ public class ProjectWithUserDto: EntityDto
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     
-    public string Status { get; set; }
+    public ProjectType Type { get; set; }
+    public ProjectStatus Status { get; set; }
     
     [CanBeNull] public string Description { get; set; }
     

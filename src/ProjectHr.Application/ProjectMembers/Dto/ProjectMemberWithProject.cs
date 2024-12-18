@@ -11,8 +11,6 @@ public class ProjectMemberWithProject
     public long UserId { get; set; }
     
     public ProjectDto Project { get; set; }
-    
-    [CanBeNull] public string TeamName { get; set; }
 
     public bool IsManager { get; set; }
     

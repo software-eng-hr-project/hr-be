@@ -56,7 +56,6 @@ public class ProjectAppService : ProjectHrAppServiceBase
         member.ProjectId = project.Id;
         member.IsManager = true;
         member.JobTitleId = 6;
-        member.TeamName = "Proje Yöneticisi";
         project.ProjectMembers.Add(member);
         project.Status = ProjectStatus.Draft ;
         await _projectRepository.UpdateAsync(project);
@@ -108,7 +107,6 @@ public class ProjectAppService : ProjectHrAppServiceBase
             newMember.UserId = member.UserId;
             newMember.ProjectId = project.Id;
             newMember.IsManager = false;
-            newMember.TeamName = member.TeamName;
             newMember.JobTitleId = member.JobTitleId;
             newMember.IsContributing = true;
             
@@ -145,7 +143,6 @@ public class ProjectAppService : ProjectHrAppServiceBase
             manager.ProjectId = project.Id;
             manager.IsManager = true;
             manager.JobTitleId = 6;
-            manager.TeamName = "Proje Yöneticisi";
             updatedProject.ProjectMembers.Add(manager);
         }
 

@@ -1885,9 +1885,6 @@ namespace ProjectHr.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("TeamName")
-                        .HasColumnType("text");
-
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
 
