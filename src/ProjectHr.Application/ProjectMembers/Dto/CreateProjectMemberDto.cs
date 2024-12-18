@@ -8,8 +8,6 @@ public class CreateProjectMemberDto
     public long UserId { get; set; }
     
     public int JobTitleId { get; set; }
-    
-     [CanBeNull] public string TeamName { get; set; }
-     
+
 
 }
