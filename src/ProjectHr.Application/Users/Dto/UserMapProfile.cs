@@ -11,18 +11,7 @@ namespace ProjectHr.Users.Dto
         public UserMapProfile()
         {
             CreateMap<UserDto, User>();
-            CreateMap<User, UserDto>()
-                .ForMember(dest => dest.BloodType, opt => opt.MapFrom(src => src.BloodType.GetAlternateValue()))
-                .ForMember(dest => dest.DisabilityLevel,
-                    opt => opt.MapFrom(src => src.DisabilityLevel.GetAlternateValue()))
-                .ForMember(dest => dest.HigherEducationStatus,
-                    opt => opt.MapFrom(src => src.HigherEducationStatus.GetAlternateValue()))
-                .ForMember(dest => dest.EmploymentType,
-                    opt => opt.MapFrom(src => src.EmploymentType.GetAlternateValue()))
-                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender.GetAlternateValue()))
-                .ForMember(dest => dest.MarriedStatus, opt => opt.MapFrom(src => src.MarriedStatus.GetAlternateValue()))
-                .ForMember(dest => dest.MilitaryStatus,
-                    opt => opt.MapFrom(src => src.MilitaryStatus.GetAlternateValue()));
+            CreateMap<User, UserDto>();
             CreateMap<UserDto, User>()
                 .ForMember(x => x.Roles, opt => opt.Ignore())
                 .ForMember(x => x.CreationTime, opt => opt.Ignore());
@@ -33,9 +22,7 @@ namespace ProjectHr.Users.Dto
 
             CreateMap<UserOwnUpdateDto, User>();
             CreateMap<UserAllUpdateDto, User>();
-            CreateMap<User, GetUserGeneralInfo>()
-                .ForMember(dest => dest.EmploymentType,
-                    opt => opt.MapFrom(src => src.EmploymentType.GetAlternateValue()));
+            CreateMap<User, GetUserGeneralInfo>();
             CreateMap<User, ResetPasswordMailInput>();
             CreateMap<EmployeeLayoffInfo, EmployeeLayoffInfoWithLayoffNameDto>();
             CreateMap<EmployeeLayoff, EmployeeLayoffDto>();

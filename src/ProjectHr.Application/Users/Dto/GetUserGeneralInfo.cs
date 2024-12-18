@@ -31,7 +31,7 @@ public class GetUserGeneralInfo : EntityDto<long>
     [CanBeNull]
     public string WorkPhone { get; set; } = null;
 
-    public string EmploymentType { get; set; }
+    public EmploymentType EmploymentType { get; set; }
 
 
     public DateTime JobStartDate { get; set; }
