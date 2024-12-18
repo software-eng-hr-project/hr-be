@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using ProjectHr.Authorization.Users;
 using ProjectHr.Entities;
 using ProjectHr.DataAccess.Dto;
 
@@ -13,14 +16,17 @@ public class DataAccessAppService: ProjectHrAppServiceBase
 {
     private readonly IRepository<JobTitle, int> _jobTitleRepository;
     private readonly IRepository<EmployeeLayoff, int> _employeeLayoffRepository;
+    private readonly IRepository<User, long> _userRepository;
 
     public DataAccessAppService(
         IRepository<JobTitle, int> jobTitleRepository,
-        IRepository<EmployeeLayoff, int> employeeLayoffRepository
+        IRepository<EmployeeLayoff, int> employeeLayoffRepository,
+        IRepository<User, long> userRepository
         )
     {
         _jobTitleRepository = jobTitleRepository;
         _employeeLayoffRepository = employeeLayoffRepository;
+        _userRepository = userRepository;
     }
     
     [HttpGet("job-title")]
@@ -38,5 +44,11 @@ public class DataAccessAppService: ProjectHrAppServiceBase
         
         var employeeLayoffDtos = ObjectMapper.Map<List<EmployeeLayoffDto>>(employeeLayoffs);
         return employeeLayoffDtos;
+    }
+    [HttpGet("user-city")]
+    public async Task<List<string>> GetAllUsersCity()
+    {
+        var users = _userRepository.GetAllList().Where(x =>x.City != null).Select(x => x.City).Distinct().ToList();
+        return users;
     }
 }

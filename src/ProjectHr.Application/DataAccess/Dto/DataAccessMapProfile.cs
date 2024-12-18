@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using AutoMapper;
+using ProjectHr.Authorization.Users;
 using ProjectHr.Entities;
 
 namespace ProjectHr.DataAccess.Dto;
